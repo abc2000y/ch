@@ -11,13 +11,16 @@
             padding: 0;
             user-select: none;
             -webkit-user-select: none;
+            -webkit-touch-callout: none;
             -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
         body, html {
             width: 100%;
             height: 100%;
             height: 100dvh;
             overflow: hidden;
+            overscroll-behavior: none;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
             background-color: #050a14;
             color: #ffffff;
@@ -150,8 +153,12 @@
         body.at-cover .vessel-pill,
         body.at-cover .catch-banner,
         body.at-cover .top-hint,
-        body.at-cover .action-bar { display: none; }
-
+        body.at-cover .action-bar,
+        body.game-running .score-card,
+        body.game-running .vessel-pill,
+        body.game-running .catch-banner,
+        body.game-running .top-hint,
+        body.game-running .action-bar,
         body.game-running #helpBtn { display: none; }
 
         #helpBtn {
@@ -175,7 +182,6 @@
         }
         .catch-banner.show { opacity: 1; transform: translateY(0); }
 
-        /* 手机横屏专属紧凑调优 */
         @media screen and (orientation: landscape) and (max-height: 520px) {
             .cover-controls { margin-top: 16vh; gap: 7px; }
             .btn-glass { padding: 7px 28px; min-height: 36px; font-size: 14px; }
@@ -434,6 +440,27 @@
             const NET_IMG_SRC = 'assets/net.png';
 
             const portFullscreenBgEl = document.getElementById('portFullscreenBg');
+
+            function enterFullscreenSafe() {
+                const el = document.documentElement;
+                const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+                if (req && !document.fullscreenElement && !document.webkitFullscreenElement) {
+                    try {
+                        const promise = req.call(el);
+                        if (promise && typeof promise.catch === 'function') promise.catch(() => {});
+                    } catch (_) {}
+                }
+            }
+
+            function exitFullscreenSafe() {
+                const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+                if (exit && (document.fullscreenElement || document.webkitFullscreenElement)) {
+                    try {
+                        const promise = exit.call(document);
+                        if (promise && typeof promise.catch === 'function') promise.catch(() => {});
+                    } catch (_) {}
+                }
+            }
 
             LEVELS.forEach(lvl => {
                 lvl.resolvedClearImg = lvl.clearImg;
@@ -861,6 +888,7 @@
             function syncStageHud() { const lvl = getCurrentLevelConfig(); stageDisplayEl.textContent = `${lvl.name}/3 · ${lvl.waveName}`; }
 
             function startGameAtStage(startStageIdx = 0) {
+                enterFullscreenSafe();
                 const safeStage = clamp(startStageIdx, 0, maxUnlockedStage);
                 state.levelIndex = safeStage; state.score = 0; state.caughtCount = 0; state.vesselTier = 0;
                 state.celestialClock = 0; state.roundEnded = false; state.awaitingAnyKeyForPortButtons = false;
@@ -878,6 +906,7 @@
 
             function handleRoundContinueOrRestart() {
                 if (state.roundEnded && state.endReason === 'level_up') {
+                    enterFullscreenSafe();
                     state.levelIndex = Math.min(LEVELS.length - 1, state.levelIndex + 1);
                     state.celestialClock = 0; state.roundEnded = false; state.awaitingAnyKeyForPortButtons = false;
                     state.endReason = 'crash'; state.boatYNorm = BOAT_DEFAULT_Y_NORM; state.draggingBoat = false;
@@ -891,6 +920,7 @@
             }
 
             function returnToCover() {
+                exitFullscreenSafe();
                 state.gameStarted = false; state.roundEnded = false; state.awaitingAnyKeyForPortButtons = false;
                 state.draggingBoat = false; state.isBoosting = false; state.approachingPort = false;
                 roundOverlayEl.classList.remove('show', 'port-mode', 'port-fade-in', 'buttons-revealed');
@@ -970,7 +1000,6 @@
                 }
             }
 
-            // 进港前在船前方用半透明字提示
             function drawDockSignInFrontOfBoat(boatX, boatY, boatScale) {
                 if (!state.approachingPort || !state.gameStarted || state.roundEnded) return;
                 const pulse = 0.55 + 0.18 * Math.sin(state.time * 4.5);
@@ -1060,20 +1089,80 @@
                 return (Math.sin(phase + Math.sin(xNorm * 4.5 + time * 1.1) * 0.65) + Math.sin(phase * 2.1 - xNorm * 6.0 + time * 2.0) * 0.32 + Math.cos(xNorm * 3.2 - time * 1.3) * 0.25) * Math.pow(z, 1.75) * 68 * preset.amp;
             }
             function getCelestialPhase() { return ((state.celestialClock % DAY_CYCLE_SECONDS) + DAY_CYCLE_SECONDS) % DAY_CYCLE_SECONDS / DAY_CYCLE_SECONDS; }
+
+            // 太阳和月亮均从左（东）升起、向西（右）落下
             function computeCelestial(horizonY) {
                 const p = getCelestialPhase(), w = state.width, h = state.height;
-                let sun = { visible: false, x: w * 0.5, y: horizonY, size: 0 }, moon = { visible: false, x: w * 0.5, y: horizonY, size: 0 };
+                let sun = { visible: false, x: w * 0.18, y: horizonY, size: 0 };
+                let moon = { visible: false, x: w * 0.18, y: horizonY, size: 0 };
                 if (p <= 0.5) {
                     const t = p / 0.5, arc = Math.sin(t * Math.PI);
-                    sun = { visible: true, x: w * 0.5 + Math.cos(t * Math.PI) * w * 0.18, y: horizonY - arc * h * 1.15, size: Math.min(w, h) * (p > 0.34 ? 0.085 : 0.06) * (0.85 + 0.25 * arc) };
+                    sun = {
+                        visible: true,
+                        x: lerp(w * 0.18, w * 0.82, t),
+                        y: horizonY - arc * h * 1.08,
+                        size: Math.min(w, h) * (p > 0.34 ? 0.082 : 0.06) * (0.85 + 0.25 * arc)
+                    };
                 } else {
                     const t = (p - 0.5) / 0.5, arc = Math.sin(t * Math.PI);
-                    moon = { visible: true, x: w * 0.5 - Math.cos(t * Math.PI) * w * 0.16, y: horizonY - arc * h * 1.05, size: Math.min(w, h) * 0.055 * (0.9 + 0.2 * arc) };
+                    moon = {
+                        visible: true,
+                        x: lerp(w * 0.18, w * 0.82, t),
+                        y: horizonY - arc * h * 1.02,
+                        size: Math.min(w, h) * 0.056 * (0.9 + 0.2 * arc)
+                    };
                 }
                 const nightFactor = (p > 0.46 && p < 0.56) ? smoothstep(0.46, 0.56, p) : ((p >= 0.56 && p < 0.94) ? 1 : (p >= 0.94 ? 1 - smoothstep(0.94, 1.0, p) : (p <= 0.04 ? 1 - smoothstep(0.0, 0.04, p) : 0)));
                 const sunsetFactor = (p >= 0.30 && p < 0.42) ? smoothstep(0.30, 0.42, p) : ((p >= 0.42 && p < 0.50) ? 1 : ((p >= 0.50 && p < 0.56) ? 1 - smoothstep(0.50, 0.56, p) : 0));
                 return { sun, moon, nightFactor, sunsetFactor };
             }
+
+            // 绘制月牙形月亮
+        function drawCrescentMoon(x, y, radius) {
+    const r = radius;
+
+    ctx.save();
+    ctx.translate(x, y);
+    // 微微向东/斜上方仰起一点，更有夜空弯月的味道
+    ctx.rotate(-0.28);
+
+    // 1. 柔和外晕
+    const aura = ctx.createRadialGradient(0, 0, r * 0.15, 0, 0, r * 3.3);
+    aura.addColorStop(0, 'rgba(232, 242, 255, 0.34)');
+    aura.addColorStop(0.5, 'rgba(147, 197, 253, 0.11)');
+    aura.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = aura;
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 3.3, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 2. 单一闭合月牙路径：上下尖角收拢，外弧饱满、内弧内收
+    ctx.beginPath();
+    ctx.moveTo(r * 0.12, -r * 0.98);
+    ctx.bezierCurveTo(-r * 1.05, -r * 0.95, -r * 1.15, r * 0.92, r * 0.16, r * 0.98);
+    ctx.bezierCurveTo(-r * 0.36, r * 0.42, -r * 0.36, -r * 0.44, r * 0.12, -r * 0.98);
+    ctx.closePath();
+
+    // 月面微渐变（尖角与外缘略亮，内侧略柔）
+    const moonGrad = ctx.createLinearGradient(-r * 0.85, -r, r * 0.2, r);
+    moonGrad.addColorStop(0, '#ffffff');
+    moonGrad.addColorStop(0.55, '#eef5ff');
+    moonGrad.addColorStop(1, '#cfe2ff');
+
+    ctx.fillStyle = moonGrad;
+    ctx.shadowColor = 'rgba(191, 219, 254, 0.7)';
+    ctx.shadowBlur = 12;
+    ctx.fill();
+
+    // 3. 极细的边缘高光，让月牙在深色夜空里更利落
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = Math.max(0.8, r * 0.035);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+    ctx.stroke();
+
+    ctx.restore();
+}
+
             function parseColor(str) {
                 if (str.startsWith('#')) { let hex = str.slice(1); if (hex.length === 3) hex = hex.split('').map(c => c + c).join(''); return { r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16), a: 1 }; }
                 const m = str.match(/rgba?\(([^)]+)\)/);
@@ -1101,8 +1190,8 @@
                     ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(celestial.sun.x, celestial.sun.y, celestial.sun.size * 4.5, 0, Math.PI * 2); ctx.fill();
                     ctx.fillStyle = theme.sunColor; ctx.beginPath(); ctx.arc(celestial.sun.x, celestial.sun.y, celestial.sun.size, 0, Math.PI * 2); ctx.fill();
                 }
-                if (celestial.moon.visible && celestial.moon.y < horizonY + celestial.moon.size * 3) {
-                    ctx.fillStyle = '#e8f0ff'; ctx.beginPath(); ctx.arc(celestial.moon.x, celestial.moon.y, celestial.moon.size, 0, Math.PI * 2); ctx.fill();
+                if (celestial.moon.visible && celestial.moon.y < horizonY + celestial.moon.size * 3.5) {
+                    drawCrescentMoon(celestial.moon.x, celestial.moon.y, celestial.moon.size);
                 }
             }
 
@@ -1350,16 +1439,36 @@
                 updateBoatPosFromPointer(e.clientX, e.clientY);
             });
 
+            let lastPointerDownTime = 0;
+            canvas.addEventListener('dblclick', (e) => {
+                e.preventDefault();
+            });
+
             canvas.addEventListener('pointerdown', (e) => {
+                const now = performance.now();
+                if (now - lastPointerDownTime < 300 && e.pointerType === 'touch') {
+                    e.preventDefault();
+                }
+                lastPointerDownTime = now;
+
                 if (!state.gameStarted || state.roundEnded) return;
-                if (isPointerOnBoat(e.clientX, e.clientY)) { state.draggingBoat = true; updateBoatPosFromPointer(e.clientX, e.clientY); return; }
-                if (!tryCatchFishAt(e.clientX, e.clientY)) setBoost(true);
+                if (isPointerOnBoat(e.clientX, e.clientY)) {
+                    state.draggingBoat = true;
+                    updateBoatPosFromPointer(e.clientX, e.clientY);
+                    return;
+                }
+                if (!tryCatchFishAt(e.clientX, e.clientY)) {
+                    if (e.pointerType === 'touch') enterFullscreenSafe();
+                    setBoost(true);
+                }
             });
 
             window.addEventListener('keydown', (e) => {
                 if (state.awaitingAnyKeyForPortButtons) { e.preventDefault(); revealPortButtons(); return; }
                 heldKeys[e.code] = true;
                 if (e.code === 'Space') { e.preventDefault(); setBoost(true); }
+                else if (e.code === 'KeyR' && state.gameStarted && !state.roundEnded) { e.preventDefault(); startGameAtStage(state.levelIndex); }
+                else if (e.code === 'Escape' && state.gameStarted && !state.roundEnded) { e.preventDefault(); returnToCover(); }
             });
             window.addEventListener('keyup', (e) => { heldKeys[e.code] = false; if (e.code === 'Space') setBoost(false); });
 
