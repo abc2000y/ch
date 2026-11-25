@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>乘风破浪 · 三关远洋渔猎</title>
+    <title>Ride the Waves · Three-Stage Deep Sea Fishing</title>
     <style>
         * {
             box-sizing: border-box;
@@ -40,7 +40,7 @@
             @keyframes rotatePhone { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-90deg); } }
         }
 
-        /* 1. 封面层 */
+        /* 1. Cover Screen */
         .cover-screen {
             position: fixed; inset: 0; width: 100vw; width: 100dvw; height: 100vh; height: 100dvh;
             z-index: 100; display: flex; justify-content: center; align-items: center;
@@ -97,7 +97,7 @@
         .btn-glass:active { transform: translateY(2px); }
         .cover-tip { font-size: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85); min-height: 16px; }
 
-        /* 2. 游戏画布与 HUD */
+        /* 2. Game Canvas & HUD */
         canvas { position: fixed; inset: 0; display: block; width: 100%; height: 100%; z-index: 1; touch-action: none; }
         .top-hint {
             position: fixed;
@@ -149,6 +149,7 @@
         .score-num { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; font-weight: 800; color: #fbbf24; }
         .score-sub { font-size: 11px; color: rgba(255, 255, 255, 0.75); padding-left: 5px; border-left: 1px solid rgba(255, 255, 255, 0.18); }
 
+        body:not(.at-cover) #helpBtn { display: none !important; }
         body.at-cover .score-card,
         body.at-cover .vessel-pill,
         body.at-cover .catch-banner,
@@ -158,8 +159,7 @@
         body.game-running .vessel-pill,
         body.game-running .catch-banner,
         body.game-running .top-hint,
-        body.game-running .action-bar,
-        body.game-running #helpBtn { display: none; }
+        body.game-running .action-bar { display: none; }
 
         #helpBtn {
             pointer-events: auto; display: inline-flex; align-items: center; gap: 4px;
@@ -195,12 +195,12 @@
             }
         }
 
-        /* 3. Help 弹窗 */
+        /* 3. Help Modal */
         .help-modal {
             position: fixed;
             top: calc(54px + env(safe-area-inset-top));
             right: calc(12px + env(safe-area-inset-right));
-            z-index: 320; width: 310px;
+            z-index: 320; width: 316px;
             max-width: calc(100vw - 24px - env(safe-area-inset-left) - env(safe-area-inset-right));
             max-height: calc(100dvh - 76px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
             overflow-y: auto;
@@ -231,6 +231,7 @@
         .hud-label { font-size: 11px; color: rgba(255,255,255,0.72); font-weight: 600; }
         .hud-val { font-size: 11px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #fcd34d; font-weight: 700; }
         .seg-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: rgba(255,255,255,0.09); padding: 3px; border-radius: 10px; }
+        .seg-group.lang-grid { grid-template-columns: repeat(2, 1fr); }
         .seg-group.days-grid { grid-template-columns: repeat(4, 1fr); }
         .seg-btn { padding: 6px 4px; min-height: 32px; border: none; border-radius: 7px; background: transparent; color: rgba(255,255,255,0.75); font-size: 11.5px; font-weight: 600; cursor: pointer; }
         .seg-btn.active { background: rgba(251, 191, 36, 0.28); color: #fde68a; border: 1px solid rgba(251, 191, 36, 0.5); }
@@ -239,11 +240,11 @@
         #boostBtn { flex-shrink: 0; padding: 6px 12px; min-height: 32px; border: none; border-radius: 8px; background: rgba(245,158,11,0.9); color: #090d16; font-size: 11.5px; font-weight: 700; cursor: pointer; }
         #boostBtn.boosting { background: #fde047; }
 
-        /* 4. 结算层 */
+        /* 4. Round Summary Overlay */
         .round-overlay {
             position: fixed; inset: 0; z-index: 400; display: none; align-items: center; justify-content: center;
             background: rgba(5, 10, 20, 0.78); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            padding: calc(14px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left));
+            padding: calc(14px + env(safe-area-inset-top)) calc(108px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(108px + env(safe-area-inset-left));
         }
         .round-overlay.show { display: flex; }
 
@@ -284,135 +285,477 @@
             flex: 1; padding: 10px 12px; min-height: 40px; border-radius: 11px; border: 1px solid rgba(248,113,113,0.45);
             background: rgba(127,29,29,0.55); color: #fecaca; font-size: 12.5px; font-weight: 700; cursor: pointer;
         }
+
+        /* 5. Caught Fish Side Panels */
+        .caught-side-panel {
+            position: fixed;
+            top: calc(18px + env(safe-area-inset-top));
+            bottom: calc(18px + env(safe-area-inset-bottom));
+            width: 96px;
+            z-index: 430;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            overflow-y: auto;
+            padding: 6px 4px;
+            pointer-events: auto;
+            scrollbar-width: none;
+        }
+        .caught-side-panel::-webkit-scrollbar { display: none; }
+        .caught-side-panel.show { display: flex; }
+        .caught-side-panel.left { left: calc(10px + env(safe-area-inset-left)); }
+        .caught-side-panel.right { right: calc(10px + env(safe-area-inset-right)); }
+
+        .caught-side-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #fde68a;
+            background: rgba(8, 15, 28, 0.86);
+            border: 1px solid rgba(251, 191, 36, 0.38);
+            padding: 3px 8px;
+            border-radius: 999px;
+            text-align: center;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .caught-side-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+            width: 100%;
+        }
+        .fish-thumb-card {
+            position: relative;
+            width: 78px;
+            padding: 6px 4px 5px;
+            border-radius: 12px;
+            background: rgba(10, 20, 38, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.48);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            cursor: pointer;
+            transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+            flex-shrink: 0;
+        }
+        .fish-thumb-card:hover {
+            transform: translateY(-2px) scale(1.04);
+            border-color: #fbbf24;
+        }
+        .fish-thumb-card.protected-card {
+            border-color: rgba(248, 113, 113, 0.78);
+            box-shadow: 0 0 14px rgba(248, 113, 113, 0.28);
+        }
+        .fish-thumb-card img {
+            width: 56px;
+            height: 38px;
+            object-fit: contain;
+            pointer-events: none;
+        }
+        .fish-thumb-name {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #f8fafc;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .fish-thumb-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 4px;
+            border-radius: 999px;
+            background: #f59e0b;
+            color: #090d16;
+            font-size: 10px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .fish-protect-tag {
+            font-size: 9.5px;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 6px;
+            background: rgba(239, 68, 68, 0.26);
+            color: #fca5a5;
+            line-height: 1.25;
+        }
+        .fish-thumb-empty {
+            font-size: 10.5px;
+            color: rgba(226, 232, 240, 0.78);
+            background: rgba(8, 15, 28, 0.78);
+            border: 1px dashed rgba(255, 255, 255, 0.16);
+            padding: 9px 6px;
+            border-radius: 10px;
+            text-align: center;
+            line-height: 1.4;
+            width: 82px;
+        }
+
+        /* 6. Fish Encyclopedia & Conservation Modal */
+        .fish-detail-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 600;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(3, 8, 18, 0.78);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 16px;
+        }
+        .fish-detail-backdrop.show { display: flex; }
+
+        .fish-detail-modal {
+            width: 430px;
+            max-width: 100%;
+            max-height: 88dvh;
+            overflow-y: auto;
+            border-radius: 18px;
+            padding: 18px 20px;
+            background: linear-gradient(165deg, rgba(15, 27, 48, 0.98), rgba(8, 15, 28, 0.98));
+            border: 1px solid rgba(251, 191, 36, 0.55);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+            color: #f8fafc;
+        }
+        .fish-page { display: none; }
+        .fish-page.active { display: block; }
+        .fish-detail-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .fish-detail-img-box {
+            width: 100%;
+            height: 158px;
+            border-radius: 14px;
+            background: radial-gradient(circle at center, rgba(56, 189, 248, 0.14), rgba(255, 255, 255, 0.04));
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            padding: 8px;
+        }
+        .fish-detail-img-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .fish-detail-cn { font-size: 20px; font-weight: 800; color: #fde68a; }
+        .fish-detail-en { font-size: 12px; color: #93c5fd; font-style: italic; margin-top: 2px; }
+        .fish-detail-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 8px; }
+        .fish-primary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 12px;
+        }
+        .fish-primary-item {
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .fish-primary-item .k { display: block; font-size: 10.5px; color: rgba(226, 232, 240, 0.72); margin-bottom: 2px; }
+        .fish-primary-item .v { font-weight: 700; color: #f8fafc; line-height: 1.35; }
+        .fish-page2-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .fish-page2-title { font-size: 15px; font-weight: 800; color: #fde68a; }
+        .fish-page-indicator { font-size: 11px; color: #93c5fd; }
+        .fish-modal-footer {
+            display: flex;
+            gap: 8px;
+        }
+        .fish-page-btn {
+            flex: 1;
+            padding: 9px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(251, 191, 36, 0.55);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fde68a;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .fish-page-btn:hover { background: rgba(251, 191, 36, 0.2); }
+        .detail-pill {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px;
+        }
+        .detail-pill.safe { background: rgba(16, 185, 129, 0.22); color: #6ee7b7; border: 1px solid rgba(52, 211, 153, 0.45); }
+        .detail-pill.danger { background: rgba(239, 68, 68, 0.25); color: #fca5a5; border: 1px solid rgba(248, 113, 113, 0.55); }
+        .detail-pill.edible-yes { background: rgba(56, 189, 248, 0.2); color: #bae6fd; border: 1px solid rgba(56, 189, 248, 0.4); }
+        .detail-pill.edible-no { background: rgba(148, 163, 184, 0.22); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, 0.4); }
+
+        .conservation-banner {
+            padding: 10px 12px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            line-height: 1.55;
+        }
+        .conservation-banner.protected {
+            background: rgba(127, 29, 29, 0.48);
+            border: 1px solid rgba(248, 113, 113, 0.6);
+            color: #fecaca;
+        }
+        .conservation-banner.general {
+            background: rgba(14, 116, 144, 0.25);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            color: #e0f2fe;
+        }
+
+        .fish-info-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 12.5px;
+            line-height: 1.55;
+            margin-bottom: 14px;
+        }
+        .fish-info-row strong { color: #fbbf24; }
+        .fish-detail-close {
+            flex: 1.2;
+            padding: 9px 14px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            color: #090d16;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body class="at-cover">
 
     <div class="portrait-tip">
         <div class="rotate-icon">📱</div>
-        <div>请将手机横屏，以获得最佳游戏体验</div>
+        <div id="portraitTipText">Please rotate your device to landscape for the best experience</div>
     </div>
 
     <div id="coverScreen" class="cover-screen">
-        <img class="cover-bg" src="assets/cover_no_button.png" alt="远洋渔猎封面">
+        <img id="coverBgImg" class="cover-bg" src="assets/cover_no_button_en.png" alt="Deep Sea Fishing Cover">
         <div class="cover-controls">
             <div class="stage-menu-bar" id="stageMenuBar">
-                <button type="button" class="stage-menu-btn selected" data-stage="0">第一关 · 微浪</button>
-                <button type="button" class="stage-menu-btn" data-stage="1" disabled>🔒 第二关 · 浪涌</button>
-                <button type="button" class="stage-menu-btn" data-stage="2" disabled>🔒 第三关 · 巨浪</button>
+                <button type="button" class="stage-menu-btn selected" data-stage="0">Stage 1 · Light Ripples</button>
+                <button type="button" class="stage-menu-btn" data-stage="1" disabled>🔒 Stage 2 · Choppy Swell</button>
+                <button type="button" class="stage-menu-btn" data-stage="2" disabled>🔒 Stage 3 · Heavy Surge</button>
             </div>
-            <button id="coverStartBtn" type="button" class="btn-glass">▶ 开始游戏</button>
-            <div id="coverTip" class="cover-tip">通关第一关后解锁第二关</div>
+            <button id="coverStartBtn" type="button" class="btn-glass">▶ Start Game</button>
+            <div id="coverTip" class="cover-tip">Clear Stage 1 to unlock Stage 2</div>
         </div>
     </div>
 
     <canvas id="oceanCanvas"></canvas>
 
     <div class="top-hint">
-        <div class="badge"><span class="badge-dot"></span><span>迎浪划行 · 远洋渔猎</span></div>
-        <p class="hint-sub">按住小船前后左右拖动避障（向前受限）· 点鱼撒网 · 过关且积分达标才升船</p>
+        <div class="badge"><span class="badge-dot"></span><span id="badgeText">Row Against Waves · Deep Sea Fishing</span></div>
+        <p id="hintSubText" class="hint-sub">Drag boat to dodge rocks (forward range limited) · Click fish to cast net · Clear stage &amp; hit score goal to upgrade boat</p>
     </div>
 
     <div class="top-right-score">
         <div class="top-right-row">
             <div class="score-card">
-                <span id="stageDisplay" style="color:#fcd34d;">第 1/3 关 · 微浪</span>
+                <span id="stageDisplay" style="color:#fcd34d;">Stage 1/3 · Light Ripples</span>
                 <span class="score-sub"></span>
-                <span id="dayDisplay" style="color:#7dd3fc;">第 1 / 10 天</span>
-                <span class="score-sub">🎣 得分</span>
+                <span id="dayDisplay" style="color:#7dd3fc;">Day 1 / 3</span>
+                <span id="scorePrefix" class="score-sub">🎣 Score</span>
                 <span id="scoreDisplay" class="score-num">0</span>
-                <span id="fishCountDisplay" class="score-sub">已捕 0 条</span>
+                <span id="fishCountDisplay" class="score-sub">Caught 0</span>
             </div>
             <button id="helpBtn" type="button">❓ Help</button>
         </div>
         <div class="vessel-pill">
             <span id="vesselIcon">🚣</span>
-            <span id="vesselName">木质划桨船</span>
-            <span id="vesselNextHint" class="vessel-progress">过关需 25 分升帆船</span>
+            <span id="vesselName">Wooden Rowboat</span>
+            <span id="vesselNextHint" class="vessel-progress">25 pts to Sailboat on clear</span>
         </div>
-        <div id="catchBanner" class="catch-banner">撒网成功！</div>
+        <div id="catchBanner" class="catch-banner">Net Cast Success!</div>
     </div>
 
     <div class="action-bar">
-        <button id="topRestartBtn" type="button" class="ctrl-action-btn">🔄 重新开始</button>
-        <button id="topExitBtn" type="button" class="ctrl-action-btn danger">🏠 返回封面</button>
+        <button id="topRestartBtn" type="button" class="ctrl-action-btn">🔄 Restart</button>
+        <button id="topExitBtn" type="button" class="ctrl-action-btn danger">🏠 Cover</button>
     </div>
 
     <div id="helpModal" class="help-modal">
         <div class="hud-header">
-            <span class="hud-title">📖 玩法说明与航行控制</span>
-            <button id="helpCloseBtn" type="button">关闭 ✕</button>
+            <span id="helpTitleText" class="hud-title">📖 How to Play &amp; Controls</span>
+            <button id="helpCloseBtn" type="button">Close ✕</button>
         </div>
         <div class="help-rules">
-            <div><strong>⛵ 操控避障：</strong>按住小船前后左右拖动（或方向键），躲避迎面而来的礁石。</div>
-            <div><strong>🕸️ 撒网捕鱼：</strong>点击海面或跃起的鱼群撒网得分；点空白海面或空格键发力加速。</div>
-            <div><strong>⚓ 靠岸升船：</strong>撑过每关设定天数无碰撞即抵达港口过关；过关时积分达标才升级船只。</div>
+            <div id="ruleDodgeText"><strong>⛵ Dodge Rocks:</strong> Drag your boat (or use Arrow keys / WASD) to avoid incoming rocks.</div>
+            <div id="ruleNetText"><strong>🕸️ Cast Net:</strong> Click swimming or leaping fish to net them; click empty water or press Space to row faster.</div>
+            <div id="ruleScoreText"><strong>🐟 Fish Points:</strong> Small underwater fish (#1–4) = <strong>1 pt</strong>, Medium (#5–8) = <strong>2 pts</strong>, Large (#9–12) = <strong>4 pts</strong>; netting <strong>leaping fish</strong> gives double bonus (min <strong>5 pts</strong>, up to <strong>8 pts</strong> for large fish)!</div>
+            <div id="rulePortText"><strong>⚓ Dock &amp; Upgrade:</strong> Survive each stage's days without crashing to reach port; boats upgrade when advancing with enough points (25 Sailboat / 60 Speedboat / 110 Yacht).</div>
         </div>
         <div class="hud-group">
             <div class="hud-label-row">
-                <span class="hud-label">每关过关天数设置</span>
-                <span id="daysSettingLabel" class="hud-val">10 天/关</span>
+                <span id="langLabelText" class="hud-label">Language / 语言</span>
+                <span id="langValText" class="hud-val">English</span>
+            </div>
+            <div class="seg-group lang-grid" id="langGroup">
+                <button type="button" data-lang="en" class="seg-btn lang-btn active">English (EN)</button>
+                <button type="button" data-lang="zh" class="seg-btn lang-btn">中文 (ZH)</button>
+            </div>
+        </div>
+        <div class="hud-group">
+            <div class="hud-label-row">
+                <span id="daysLabelText" class="hud-label">Days per Stage</span>
+                <span id="daysSettingLabel" class="hud-val">3 Days/Stage</span>
             </div>
             <div class="seg-group days-grid" id="daysGroup">
-                <button type="button" data-days="3" class="seg-btn days-btn">3 天</button>
-                <button type="button" data-days="5" class="seg-btn days-btn">5 天</button>
-                <button type="button" data-days="10" class="seg-btn days-btn active">10 天</button>
-                <button type="button" data-days="15" class="seg-btn days-btn">15 天</button>
+                <button type="button" data-days="3" class="seg-btn days-btn active">3 Days</button>
+                <button type="button" data-days="5" class="seg-btn days-btn">5 Days</button>
+                <button type="button" data-days="10" class="seg-btn days-btn">10 Days</button>
+                <button type="button" data-days="15" class="seg-btn days-btn">15 Days</button>
             </div>
         </div>
         <div class="hud-group">
-            <span class="hud-label">天色与光影</span>
+            <span id="moodLabelText" class="hud-label">Sky &amp; Lighting</span>
             <div class="seg-group" id="moodGroup">
-                <button type="button" data-mood="sunset" class="seg-btn mood-btn active">落日余晖</button>
-                <button type="button" data-mood="daylight" class="seg-btn mood-btn">晴空碧海</button>
-                <button type="button" data-mood="moonlight" class="seg-btn mood-btn">月夜涌浪</button>
+                <button type="button" data-mood="sunset" class="seg-btn mood-btn active">Sunset</button>
+                <button type="button" data-mood="daylight" class="seg-btn mood-btn">Daylight</button>
+                <button type="button" data-mood="moonlight" class="seg-btn mood-btn">Moonlight</button>
             </div>
         </div>
         <div class="hud-group">
-            <span class="hud-label">当前关卡海浪（随关卡自动切换）</span>
+            <span id="waveLabelText" class="hud-label">Stage Waves (Auto-switched by stage)</span>
             <div class="seg-group" id="waveGroup">
-                <button type="button" data-wave="calm" class="seg-btn wave-btn active">微澜</button>
-                <button type="button" data-wave="choppy" class="seg-btn wave-btn">浪涌</button>
-                <button type="button" data-wave="stormy" class="seg-btn wave-btn">巨浪</button>
+                <button type="button" data-wave="calm" class="seg-btn wave-btn active">Light</button>
+                <button type="button" data-wave="choppy" class="seg-btn wave-btn">Choppy</button>
+                <button type="button" data-wave="stormy" class="seg-btn wave-btn">Heavy</button>
             </div>
         </div>
         <div class="hud-group">
             <div class="hud-label-row">
-                <span class="hud-label">划桨节奏</span>
+                <span id="speedLabelText" class="hud-label">Rowing Cadence</span>
                 <span id="speedValueLabel" class="hud-val">1.0x</span>
             </div>
             <div class="speed-row">
                 <input id="speedSlider" type="range" min="0.5" max="2.0" step="0.1" value="1.0">
-                <button type="button" id="boostBtn">发力划!</button>
+                <button type="button" id="boostBtn">Row Hard!</button>
             </div>
         </div>
     </div>
+
+    <aside id="caughtLeftPanel" class="caught-side-panel left">
+        <div id="caughtLeftTitle" class="caught-side-title">Left Catch</div>
+        <div id="caughtLeftList" class="caught-side-list"></div>
+    </aside>
+
+    <aside id="caughtRightPanel" class="caught-side-panel right">
+        <div id="caughtRightTitle" class="caught-side-title">Right Catch</div>
+        <div id="caughtRightList" class="caught-side-list"></div>
+    </aside>
 
     <div id="roundOverlay" class="round-overlay">
         <div id="portFullscreenBg" class="port-fullscreen-bg"></div>
         <div class="round-card">
-            <div id="roundBadge" class="round-badge">关卡结算</div>
-            <div id="roundTitle" class="round-title">本关航程结束</div>
-            <p id="roundDesc" class="round-desc">安全航行完成！</p>
+            <div id="roundBadge" class="round-badge">Stage Summary</div>
+            <div id="roundTitle" class="round-title">Voyage Complete</div>
+            <p id="roundDesc" class="round-desc">Safe voyage completed!</p>
             <div class="round-stats">
                 <div class="stat-box">
-                    <div class="stat-label">累计得分</div>
+                    <div id="finalScoreLabel" class="stat-label">Total Score</div>
                     <div id="finalScoreVal" class="stat-value">0</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-label">累计捕鱼数</div>
-                    <div id="finalFishVal" class="stat-value" style="color:#38bdf8;">0 条</div>
+                    <div id="finalFishLabel" class="stat-label">Total Caught</div>
+                    <div id="finalFishVal" class="stat-value" style="color:#38bdf8;">0</div>
                 </div>
             </div>
             <div class="round-btn-row">
-                <button id="restartRoundBtn" type="button" class="round-restart-btn">继续下一关</button>
-                <button id="modalExitBtn" type="button" class="round-exit-btn">返回封面</button>
+                <button id="restartRoundBtn" type="button" class="round-restart-btn">Next Stage</button>
+                <button id="modalExitBtn" type="button" class="round-exit-btn">Cover</button>
             </div>
         </div>
     </div>
 
+    <div id="fishDetailBackdrop" class="fish-detail-backdrop">
+        <div class="fish-detail-modal" onclick="event.stopPropagation()">
+            <div id="fishPage1" class="fish-page active">
+                <div class="fish-detail-hero">
+                    <div class="fish-detail-img-box">
+                        <img id="detailFishImg" src="" alt="">
+                    </div>
+                    <div id="detailFishCn" class="fish-detail-cn">Fish Name</div>
+                    <div id="detailFishEn" class="fish-detail-en">Scientific Name</div>
+                    <div class="fish-detail-tags">
+                        <span id="detailProtectPill" class="detail-pill"></span>
+                        <span id="detailEdiblePill" class="detail-pill"></span>
+                    </div>
+                </div>
+                <div class="fish-primary-grid">
+                    <div class="fish-primary-item">
+                        <span id="detailPrimaryNameLabel" class="k">🐟 Common Name</span>
+                        <span id="detailPrimaryName" class="v">--</span>
+                    </div>
+                    <div class="fish-primary-item">
+                        <span id="detailPrimaryProtectLabel" class="k">🛡️ Protection Status</span>
+                        <span id="detailPrimaryProtect" class="v">--</span>
+                    </div>
+                    <div class="fish-primary-item">
+                        <span id="detailPrimaryEdibleLabel" class="k">🍽️ Edibility</span>
+                        <span id="detailPrimaryEdible" class="v">--</span>
+                    </div>
+                    <div class="fish-primary-item">
+                        <span id="detailPageLabel" class="k">📄 Page</span>
+                        <span id="detailPage1Text" class="v">Page 1 / 2 (Overview)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="fishPage2" class="fish-page">
+                <div class="fish-page2-header">
+                    <span id="detailPage2Title" class="fish-page2-title">Species Profile</span>
+                    <span id="detailPage2Indicator" class="fish-page-indicator">Page 2 / 2 (Details)</span>
+                </div>
+                <div id="detailConservationBox" class="conservation-banner"></div>
+                <div class="fish-info-list">
+                    <div class="fish-info-row"><strong id="detailHabitLabel">🌊 Habitat &amp; Behavior: </strong><span id="detailHabit"></span></div>
+                    <div class="fish-info-row"><strong id="detailFeatureLabel">✨ Appearance &amp; Traits: </strong><span id="detailFeature"></span></div>
+                    <div class="fish-info-row"><strong id="detailEdibleDescLabel">🍽️ Culinary Notes: </strong><span id="detailEdibleDesc"></span></div>
+                </div>
+            </div>
+
+            <div class="fish-modal-footer">
+                <button id="toggleFishPageBtn" type="button" class="fish-page-btn">Next: Details →</button>
+                <button id="closeFishDetailBtn" type="button" class="fish-detail-close">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="game_config.js" onerror="var s=document.createElement('script');s.src='game_fonfig.js';document.head.appendChild(s);"></script>
     <script>
         (() => {
+            const EXT_CFG = window.GAME_CONFIG || {};
             const canvas = document.getElementById('oceanCanvas');
             const ctx = canvas.getContext('2d', { alpha: false });
 
@@ -427,17 +770,246 @@
             const BOAT_MAX_Y_NORM = 0.83;
             const BOAT_DEFAULT_Y_NORM = 0.67;
 
-            const LEVELS = [
-                { level: 1, name: '第 1 关', shortName: '第一关 · 微浪', waveName: '微浪', waveMode: 'calm',   obsInterval: 2.8, obsSpeedMult: 0.90, clearImg: 'assets/gk1.jpg', fallbackClearImg: 'gk1.jpg' },
-                { level: 2, name: '第 2 关', shortName: '第二关 · 浪涌', waveName: '浪涌', waveMode: 'choppy', obsInterval: 2.1, obsSpeedMult: 1.08, clearImg: 'assets/gk2.jpg', fallbackClearImg: 'gk2.jpg' },
-                { level: 3, name: '第 3 关', shortName: '第三关 · 巨浪', waveName: '巨浪', waveMode: 'stormy', obsInterval: 1.6, obsSpeedMult: 1.25, clearImg: 'assets/gk3.jpg', fallbackClearImg: 'gk3.jpg' }
+            const LEVELS = Array.isArray(EXT_CFG.levels) && EXT_CFG.levels.length ? EXT_CFG.levels : [
+                { level: 1, name: 'Stage 1', shortName: 'Stage 1 · Light Ripples', waveName: 'Light Ripples', waveMode: 'calm',   obsInterval: 2.8, obsSpeedMult: 0.90, clearImg: 'assets/gk1.jpg', fallbackClearImg: 'gk1.jpg' },
+                { level: 2, name: 'Stage 2', shortName: 'Stage 2 · Choppy Swell', waveName: 'Choppy Swell', waveMode: 'choppy', obsInterval: 2.1, obsSpeedMult: 1.08, clearImg: 'assets/gk2.jpg', fallbackClearImg: 'gk2.jpg' },
+                { level: 3, name: 'Stage 3', shortName: 'Stage 3 · Heavy Surge', waveName: 'Heavy Surge', waveMode: 'stormy', obsInterval: 1.6, obsSpeedMult: 1.25, clearImg: 'assets/gk3.jpg', fallbackClearImg: 'gk3.jpg' }
             ];
 
-            const OBSTACLE_FILES = ['rock1.png', 'rock2.png', 'rock3.png', 'rock4.png'];
-            const OBSTACLE_DIR = 'assets/obstacles/';
-            const FISH_FILES = ['fish1.png', 'fish2.png', 'fish3.png', 'fish4.png', 'fish5.png', 'fish6.png', 'fish7.png', 'fish8.png', 'fish9.png', 'fish10.png'];
+            const I18N = {
+                en: {
+                    pageTitle: 'Ride the Waves · Three-Stage Deep Sea Fishing',
+                    langVal: 'English',
+                    portraitTip: 'Please rotate your device to landscape for the best experience',
+                    startGamePrefix: '▶ Start Game',
+                    tipUnlock1: 'Clear Stage 1 to unlock Stage 2',
+                    tipUnlock2: 'Stage 2 unlocked! Start from Stage 2 or clear it for Stage 3',
+                    tipUnlockAll: 'All 3 stages unlocked; pick any stage to launch',
+                    badgeText: 'Row Against Waves · Deep Sea Fishing',
+                    hintSubText: 'Drag boat to dodge rocks (forward range limited) · Click fish to cast net · Clear stage & hit score goal to upgrade boat',
+                    scorePrefix: '🎣 Score',
+                    caughtFormat: (n) => `Caught ${n}`,
+                    dayFormat: (cur, total) => `Day ${cur} / ${total}`,
+                    dayShortFormat: (d) => `${d} Days`,
+                    daysPerStageFormat: (d) => `${d} Days/Stage`,
+                    ptsSuffix: (n) => `${n} pts`,
+                    helpBtn: '❓ Help',
+                    topRestartBtn: '🔄 Restart',
+                    topExitBtn: '🏠 Cover',
+                    helpTitleText: '📖 How to Play & Controls',
+                    helpCloseBtn: 'Close ✕',
+                    ruleDodgeText: '<strong>⛵ Dodge Rocks:</strong> Drag your boat (or use Arrow keys / WASD) to avoid incoming rocks.',
+                    ruleNetText: '<strong>🕸️ Cast Net:</strong> Click swimming or leaping fish to net them; click empty water or press Space to row faster.',
+                    ruleScoreText: '<strong>🐟 Fish Points:</strong> Small underwater fish (#1–4) = <strong>1 pt</strong>, Medium (#5–8) = <strong>2 pts</strong>, Large (#9–12) = <strong>4 pts</strong>; netting <strong>leaping fish</strong> gives double bonus (min <strong>5 pts</strong>, up to <strong>8 pts</strong> for large fish)!',
+                    rulePortText: '<strong>⚓ Dock & Upgrade:</strong> Survive each stage\'s days without crashing to reach port; boats upgrade when advancing with enough points (25 Sailboat / 60 Speedboat / 110 Yacht).',
+                    langLabelText: 'Language / 语言',
+                    daysLabelText: 'Days per Stage',
+                    moodLabelText: 'Sky & Lighting',
+                    moodSunset: 'Sunset',
+                    moodDaylight: 'Daylight',
+                    moodMoonlight: 'Moonlight',
+                    waveLabelText: 'Stage Waves (Auto-switched by stage)',
+                    waveCalm: 'Light',
+                    waveChoppy: 'Choppy',
+                    waveStormy: 'Heavy',
+                    speedLabelText: 'Rowing Cadence',
+                    boostBtn: 'Row Hard!',
+                    caughtLeftTitle: 'Left Catch',
+                    caughtRightTitle: 'Right Catch',
+                    caughtEmptyLeft: 'No fish caught yet',
+                    caughtEmptyRight: 'Caught species appear here',
+                    thumbTitleFormat: (name) => `View ${name} info & conservation notes`,
+                    protectedBadge: '🛡️ Protected',
+                    finalScoreLabel: 'Total Score',
+                    finalFishLabel: 'Total Caught',
+                    modalExitBtn: 'Cover',
+                    crashBadge: 'Crash · Stage Failed (No Boat Upgrade)',
+                    crashTitle: 'Hit a Rock!',
+                    crashDesc: (day, stgName, waveName) => `Crashed on Day ${day} in ${stgName} (${waveName}). Click fish thumbnails on the sides to view conservation info.`,
+                    crashRestartBtn: 'Restart (Stage 1)',
+                    upgradeTipYes: (icon, name) => `🎉 Stage cleared & score met! You will board ${icon} ${name} next!`,
+                    upgradeTipNeed: (score, need, name) => `Current ${score} pts (${need} pts needed for ${name}) — boat stays the same.`,
+                    upgradeTipMax: (icon, name) => `Already commanding top-tier ${icon} ${name}.`,
+                    levelUpBadge: (stgName, days, waveName) => `⚓ Docked · ${stgName} (${days}d) Cleared!`,
+                    levelUpTitle: (nextName, nextWave) => `Port Rest · Advancing to ${nextName} (${nextWave})`,
+                    levelUpDesc: (nextWave, tip) => `Waves will shift to "${nextWave}". ${tip}`,
+                    levelUpBtn: (nextName, nextWave) => `Set Sail for ${nextName} (${nextWave})`,
+                    victoryBadge: '⚓ Returned to Port · All 3 Stages Cleared!',
+                    victoryTitle: '🏆 All Three Stages Cleared!',
+                    victoryDesc: (tip) => `You conquered Light, Choppy, and Heavy waves and returned safely! ${tip}`,
+                    victoryBtn: 'Restart (Stage 1)',
+                    vesselNeedFormat: (diff, nextName) => `${diff} pts to ${nextName} on clear`,
+                    vesselReadyFormat: (nextName) => `Ready to upgrade to ${nextName} on clear`,
+                    vesselMaxTier: 'Max Flagship Reached',
+                    inkPrefix: '🖤 Ink Alert! Netted',
+                    bigPrefix: '🌟 Leap Catch!',
+                    normalPrefix: '🕸️ Netted',
+                    popupInk: 'Ink Catch',
+                    popupBig: 'Big Catch',
+                    popupNormal: 'Caught',
+                    dockSignText: 'Approaching Dock, Drive Carefully',
+                    page2TitleSuffix: 'Details',
+                    pillProtected: '🛡️ Protected / Rare',
+                    pillCommon: '🌊 Common Species',
+                    pillEdibleYes: '🍽️ Edible',
+                    pillEdibleNo: '🚫 Not Recommended / No',
+                    primaryNameLabel: '🐟 Common Name',
+                    primaryProtectLabel: '🛡️ Protection Status',
+                    primaryEdibleLabel: '🍽️ Edibility',
+                    primaryProtectYes: 'Protected / Rare',
+                    primaryProtectNo: 'Common Species',
+                    primaryEdibleYes: 'Edible',
+                    primaryEdibleNo: 'Not Recommended / No',
+                    pageLabel: '📄 Page',
+                    page1Text: 'Page 1 / 2 (Overview)',
+                    page2Indicator: 'Page 2 / 2 (Details)',
+                    habitLabel: '🌊 Habitat & Behavior: ',
+                    featureLabel: '✨ Appearance & Traits: ',
+                    edibleDescLabel: '🍽️ Culinary Notes: ',
+                    nextPageBtn: 'Next: Details →',
+                    prevPageBtn: '← Back: Overview',
+                    closeBtn: 'Close',
+                    stages: [
+                        { name: 'Stage 1', shortName: 'Stage 1 · Light Ripples', waveName: 'Light Ripples' },
+                        { name: 'Stage 2', shortName: 'Stage 2 · Choppy Swell', waveName: 'Choppy Swell' },
+                        { name: 'Stage 3', shortName: 'Stage 3 · Heavy Surge', waveName: 'Heavy Surge' }
+                    ],
+                    vessels: [
+                        { name: 'Wooden Rowboat' },
+                        { name: 'Wind Sailboat' },
+                        { name: 'Turbo Speedboat' },
+                        { name: 'Ocean Yacht' }
+                    ]
+                },
+                zh: {
+                    pageTitle: '捕鱼在浪划行 · 三关深海垂钓',
+                    langVal: '中文',
+                    portraitTip: '请将设备旋转至横屏以获得最佳体验',
+                    startGamePrefix: '▶ 开始航行',
+                    tipUnlock1: '通关第 1 关解锁第 2 关',
+                    tipUnlock2: '第 2 关已解锁！可从第 2 关出发或通关解锁第 3 关',
+                    tipUnlockAll: '全部 3 关已解锁，可任选关卡出发',
+                    badgeText: '逆浪划行 · 深海捕鱼',
+                    hintSubText: '拖动船只躲避礁石（前移范围受限）· 点击鱼群撒网捕鱼 · 达成分数与通关可升级船只',
+                    scorePrefix: '🎣 积分',
+                    caughtFormat: (n) => `已捕 ${n} 条`,
+                    dayFormat: (cur, total) => `第 ${cur} / ${total} 天`,
+                    dayShortFormat: (d) => `${d} 天`,
+                    daysPerStageFormat: (d) => `每关 ${d} 天`,
+                    ptsSuffix: (n) => `${n} 分`,
+                    helpBtn: '❓ 帮助',
+                    topRestartBtn: '🔄 重开',
+                    topExitBtn: '🏠 封面',
+                    helpTitleText: '📖 玩法说明与设置',
+                    helpCloseBtn: '关闭 ✕',
+                    ruleDodgeText: '<strong>⛵ 躲避礁石：</strong>拖动船只（或使用方向键 / WASD）躲避前方礁石。',
+                    ruleNetText: '<strong>🕸️ 撒网捕鱼：</strong>点击水中或跃起的鱼撒网捕获；点击空白海面或按空格键可加速划行。',
+                    ruleScoreText: '<strong>🐟 鱼获分值：</strong>水下小鱼（#1–4）= <strong>1 分</strong>，中型（#5–8）= <strong>2 分</strong>，大型（#9–12）= <strong>4 分</strong>；捕获<strong>跃起鱼类</strong>享翻倍奖励（最低 <strong>5 分</strong>，大鱼最高 <strong>8 分</strong>）！',
+                    rulePortText: '<strong>⚓ 靠港与升级：</strong>安全度过本关天数即可靠港结算；通关且达到积分门槛即可升级船只（25 帆船 / 60 快艇 / 110 游艇）。',
+                    langLabelText: '语言 / Language',
+                    daysLabelText: '每关天数',
+                    moodLabelText: '天色与光照',
+                    moodSunset: '落日',
+                    moodDaylight: '白昼',
+                    moodMoonlight: '月夜',
+                    waveLabelText: '海浪强度（随关卡自动切换）',
+                    waveCalm: '微浪',
+                    waveChoppy: '浪涌',
+                    waveStormy: '巨浪',
+                    speedLabelText: '划桨节奏',
+                    boostBtn: '加速划行！',
+                    caughtLeftTitle: '左侧鱼获',
+                    caughtRightTitle: '右侧鱼获',
+                    caughtEmptyLeft: '暂未捕获鱼类',
+                    caughtEmptyRight: '捕获种类将在此显示',
+                    thumbTitleFormat: (name) => `查看 ${name} 的百科与保护说明`,
+                    protectedBadge: '🛡️ 保护种',
+                    finalScoreLabel: '最终积分',
+                    finalFishLabel: '捕获总数',
+                    modalExitBtn: '回封面',
+                    crashBadge: '撞礁 · 本关失败（无船只升级）',
+                    crashTitle: '撞上礁石了！',
+                    crashDesc: (day, stgName, waveName) => `在${stgName}（${waveName}）第 ${day} 天撞礁。点击两侧鱼获缩略图可查看生态与保护说明。`,
+                    crashRestartBtn: '重新开始（第 1 关）',
+                    upgradeTipYes: (icon, name) => `🎉 成功通关且达标！下一关将驾驶 ${icon} ${name} 出发！`,
+                    upgradeTipNeed: (score, need, name) => `当前 ${score} 分（升级 ${name} 需 ${need} 分）—— 暂保持当前船只。`,
+                    upgradeTipMax: (icon, name) => `已驾驶最高级座驾 ${icon} ${name}。`,
+                    levelUpBadge: (stgName, days, waveName) => `⚓ 已靠港 · ${stgName}（${days}天）通关！`,
+                    levelUpTitle: (nextName, nextWave) => `港湾休整 · 前往${nextName}（${nextWave}）`,
+                    levelUpDesc: (nextWave, tip) => `海况将切换为“${nextWave}”。${tip}`,
+                    levelUpBtn: (nextName, nextWave) => `启航前往${nextName}（${nextWave}）`,
+                    victoryBadge: '⚓ 安全返港 · 三关全部通关！',
+                    victoryTitle: '🏆 恭喜通关全部三关！',
+                    victoryDesc: (tip) => `你成功穿越微浪、浪涌与巨浪并安全返港！${tip}`,
+                    victoryBtn: '重新开始（第 1 关）',
+                    vesselNeedFormat: (diff, nextName) => `通关还差 ${diff} 分升级${nextName}`,
+                    vesselReadyFormat: (nextName) => `通关即可升级为${nextName}`,
+                    vesselMaxTier: '已达最高船型',
+                    inkPrefix: '🖤 墨汁警报！捕获',
+                    bigPrefix: '🌟 跃起捕获！',
+                    normalPrefix: '🕸️ 捕获',
+                    popupInk: '墨汁捕获',
+                    popupBig: '跃起大鱼',
+                    popupNormal: '已捕获',
+                    dockSignText: '前方即将靠港，请小心驾驶',
+                    page2TitleSuffix: '详细档案',
+                    pillProtected: '🛡️ 受保护 / 珍稀',
+                    pillCommon: '🌊 常见物种',
+                    pillEdibleYes: '🍽️ 可食用',
+                    pillEdibleNo: '🚫 不建议食用 / 禁食',
+                    primaryNameLabel: '🐟 物种名称',
+                    primaryProtectLabel: '🛡️ 保护状态',
+                    primaryEdibleLabel: '🍽️ 食用情况',
+                    primaryProtectYes: '受保护 / 珍稀物种',
+                    primaryProtectNo: '常见物种',
+                    primaryEdibleYes: '可食用',
+                    primaryEdibleNo: '不建议食用 / 禁食',
+                    pageLabel: '📄 页码',
+                    page1Text: '第 1 / 2 页（概览）',
+                    page2Indicator: '第 2 / 2 页（详述）',
+                    habitLabel: '🌊 栖息习性：',
+                    featureLabel: '✨ 外形特点：',
+                    edibleDescLabel: '🍽️ 食用说明：',
+                    nextPageBtn: '下一页：详细档案 →',
+                    prevPageBtn: '← 返回：概览',
+                    closeBtn: '关闭',
+                    stages: [
+                        { name: '第 1 关', shortName: '第 1 关 · 微浪', waveName: '微浪' },
+                        { name: '第 2 关', shortName: '第 2 关 · 浪涌', waveName: '浪涌' },
+                        { name: '第 3 关', shortName: '第 3 关 · 巨浪', waveName: '巨浪' }
+                    ],
+                    vessels: [
+                        { name: '木质划艇' },
+                        { name: '风帆小船' },
+                        { name: '涡轮快艇' },
+                        { name: '远洋游艇' }
+                    ]
+                }
+            };
+
+            const OBS_CFG = EXT_CFG.obstacles || {};
+            const OBSTACLE_FILES = OBS_CFG.files || ['rock1.png', 'rock2.png', 'rock3.png', 'rock4.png'];
+            const OBSTACLE_DIR = OBS_CFG.dir || 'assets/obstacles/';
+            const FISH_FILES = [
+                'fish1.png', 'fish2.png', 'fish3.png', 'fish4.png',
+                'fish5.png', 'fish6.png', 'fish7.png', 'fish8.png',
+                'fish9.png', 'fish10.png', 'fish11.png', 'fish12.png'
+            ];
             const FISH_DIR = 'assets/fish/';
-            const NET_IMG_SRC = 'assets/net.png';
+            const CFG_TIERS = EXT_CFG.fishTiers || {};
+            const FISH_SIZE_TIERS = {
+                small:  { key: 'small',  label: 'Small Fish',  sizeMult: CFG_TIERS.small?.sizeMult  ?? 0.82, jumpProb: CFG_TIERS.small?.jumpProb  ?? 0.42, baseScore: CFG_TIERS.small?.basePoints  ?? CFG_TIERS.small?.baseScore  ?? 1, jumpScore: CFG_TIERS.small?.jumpPoints  ?? 5 },
+                medium: { key: 'medium', label: 'Medium Fish', sizeMult: CFG_TIERS.medium?.sizeMult ?? 1.00, jumpProb: CFG_TIERS.medium?.jumpProb ?? 0.32, baseScore: CFG_TIERS.medium?.basePoints ?? CFG_TIERS.medium?.baseScore ?? 2, jumpScore: CFG_TIERS.medium?.jumpPoints ?? 5 },
+                large:  { key: 'large',  label: 'Large Fish',  sizeMult: CFG_TIERS.large?.sizeMult  ?? 1.50, jumpProb: CFG_TIERS.large?.jumpProb  ?? 0.22, baseScore: CFG_TIERS.large?.basePoints  ?? CFG_TIERS.large?.baseScore  ?? 4, jumpScore: CFG_TIERS.large?.jumpPoints  ?? 8 }
+            };
+            function getFishSizeTierByIndex(idx) {
+                if (idx < 4) return FISH_SIZE_TIERS.small;
+                if (idx < 8) return FISH_SIZE_TIERS.medium;
+                return FISH_SIZE_TIERS.large;
+            }
+            const GEAR_CFG = EXT_CFG.fishingGear || EXT_CFG.tools || {};
+            const NET_CFG = GEAR_CFG.net || {};
+            const NET_IMG_SRC = NET_CFG.imgSrc || 'assets/net.png';
 
             const portFullscreenBgEl = document.getElementById('portFullscreenBg');
 
@@ -477,16 +1049,381 @@
             }
 
             const FALLBACK_FISH_STYLES = [
-                { label: '银鲭鱼', shape: 'standard', body: '#94b8cf', belly: '#e6f2fa', fin: '#6d94ad', accent: '#38bdf8', lenRatio: 1.0, thickRatio: 0.34, tailSpan: 0.42, bonusPoints: 1 },
-                { label: '金鳍金枪鱼', shape: 'standard', body: '#4a6fa5', belly: '#f5d0a9', fin: '#f59e0b', accent: '#fbbf24', lenRatio: 1.24, thickRatio: 0.38, tailSpan: 0.48, bonusPoints: 2 },
-                { label: '红珊瑚鲷', shape: 'puffer', body: '#e07a5f', belly: '#fde2d2', fin: '#f4a261', accent: '#ffd166', lenRatio: 0.92, thickRatio: 0.48, tailSpan: 0.38, bonusPoints: 1 },
-                { label: '蓝枪旗鱼', shape: 'marlin', body: '#2b6cb0', belly: '#dbeafe', fin: '#60a5fa', accent: '#93c5fd', lenRatio: 1.40, thickRatio: 0.27, tailSpan: 0.46, bonusPoints: 3 },
-                { label: '深海乌鱼', shape: 'squid', body: '#292536', belly: '#574b68', fin: '#3f3752', accent: '#c084fc', lenRatio: 1.18, thickRatio: 0.36, tailSpan: 0.36, bonusPoints: 3, isCuttlefish: true },
-                { label: '祥瑞金龙鱼', shape: 'standard', body: '#f59e0b', belly: '#fef3c7', fin: '#ef4444', accent: '#fde047', lenRatio: 1.30, thickRatio: 0.35, tailSpan: 0.50, bonusPoints: 4 }
+                { label: 'Silver Mackerel', shape: 'standard', body: '#94b8cf', belly: '#e6f2fa', fin: '#6d94ad', accent: '#38bdf8', lenRatio: 1.0, thickRatio: 0.34, tailSpan: 0.42, bonusPoints: 1 },
+                { label: 'Yellowfin Tuna', shape: 'standard', body: '#4a6fa5', belly: '#f5d0a9', fin: '#f59e0b', accent: '#fbbf24', lenRatio: 1.24, thickRatio: 0.38, tailSpan: 0.48, bonusPoints: 2 },
+                { label: 'Red Coral Bream', shape: 'puffer', body: '#e07a5f', belly: '#fde2d2', fin: '#f4a261', accent: '#ffd166', lenRatio: 0.92, thickRatio: 0.48, tailSpan: 0.38, bonusPoints: 1 },
+                { label: 'Blue Marlin', shape: 'marlin', body: '#2b6cb0', belly: '#dbeafe', fin: '#60a5fa', accent: '#93c5fd', lenRatio: 1.40, thickRatio: 0.27, tailSpan: 0.46, bonusPoints: 3 },
+                { label: 'Deep Sea Cuttlefish', shape: 'squid', body: '#292536', belly: '#574b68', fin: '#3f3752', accent: '#c084fc', lenRatio: 1.18, thickRatio: 0.36, tailSpan: 0.36, bonusPoints: 3, isCuttlefish: true },
+                { label: 'Golden Arowana', shape: 'standard', body: '#f59e0b', belly: '#fef3c7', fin: '#ef4444', accent: '#fde047', lenRatio: 1.30, thickRatio: 0.35, tailSpan: 0.50, bonusPoints: 4 }
             ];
 
+            const DEFAULT_FISH_ENCYCLOPEDIA_EN = {
+                fish1: {
+                    cnName: 'Chub Mackerel',
+                    enName: 'Chub Mackerel (Scomber japonicus)',
+                    isProtected: false,
+                    protectionStatus: 'Common Commercial Species · Sustainable Harvest',
+                    edible: true,
+                    edibleDesc: 'Edible, with firm flesh rich in unsaturated fatty acids; great pan-seared or salt-grilled, provided it is fresh and thoroughly cooked.',
+                    habit: 'Schools in temperate and subtropical coastal to offshore surface and midwater zones, making seasonal migrations following water temperature and prey.',
+                    feature: 'Streamlined spindle-shaped body with wavy blue-green back patterns, a narrow caudal peduncle with finlets, and agile swimming speed.',
+                    conservationNote: 'Although not endangered, overfishing juveniles affects coastal food webs; coastal fisheries should follow seasonal closures and mesh-size rules.'
+                },
+                fish2: {
+                    cnName: 'Yellowfin Tuna',
+                    enName: 'Yellowfin Tuna (Thunnus albacares)',
+                    isProtected: false,
+                    protectionStatus: 'International Fishery Management Species · Near Threatened / Monitored',
+                    edible: true,
+                    edibleDesc: 'Edible and common in pelagic cuisine and sashimi, though large migratory fish call for sustainable sourcing and moderate consumption.',
+                    habit: 'Classic open-ocean migratory pelagic fish that prefers warm waters and often schools around dolphins or floating objects.',
+                    feature: 'Features a golden-yellow lateral band, elongated bright yellow second dorsal and anal fins, and long pectoral fins for efficient cruising.',
+                    conservationNote: 'Offshore fishing should reduce bycatch of non-target species such as sea turtles and sharks, and support traceable, sustainably managed catches.'
+                },
+                fish3: {
+                    cnName: 'Red Coral Bream',
+                    enName: 'Coral Breams / Reef Snapper',
+                    isProtected: true,
+                    protectionStatus: 'Coral Reef Sensitive Species · Priority Protection Recommended',
+                    edible: false,
+                    edibleDesc: 'Not recommended for eating due to potential ciguatera toxin bioaccumulation and the fragility of coral reef ecosystems.',
+                    habit: 'Mostly inhabits tropical and subtropical coral reefs, rocky crevices, and clear shallow waters with high dependence on reef habitats.',
+                    feature: 'Bright reddish-orange coloration blends with reef surroundings, helping evade predators while serving as an indicator of coral reef health.',
+                    conservationNote: 'Reef fishes grow slowly with limited reproductive rates. Protecting coral reefs and reef-dwelling fish safeguards the biodiversity of marine "rainforests."'
+                },
+                fish4: {
+                    cnName: 'Blue Marlin',
+                    enName: 'Blue Marlin (Makaira nigricans)',
+                    isProtected: true,
+                    protectionStatus: 'Monitored Under International Conventions · Ecological Conservation Species',
+                    edible: false,
+                    edibleDesc: 'Not recommended as routine food fish, as large marlin sit at the top of the marine food web and carry heavy-metal bioaccumulation risks.',
+                    habit: 'Ranges across wide tropical and temperate open ocean surface waters on long transoceanic migrations as a key apex predator.',
+                    feature: 'Elongated spear-like snout, tall sail-like dorsal fin, deep cobalt-blue back with silver belly, and strong bursts of speed.',
+                    conservationNote: 'Sharp declines in apex predators can disrupt midwater fish communities; reducing bycatch and illegal fishing is vital to open-ocean stability.'
+                },
+                fish5: {
+                    cnName: 'Deep Sea Cuttlefish',
+                    enName: 'Cuttlefish (Sepiida)',
+                    isProtected: false,
+                    protectionStatus: 'Common Cephalopod · Focus on Habitat Protection',
+                    edible: true,
+                    edibleDesc: 'Edible seafood; clean the ink sac and internal shell properly before cooking, and cook thoroughly.',
+                    habit: 'Mostly lives over sandy or seagrass coastal bottoms, skilled at camouflage and color change, and releases ink to escape predators.',
+                    feature: 'Has an internal calcareous shell, ten arms, keen eyesight, and the ability to rapidly shift body color and skin texture.',
+                    conservationNote: 'Degradation of seagrass beds and shallow spawning grounds directly affects cephalopod reproduction; protecting coastal seagrass protects their "nursery."'
+                },
+                fish6: {
+                    cnName: 'Golden Arowana Rare Species',
+                    enName: 'Arowana / Protected Rare Species',
+                    isProtected: true,
+                    protectionStatus: 'Highly Protected Rare Species · Illegal Fishing Strictly Prohibited',
+                    edible: false,
+                    edibleDesc: 'Not for consumption; catching, trading, or eating protected rare aquatic wildlife is strictly prohibited.',
+                    habit: 'Mostly restricted to specific protected basins or waters requiring clean habitats and stable water quality, with scarce wild populations.',
+                    feature: 'Sleek, commanding posture with metallic gleaming scales, prominent barbels, and distinctive fins, carrying high scientific and ecological value.',
+                    conservationNote: 'Once a rare species goes extinct in the wild, it cannot be reversed. Refusing illegal capture and trade of rare wildlife is everyone\'s responsibility.'
+                },
+                fish7: {
+                    cnName: 'Butterflyfish',
+                    enName: 'Butterflyfish (Chaetodontidae)',
+                    isProtected: true,
+                    protectionStatus: 'Coral Reef Indicator Species · Ecological Conservation Species',
+                    edible: false,
+                    edibleDesc: 'Not recommended for eating; mostly ornamental and ecological indicator fish with low culinary value and harm to reef ecosystems if harvested.',
+                    habit: 'Often swims in pairs or small groups in shallow tropical coral reefs, feeding on coral polyps or small invertebrates.',
+                    feature: 'Laterally compressed disc-like or oval body with bright colors, often featuring eyespots or stripes that confuse predators attacking the tail.',
+                    conservationNote: 'Butterflyfish are closely tied to living corals; coral bleaching and reef loss strip away their homes, requiring shared care to protect reefs.'
+                },
+                fish8: {
+                    cnName: 'Bluespotted Ribbontail Ray',
+                    enName: 'Bluespotted Ribbontail Ray (Taeniura lymma)',
+                    isProtected: true,
+                    protectionStatus: 'Cartilaginous Fish Conservation Focus · Handle with Care',
+                    edible: false,
+                    edibleDesc: 'Not recommended for harvest or eating; rays have long reproductive cycles, low juvenile survival, and defensive tail spines.',
+                    habit: 'Prefers tropical coral reef edges, sandy bottoms, and rock caves, often resting on sand or in sheltered spots by day.',
+                    feature: 'Oval disc with an olive-green or yellowish-brown base scattered with bright blue spots, and a long tail marked with blue stripes.',
+                    conservationNote: 'Cartilaginous fish like sharks and rays are sensitive to habitat change and overfishing; respect wildlife and avoid disturbance or capture.'
+                },
+                fish9: {
+                    cnName: 'Great White Shark',
+                    enName: 'Carcharodon carcharias',
+                    isProtected: true,
+                    protectionStatus: 'Monitored Under International Conventions · Ecological Conservation Species',
+                    edible: false,
+                    edibleDesc: 'Not recommended as routine food fish; apex marine predators carry heavy-metal bioaccumulation risks and require caution.',
+                    habit: 'Mainly inhabits temperate and subtropical coastal waters worldwide with strong migratory ability, making long transoceanic migrations following seasons and temperatures (around 10–24°C), commonly seen off the US East and West Coasts, South Africa, Australia, and New Zealand; as an apex predator, it helps maintain ocean ecosystem health and balance by regulating marine mammal and fish populations.',
+                    feature: 'Torpedo-shaped muscular body with a powerful crescent caudal fin capable of short bursts up to about 56 km/h (35 mph), countershaded dark grey/blue-grey/brownish-grey above and pure white below for camouflage, rows of large serrated triangular teeth that replace forward when lost, and electroreceptive ampullae of Lorenzini on the snout to sense faint bioelectric fields.',
+                    conservationNote: 'Due to slow growth, late sexual maturity (around 26 years for males and 33 years for females), and human overfishing and bycatch, the great white shark is listed as Vulnerable by the IUCN and protected under international conventions.'
+                },
+                fish10: {
+                    cnName: 'Giant Oarfish',
+                    enName: 'Giant Oarfish (Regalecus glesne)',
+                    isProtected: true,
+                    protectionStatus: 'Rare Deep-Sea Species · Science & Conservation Priority',
+                    edible: false,
+                    edibleDesc: 'Not recommended for eating; deep-sea specimens are rare with watery flesh and poor palatability, best prioritized for research and conservation.',
+                    habit: 'Usually inhabits deeper pelagic waters with elusive habits, occasionally surfacing near shore due to currents or health issues.',
+                    feature: 'Extremely long ribbon-like body with a bright red elongated head-ray crest and silvery skin marked with dark patterns.',
+                    conservationNote: 'Human knowledge of the deep sea remains limited; every recorded deep-sea fish is a precious natural archive worth careful protection.'
+                },
+                fish11: {
+                    cnName: 'Pennant Coralfish',
+                    enName: 'Heniochus acuminatus',
+                    isProtected: false,
+                    protectionStatus: 'Least Concern',
+                    edible: false,
+                    edibleDesc: 'Non-toxic and theoretically edible, yet practically of no culinary value and almost never eaten as a food fish.',
+                    habit: 'Widely distributed across tropical coral reefs from the Indian Ocean to the Pacific, including the Red Sea, East Africa, southern Japan, Australia\'s Great Barrier Reef, and waters around the South China Sea and Taiwan; juveniles usually live solitarily in shallow coral reefs or lagoons, sometimes acting as "cleaner fish" removing parasites from larger fish, while adults mostly inhabit outer coral reef slopes at depths of 15 to 75 meters and often swim in schools in midwater.',
+                    feature: 'Often called a pennant bannerfish or false moorish idol in the aquarium hobby, it is a highly ornamental tropical marine butterflyfish species growing up to about 25 cm in length.',
+                    conservationNote: 'Protect tropical coral reefs and avoid unnecessary capture or habitat disturbance so reef fish and their habitats stay healthy.'
+                },
+                fish12: {
+                    cnName: 'Ocean Whale Shark',
+                    enName: 'Whale Shark (Rhincodon typus)',
+                    isProtected: true,
+                    protectionStatus: 'Nationally and Internationally Protected Endangered Species · Fishing Strictly Prohibited',
+                    edible: false,
+                    edibleDesc: 'Not for consumption; a rare and endangered large marine species that should be prioritized for protection.',
+                    habit: 'Lives in tropical and warm temperate seas, feeding on plankton and small fish and shrimp with a relatively gentle nature.',
+                    feature: 'Massive body covered in pale checkerboard spots and crossbars, with a distinctly broad, flat head and prominent gill slits.',
+                    conservationNote: 'Whale sharks face threats such as vessel strikes, bycatch, and habitat disturbance; joint protection across society is needed so they can swim freely for a long time to come.'
+                }
+            };
+
+            const DEFAULT_FISH_ENCYCLOPEDIA_ZH = {
+                fish1: {
+                    cnName: '银鲭鱼',
+                    enName: 'Chub Mackerel (Scomber japonicus)',
+                    isProtected: false,
+                    protectionStatus: '常规经济鱼类 · 合理捕捞',
+                    edible: true,
+                    edibleDesc: '可食用，肉质紧实、富含不饱和脂肪酸，适合香煎或盐烤，需注意新鲜度与充分熟制。',
+                    habit: '喜集群生活于温带与亚热带近海及外海表层至中层，随水温与饵料生物做季节性洄游。',
+                    feature: '纺锤形流线型鱼体，背部呈蓝绿带波纹斑，尾柄细小且具小鳍，游速敏捷。',
+                    conservationNote: '虽非濒危物种，但过度捕捞幼鱼会影响近海食物链，沿岸渔场需遵守休渔与网目规范。'
+                },
+                fish2: {
+                    cnName: '黄鳍金枪鱼',
+                    enName: 'Yellowfin Tuna (Thunnus albacares)',
+                    isProtected: false,
+                    protectionStatus: '国际渔业管理物种 · 近危/受关注',
+                    edible: true,
+                    edibleDesc: '可食用，常见远洋食用鱼与刺身食材，但大型洄游鱼类需关注可持续来源与适度食用。',
+                    habit: '典型的远洋洄游性大洋鱼类，偏好温暖海水，常跟随海豚或漂浮物群集活动。',
+                    feature: '体侧具金黄色纵带，第二背鳍与臀鳍拉长呈亮黄色，胸鳍较长，具备高效巡航能力。',
+                    conservationNote: '远洋捕捞需减少对海龟、鲨鱼等非目标物种的误捕，支持可追溯与可持续管理的渔获。'
+                },
+                fish3: {
+                    cnName: '红珊瑚鲷',
+                    enName: 'Coral Breams / Reef Snapper',
+                    isProtected: true,
+                    protectionStatus: '珊瑚礁敏感物种 · 建议重点保护',
+                    edible: false,
+                    edibleDesc: '不建议食用，部分珊瑚礁鱼类存在雪卡毒素富集风险，且珊瑚礁生态极为脆弱。',
+                    habit: '多栖息于热带与亚热带珊瑚礁、岩礁缝隙及浅海清澈水体，对礁区环境依赖度高。',
+                    feature: '体色鲜艳偏红橙，与珊瑚环境相融，既能躲避天敌，也是珊瑚礁健康的重要指示种。',
+                    conservationNote: '珊瑚礁鱼类生长较慢、繁殖率受限。保护珊瑚礁与礁栖鱼类，就是守护海洋“热带雨林”的生物多样性。'
+                },
+                fish4: {
+                    cnName: '蓝枪旗鱼',
+                    enName: 'Blue Marlin (Makaira nigricans)',
+                    isProtected: true,
+                    protectionStatus: '受国际公约关注 · 生态保护物种',
+                    edible: false,
+                    edibleDesc: '不建议作为日常食用鱼捕捞，大型旗鱼处于海洋顶级掠食层，且存在重金属富集风险。',
+                    habit: '生活在热带与温带广阔大洋上层，长距离跨洋洄游，是维持大洋生态系统平衡的关键顶级捕食者。',
+                    feature: '吻部延长成枪状，背鳍高耸如帆，体背深钴蓝、腹部银白，爆发力极强。',
+                    conservationNote: '顶级掠食者一旦锐减，会导致中上层鱼类失衡。减少误捕与非法猎杀，对维持公海生态稳定至关重要。'
+                },
+                fish5: {
+                    cnName: '深海乌贼',
+                    enName: 'Cuttlefish (Sepiida)',
+                    isProtected: false,
+                    protectionStatus: '常见头足类 · 注重栖息地保护',
+                    edible: true,
+                    edibleDesc: '可食用，常见海产食材，烹饪前需妥善处理墨囊与内壳，并充分加热熟制。',
+                    habit: '多生活于近海沙质或海草床底质海域，擅长伪装变色，遇敌时会喷出墨汁掩护逃生。',
+                    feature: '拥有石灰质内壳、十条腕足与敏锐视觉，能在瞬间改变体色与皮肤纹理。',
+                    conservationNote: '海草床与浅海产卵场退化会直接影响头足类繁殖，保护近海海草床就是保护它们的“育幼室”。'
+                },
+                fish6: {
+                    cnName: '金龙鱼珍稀种',
+                    enName: 'Arowana / Protected Rare Species',
+                    isProtected: true,
+                    protectionStatus: '高度受保护珍稀物种 · 严禁非法捕捞',
+                    edible: false,
+                    edibleDesc: '不可食用，严禁捕捉、交易或食用受保护珍稀水生野生动物。',
+                    habit: '多分布于特定受限流域或珍稀保护水域，对水质与自然栖息环境要求极高，野外种群稀少。',
+                    feature: '体态修长威仪，鳞片具强烈金属光泽，胡须与鳍条辨识度极高，具有很高的科研与生态价值。',
+                    conservationNote: '珍稀物种一旦野外灭绝便不可逆转。拒绝非法捕捉与买卖珍稀野生动物，是每个人的责任。'
+                },
+                fish7: {
+                    cnName: '蝴蝶鱼',
+                    enName: 'Butterflyfish (Chaetodontidae)',
+                    isProtected: true,
+                    protectionStatus: '珊瑚礁指示物种 · 生态保护种',
+                    edible: false,
+                    edibleDesc: '不建议食用，多为珊瑚礁观赏与生态指示鱼类，食用价值低且破坏礁区生态。',
+                    habit: '常成对或小群活动于热带珊瑚礁浅水区，啄食珊瑚虫或小型无脊椎动物。',
+                    feature: '身体侧扁呈盘状或卵圆形，体色明亮并常具眼斑或条纹，能迷惑掠食者攻击尾部。',
+                    conservationNote: '蝶鱼与活珊瑚紧密共生，珊瑚白化与退化会让它们失去家园，守护碧海珊瑚需要大家共同关注。'
+                },
+                fish8: {
+                    cnName: '蓝点魟鱼',
+                    enName: 'Bluespotted Ribbontail Ray (Taeniura lymma)',
+                    isProtected: true,
+                    protectionStatus: '软骨鱼类保护关注 · 谨慎对待',
+                    edible: false,
+                    edibleDesc: '不建议捕捞食用，魟鱼繁殖周期长、幼体成活率低，且尾部可能带有防御性刺棘。',
+                    habit: '偏好热带珊瑚礁边缘、砂质底部与礁石洞穴，白天常伏于沙底或隐蔽处休息。',
+                    feature: '体盘呈椭圆形，橄榄绿或黄褐底色上散布亮蓝色斑点，尾部长而具蓝纹。',
+                    conservationNote: '鲨鱼与魟鱼等软骨鱼类对栖息地变化与过度捕捞极为敏感，尊重自然生灵、避免惊扰与捕捉。'
+                },
+                fish9: {
+                    cnName: '大白鲨',
+                    enName: 'Carcharodon carcharias',
+                    isProtected: true,
+                    protectionStatus: '受国际公约关注 · 生态保护物种',
+                    edible: false,
+                    edibleDesc: '不建议作为日常食用鱼捕捞（大型掠食者处于海洋顶级掠食层，重金属富集风险需谨慎）。',
+                    habit: '主要分布在世界各地的温带和亚热带沿海水域，具有极强的迁徙能力，常随季节变化和水温（偏爱约 10–24°C 的水温）进行跨洋长距离洄游，在美国东西海岸、南非、澳大利亚及新西兰周边海域较为常见；作为食物链顶端的掠食者，大白鲨通过控制海洋哺乳动物和鱼类的种群数量，维持着整个海洋生态系统的健康与稳定。',
+                    feature: '背部呈深灰、蓝灰或褐灰色，腹部为纯白色，这种“反荫蔽”保护色有助于它们在海中隐藏行踪；身体呈粗壮的鱼雷状，配有强大的新月形尾鳍，游动速度极快，短距离冲刺时速可达 56 公里（约 35 英里）左右；口腔内排列着多排三角形、边缘带粗锯齿的锋利牙齿，牙齿一旦脱落，后排牙齿会自动向前替补；除出色的视力和嗅觉外，吻部布满了名为“劳伦氏壶腹”的电感受器，能探测到猎物肌肉收缩时发出的微弱生物电场。',
+                    conservationNote: '由于生长缓慢、性成熟晚（雄性约需 26 年，雌性约需 33 年）以及人类过度捕捞和误捕的影响，大白鲨目前被世界自然保护联盟（IUCN）列为易危（Vulnerable）物种，受到多项国际公约的保护。'
+                },
+                fish10: {
+                    cnName: '深海皇带鱼',
+                    enName: 'Giant Oarfish (Regalecus glesne)',
+                    isProtected: true,
+                    protectionStatus: '珍稀深海物种 · 科普保护重点',
+                    edible: false,
+                    edibleDesc: '不建议食用，深海鱼类样本稀少且肉质水分高、口感不佳，重点在于科研与生态保护。',
+                    habit: '通常栖息在较深海层中上水体，行踪隐秘，偶因海流或健康状况浮至近海表层。',
+                    feature: '鱼体极其修长如带状，头顶具鲜红延长鳍条如冠，银色体表带有暗色斑纹，形态奇特。',
+                    conservationNote: '人类对深海世界的了解仍十分有限，每一尾被记录的深海鱼类都是珍贵的自然档案，值得倍加爱护。'
+                },
+                fish11: {
+                    cnName: '白吻双带立旗鲷',
+                    enName: 'Heniochus acuminatus',
+                    isProtected: false,
+                    protectionStatus: '无危',
+                    edible: false,
+                    edibleDesc: '无毒性、可食用，但基本没有食用价值，几乎没有人拿它当食用鱼。',
+                    habit: '广泛分布于印度洋至太平洋的热带珊瑚礁海域，包括红海、东非、日本南部、澳大利亚大堡礁及中国南海、台湾周边海域；幼鱼通常独居，常在浅水区的珊瑚礁或泻湖中活动，有时会充当“清洁鱼”帮大鱼清理体表寄生虫；成鱼则多栖息于水深 15 至 75 米的珊瑚礁外坡，喜欢成群结队在水中层游动，体长最大可达 25 厘米左右。',
+                    feature: '在水族圈常被称为关刀鱼或假神仙鱼，是一种极具观赏价值的蝴蝶鱼科热带海水鱼。',
+                    conservationNote: '爱护热带珊瑚礁栖息地，减少不必要的捕捉与环境干扰，守护礁区生态健康。'
+                },
+                fish12: {
+                    cnName: '大洋鲸鲨',
+                    enName: 'Whale Shark (Rhincodon typus)',
+                    isProtected: true,
+                    protectionStatus: '国家与国际重点保护濒危物种 · 严禁捕捞',
+                    edible: false,
+                    edibleDesc: '不可食用，属于珍稀濒危大型海洋生物，应当重点保护。',
+                    habit: '生活于热带与暖温带海域，以浮游生物与小型鱼虾为食，性情相对温顺。',
+                    feature: '体型硕大，体表布满浅色棋盘状斑点与横纹，宽扁头部与鳃裂特征明显。',
+                    conservationNote: '鲸鲨面临船撞、误捕与栖息地干扰等威胁，全社会共同守护才可让它们长久遨游。'
+                }
+            };
+
+            const fishMetaCache = { en: {}, zh: {} };
+
+            function buildFallbackFishMeta(species, fishId, lang = 'en') {
+                const dict = lang === 'zh' ? DEFAULT_FISH_ENCYCLOPEDIA_ZH : DEFAULT_FISH_ENCYCLOPEDIA_EN;
+                const preset = dict[fishId] || DEFAULT_FISH_ENCYCLOPEDIA_EN[fishId];
+                if (preset) {
+                    return {
+                        id: fishId,
+                        cnName: preset.cnName,
+                        enName: preset.enName,
+                        isProtected: !!preset.isProtected,
+                        protectionStatus: preset.protectionStatus,
+                        edible: !!preset.edible,
+                        edibleDesc: preset.edibleDesc,
+                        habit: preset.habit,
+                        feature: preset.feature,
+                        conservationNote: preset.conservationNote,
+                        imgSrc: `${FISH_DIR}${fishId}.jpg`,
+                        fallbackImgSrc: species?.imgSrc || `${FISH_DIR}${fishId}.png`
+                    };
+                }
+                return {
+                    id: fishId,
+                    cnName: species?.label || fishId,
+                    enName: 'Marine Fish Species',
+                    isProtected: false,
+                    protectionStatus: lang === 'zh' ? '海洋生态观察物种' : 'Marine Ecological Observation Species',
+                    edible: true,
+                    edibleDesc: lang === 'zh' ? '视当地渔业与食品安全规范而定。' : 'Depends on local fishery and food safety guidelines.',
+                    habit: lang === 'zh' ? '栖息于近海至外海水域，随水温与洋流活动。' : 'Inhabits coastal to offshore waters, moving with temperature and currents.',
+                    feature: lang === 'zh' ? '具流线型或适应游动的体态与鳍条结构。' : 'Body shaped for swimming with fins and lateral line sensing water movement.',
+                    conservationNote: lang === 'zh' ? '爱护海洋环境，减少垃圾与生态干扰。' : 'Care for the ocean, avoid littering, and protect marine ecosystems.',
+                    imgSrc: `${FISH_DIR}${fishId}.jpg`,
+                    fallbackImgSrc: species?.imgSrc || `${FISH_DIR}${fishId}.png`
+                };
+            }
+
+            function parseFishTxtContent(rawText, baseMeta) {
+                const meta = { ...baseMeta };
+                if (!rawText || typeof rawText !== 'string') return meta;
+
+                const lines = rawText.replace(/\r\n/g, '\n').split('\n');
+                for (const line of lines) {
+                    const trimmed = line.trim();
+                    if (!trimmed || trimmed.startsWith('#')) continue;
+
+                    const sepIdx = trimmed.search(/[:：]/);
+                    if (sepIdx === -1) continue;
+
+                    const key = trimmed.slice(0, sepIdx).trim();
+                    const val = trimmed.slice(sepIdx + 1).trim();
+                    if (!val) continue;
+
+                    if (key === 'Name' || key === 'Common Name' || key === '中文名' || key === '名称') meta.cnName = val;
+                    else if (key === 'Scientific Name' || key === 'English Name' || key === '英文名' || key === '学名') meta.enName = val;
+                    else if (key === 'Protected' || key === 'Is Protected' || key === '受保护' || key === '是否受保护') {
+                        meta.isProtected = /^(yes|true|1|protected|rare|endangered|是|受保护|保护|珍稀|濒危)$/i.test(val);
+                    } else if (key === 'Protection Status' || key === '保护级别' || key === '保护状态') {
+                        meta.protectionStatus = val;
+                    } else if (key === 'Edible' || key === 'Is Edible' || key === '可食用' || key === '是否可食用') {
+                        meta.edible = /^(yes|true|1|edible|是|可食用|能吃|食用)$/i.test(val);
+                    } else if (key === 'Edibility' || key === 'Edible Notes' || key === '食用说明' || key === '食用情况') {
+                        meta.edibleDesc = val;
+                    } else if (key === 'Habitat' || key === 'Habit' || key === '栖息习性' || key === '习性') {
+                        meta.habit = val;
+                    } else if (key === 'Appearance' || key === 'Feature' || key === '外形特点' || key === '特点') {
+                        meta.feature = val;
+                    } else if (key === 'Conservation' || key === 'Conservation Note' || key === '保护宣传' || key === '宣传语' || key === '保护说明') {
+                        meta.conservationNote = val;
+                    }
+                }
+                return meta;
+            }
+
+            async function getFishMetaOnDemand(species, lang = state.uiLang) {
+                const safeLang = lang === 'zh' ? 'zh' : 'en';
+                const fishId = species?.id || 'fish1';
+                if (fishMetaCache[safeLang][fishId]) return fishMetaCache[safeLang][fishId];
+
+                let meta = buildFallbackFishMeta(species, fishId, safeLang);
+                if (safeLang === 'en') {
+                    try {
+                        const resp = await fetch(`${FISH_DIR}${fishId}.txt`, { cache: 'no-cache' });
+                        if (resp.ok) {
+                            const rawText = await resp.text();
+                            meta = parseFishTxtContent(rawText, meta);
+                        }
+                    } catch (_) {
+                        // Fallback to built-in encyclopedia on file:// or offline
+                    }
+                }
+                fishMetaCache[safeLang][fishId] = meta;
+                return meta;
+            }
+
             const FALLBACK_OBS_STYLES = [
-                { kind: 'rock', label: '礁石', baseW: 82, baseH: 56, hitX: 0.11 }
+                { kind: 'rock', label: 'Rock', baseW: OBS_CFG.baseW || 96, baseH: OBS_CFG.baseH || 72, hitX: 0.11 }
             ];
 
             function loadCustomImage(entry, src) {
@@ -511,12 +1448,30 @@
 
             const FISH_SPECIES = FISH_FILES.map((file, idx) => {
                 const fb = FALLBACK_FISH_STYLES[idx % FALLBACK_FISH_STYLES.length];
+                const tier = getFishSizeTierByIndex(idx);
                 const cleanName = file.replace(/\.[^.]+$/, '');
+                const presetEn = DEFAULT_FISH_ENCYCLOPEDIA_EN[cleanName];
+                const tierPoints = tier.baseScore || (tier.key === 'large' ? 4 : (tier.key === 'medium' ? 2 : 1));
                 const item = {
-                    id: cleanName, file, label: cleanName, shape: fb.shape,
-                    body: fb.body, belly: fb.belly, fin: fb.fin, accent: fb.accent,
-                    lenRatio: fb.lenRatio, thickRatio: fb.thickRatio, tailSpan: fb.tailSpan,
-                    bonusPoints: fb.bonusPoints, isCuttlefish: !!fb.isCuttlefish
+                    id: cleanName,
+                    slotIndex: idx,
+                    sizeTier: tier.key,
+                    sizeTierLabel: tier.label,
+                    sizeMult: tier.sizeMult,
+                    jumpProb: tier.jumpProb,
+                    jumpScore: tier.jumpScore,
+                    file,
+                    label: presetEn ? presetEn.cnName : cleanName,
+                    shape: fb.shape,
+                    body: fb.body,
+                    belly: fb.belly,
+                    fin: fb.fin,
+                    accent: fb.accent,
+                    lenRatio: fb.lenRatio * tier.sizeMult,
+                    thickRatio: fb.thickRatio,
+                    tailSpan: fb.tailSpan,
+                    bonusPoints: tierPoints,
+                    isCuttlefish: cleanName === 'fish5'
                 };
                 loadCustomImage(item, `${FISH_DIR}${file}`);
                 return item;
@@ -561,37 +1516,238 @@
                 }
             };
 
+            const CFG_WAVES = EXT_CFG.wavePresets || {};
             const WAVE_PRESETS = {
-                calm:   { amp: 0.56, speed: 0.75, foamDensity: 0.58 },
-                choppy: { amp: 1.12, speed: 1.06, foamDensity: 1.12 },
-                stormy: { amp: 1.72, speed: 1.45, foamDensity: 1.72 }
+                calm:   { amp: 0.56, speed: 0.75, foamDensity: 0.45, maxSplashes: 160, boatSplashChance: 0.35, ...(CFG_WAVES.calm || {}) },
+                choppy: { amp: 1.05, speed: 1.02, foamDensity: 0.72, maxSplashes: 180, boatSplashChance: 0.42, ...(CFG_WAVES.choppy || {}) },
+                stormy: { amp: 1.55, speed: 1.38, foamDensity: 0.95, maxSplashes: 210, boatSplashChance: 0.48, ...(CFG_WAVES.stormy || {}) }
             };
 
             const STORAGE_UNLOCK_KEY = 'ocean_hunting_unlocked_stage';
+            const STORAGE_LANG_KEY = 'ocean_hunting_ui_lang';
             let maxUnlockedStage = 0;
             try {
                 const saved = parseInt(localStorage.getItem(STORAGE_UNLOCK_KEY) || '0', 10);
                 if (!Number.isNaN(saved)) maxUnlockedStage = clamp(saved, 0, LEVELS.length - 1);
             } catch (_) {}
 
-            const DAY_CYCLE_SECONDS = 24;
+            let initialLang = 'en';
+            try {
+                const savedLang = localStorage.getItem(STORAGE_LANG_KEY);
+                if (savedLang === 'en' || savedLang === 'zh') initialLang = savedLang;
+            } catch (_) {}
+
+            const DAY_CYCLE_SECONDS = EXT_CFG.dayCycleSeconds || 24;
 
             const state = {
                 width: window.innerWidth, height: window.innerHeight,
                 dpr: Math.min(window.devicePixelRatio || 1, 2),
-                time: 0, mood: 'sunset', waveMode: 'calm',
+                uiLang: initialLang,
+                time: 0, mood: EXT_CFG.defaultMood || 'sunset', waveMode: EXT_CFG.defaultWaveMode || 'calm',
                 baseRowSpeed: 1.0, currentRowSpeed: 1.0, isBoosting: false,
                 rowPhase: 0, boatForwardImpulse: 0,
                 boatXNorm: 0.5, boatYNorm: BOAT_DEFAULT_Y_NORM, draggingBoat: false,
-                celestialClock: 0, daysPerRound: 10, gameStarted: false,
+                celestialClock: 0, daysPerRound: EXT_CFG.defaultDaysPerRound || 3, gameStarted: false,
                 selectedStartStage: 0, levelIndex: 0, score: 0, caughtCount: 0,
+                caughtSpeciesMap: {},
                 roundEnded: false, awaitingAnyKeyForPortButtons: false, endReason: 'crash',
                 vesselTier: 0, approachingPort: false
             };
 
+            function t() { return I18N[state.uiLang] || I18N.en; }
+            function getLocalizedStageMeta(idx) {
+                const dict = t().stages;
+                const fallback = LEVELS[clamp(idx, 0, LEVELS.length - 1)];
+                const item = dict[idx] || fallback;
+                return {
+                    name: item.name || fallback.name,
+                    shortName: item.shortName || fallback.shortName,
+                    waveName: item.waveName || fallback.waveName
+                };
+            }
+            function getLocalizedVesselName(tierIdx) {
+                const dict = t().vessels;
+                const fallback = VESSEL_TIERS[clamp(tierIdx, 0, VESSEL_TIERS.length - 1)];
+                return (dict[tierIdx] && dict[tierIdx].name) || fallback.name;
+            }
+
+            const coverBgImgEl = document.getElementById('coverBgImg');
+            function syncCoverImageByLanguage() {
+                const primarySrc = state.uiLang === 'zh'
+                    ? 'assets/cover_no_button_zh.png'
+                    : 'assets/cover_no_button_en.png';
+                const fallbackSrc = 'assets/cover_no_button.png';
+                coverBgImgEl.onerror = () => {
+                    coverBgImgEl.onerror = null;
+                    coverBgImgEl.src = fallbackSrc;
+                };
+                coverBgImgEl.src = primarySrc;
+            }
+
             const helpBtn = document.getElementById('helpBtn');
             const helpModalEl = document.getElementById('helpModal');
             const helpCloseBtn = document.getElementById('helpCloseBtn');
+
+            const caughtLeftPanelEl = document.getElementById('caughtLeftPanel');
+            const caughtRightPanelEl = document.getElementById('caughtRightPanel');
+            const caughtLeftListEl = document.getElementById('caughtLeftList');
+            const caughtRightListEl = document.getElementById('caughtRightList');
+
+            const fishDetailBackdropEl = document.getElementById('fishDetailBackdrop');
+            const fishPage1El = document.getElementById('fishPage1');
+            const fishPage2El = document.getElementById('fishPage2');
+            const toggleFishPageBtn = document.getElementById('toggleFishPageBtn');
+            const detailPage2TitleEl = document.getElementById('detailPage2Title');
+            const detailFishImgEl = document.getElementById('detailFishImg');
+            const detailFishCnEl = document.getElementById('detailFishCn');
+            const detailFishEnEl = document.getElementById('detailFishEn');
+            const detailProtectPillEl = document.getElementById('detailProtectPill');
+            const detailEdiblePillEl = document.getElementById('detailEdiblePill');
+            const detailPrimaryNameEl = document.getElementById('detailPrimaryName');
+            const detailPrimaryProtectEl = document.getElementById('detailPrimaryProtect');
+            const detailPrimaryEdibleEl = document.getElementById('detailPrimaryEdible');
+            const detailConservationBoxEl = document.getElementById('detailConservationBox');
+            const detailHabitEl = document.getElementById('detailHabit');
+            const detailFeatureEl = document.getElementById('detailFeature');
+            const detailEdibleDescEl = document.getElementById('detailEdibleDesc');
+            const closeFishDetailBtn = document.getElementById('closeFishDetailBtn');
+            let currentFishDetailPage = 1;
+            let activeDetailSpecies = null;
+
+            function setFishDetailPage(pageNum) {
+                currentFishDetailPage = pageNum === 2 ? 2 : 1;
+                fishPage1El.classList.toggle('active', currentFishDetailPage === 1);
+                fishPage2El.classList.toggle('active', currentFishDetailPage === 2);
+                toggleFishPageBtn.textContent = currentFishDetailPage === 1 ? t().nextPageBtn : t().prevPageBtn;
+            }
+
+            toggleFishPageBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                setFishDetailPage(currentFishDetailPage === 1 ? 2 : 1);
+            });
+
+            function hideCaughtSidePanels() {
+                caughtLeftPanelEl.classList.remove('show');
+                caughtRightPanelEl.classList.remove('show');
+                fishDetailBackdropEl.classList.remove('show');
+                activeDetailSpecies = null;
+                setFishDetailPage(1);
+            }
+
+            async function renderFishDetailContent(species, resetPage = true) {
+                if (!species) return;
+                activeDetailSpecies = species;
+                const meta = await getFishMetaOnDemand(species, state.uiLang);
+                species.label = meta.cnName;
+                if (resetPage) setFishDetailPage(1);
+                else setFishDetailPage(currentFishDetailPage);
+
+                detailFishImgEl.onerror = () => {
+                    detailFishImgEl.onerror = null;
+                    detailFishImgEl.src = meta.fallbackImgSrc || `${FISH_DIR}${species?.id || 'fish1'}.png`;
+                };
+                detailFishImgEl.src = meta.imgSrc;
+                detailFishImgEl.alt = meta.cnName;
+                detailFishCnEl.textContent = meta.cnName;
+                detailFishEnEl.textContent = meta.enName;
+                detailPage2TitleEl.textContent = `${meta.cnName} · ${t().page2TitleSuffix}`;
+
+                detailProtectPillEl.textContent = meta.isProtected ? t().pillProtected : t().pillCommon;
+                detailProtectPillEl.className = `detail-pill ${meta.isProtected ? 'danger' : 'safe'}`;
+
+                detailEdiblePillEl.textContent = meta.edible ? t().pillEdibleYes : t().pillEdibleNo;
+                detailEdiblePillEl.className = `detail-pill ${meta.edible ? 'edible-yes' : 'edible-no'}`;
+
+                detailPrimaryNameEl.textContent = meta.cnName;
+                detailPrimaryProtectEl.textContent = meta.isProtected ? t().primaryProtectYes : t().primaryProtectNo;
+                detailPrimaryEdibleEl.textContent = meta.edible ? t().primaryEdibleYes : t().primaryEdibleNo;
+
+                detailConservationBoxEl.className = `conservation-banner ${meta.isProtected ? 'protected' : 'general'}`;
+                detailConservationBoxEl.textContent = `${meta.protectionStatus}: ${meta.conservationNote}`;
+
+                detailHabitEl.textContent = meta.habit;
+                detailFeatureEl.textContent = meta.feature;
+                detailEdibleDescEl.textContent = meta.edibleDesc;
+            }
+
+            async function openFishDetailModal(species) {
+                await renderFishDetailContent(species, true);
+                fishDetailBackdropEl.classList.add('show');
+            }
+
+            async function createThumbCard(entry) {
+                const meta = await getFishMetaOnDemand(entry.species, state.uiLang);
+                entry.species.label = meta.cnName;
+
+                const card = document.createElement('button');
+                card.type = 'button';
+                card.className = `fish-thumb-card ${meta.isProtected ? 'protected-card' : ''}`;
+                card.title = t().thumbTitleFormat(meta.cnName);
+
+                const countBadge = document.createElement('span');
+                countBadge.className = 'fish-thumb-count';
+                countBadge.textContent = `×${entry.count}`;
+
+                const img = document.createElement('img');
+                img.onerror = () => {
+                    img.onerror = null;
+                    img.src = meta.fallbackImgSrc || `${FISH_DIR}${entry.species?.id || 'fish1'}.png`;
+                };
+                img.src = meta.imgSrc;
+                img.alt = meta.cnName;
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'fish-thumb-name';
+                nameSpan.textContent = meta.cnName;
+
+                card.appendChild(countBadge);
+                card.appendChild(img);
+                card.appendChild(nameSpan);
+
+                if (meta.isProtected) {
+                    const tag = document.createElement('span');
+                    tag.className = 'fish-protect-tag';
+                    tag.textContent = t().protectedBadge;
+                    card.appendChild(tag);
+                }
+
+                card.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openFishDetailModal(entry.species);
+                });
+                return card;
+            }
+
+            async function renderCaughtSidePanels() {
+                const list = Object.values(state.caughtSpeciesMap || {});
+                caughtLeftListEl.innerHTML = '';
+                caughtRightListEl.innerHTML = '';
+
+                if (list.length === 0) {
+                    caughtLeftListEl.innerHTML = `<div class="fish-thumb-empty">${t().caughtEmptyLeft}</div>`;
+                    caughtRightListEl.innerHTML = `<div class="fish-thumb-empty">${t().caughtEmptyRight}</div>`;
+                } else {
+                    const splitIdx = Math.ceil(list.length / 2);
+                    const leftCards = await Promise.all(list.slice(0, splitIdx).map(createThumbCard));
+                    const rightCards = await Promise.all(list.slice(splitIdx).map(createThumbCard));
+                    leftCards.forEach(c => caughtLeftListEl.appendChild(c));
+                    rightCards.forEach(c => caughtRightListEl.appendChild(c));
+                }
+
+                caughtLeftPanelEl.classList.add('show');
+                caughtRightPanelEl.classList.add('show');
+            }
+
+            closeFishDetailBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                fishDetailBackdropEl.classList.remove('show');
+                activeDetailSpecies = null;
+            });
+            fishDetailBackdropEl.addEventListener('click', (e) => {
+                e.stopPropagation();
+                fishDetailBackdropEl.classList.remove('show');
+                activeDetailSpecies = null;
+            });
 
             function syncBodyPhaseClass() {
                 document.body.classList.remove('at-cover', 'game-running');
@@ -600,17 +1756,16 @@
                     state.approachingPort = false;
                 } else if (!state.roundEnded) {
                     document.body.classList.add('game-running');
-                    helpModalEl.classList.remove('show');
                 } else {
                     state.approachingPort = false;
                 }
             }
 
-            const VESSEL_TIERS = [
-                { minScore: 0,   id: 'rowboat',   icon: '🚣', name: '木质划桨船', speedMult: 1.0,  imgSrc: 'assets/vessels/rowboat.png',   drawWidth: 230, drawHeight: 155 },
-                { minScore: 25,  id: 'sailboat',  icon: '⛵', name: '乘风白帆船', speedMult: 1.25, imgSrc: 'assets/vessels/sailboat.png',  drawWidth: 240, drawHeight: 185 },
-                { minScore: 60,  id: 'speedboat', icon: '🚤', name: '疾风涡轮快艇', speedMult: 1.55, imgSrc: 'assets/vessels/speedboat.png', drawWidth: 245, drawHeight: 165 },
-                { minScore: 110, id: 'yacht',     icon: '🛥️', name: '远洋豪华游艇', speedMult: 1.8,  imgSrc: 'assets/vessels/yacht.png',     drawWidth: 260, drawHeight: 175 }
+            const VESSEL_TIERS = Array.isArray(EXT_CFG.vessels) && EXT_CFG.vessels.length ? EXT_CFG.vessels : [
+                { minScore: 0,   id: 'rowboat',   icon: '🚣', name: 'Wooden Rowboat',   speedMult: 1.0,  imgSrc: 'assets/vessels/rowboat.png',   drawWidth: 100, drawHeight: 150 },
+                { minScore: 25,  id: 'sailboat',  icon: '⛵', name: 'Wind Sailboat',    speedMult: 1.25, imgSrc: 'assets/vessels/sailboat.png',  drawWidth: 100, drawHeight: 150 },
+                { minScore: 60,  id: 'speedboat', icon: '🚤', name: 'Turbo Speedboat',  speedMult: 1.55, imgSrc: 'assets/vessels/speedboat.png', drawWidth: 100, drawHeight: 150 },
+                { minScore: 110, id: 'yacht',     icon: '🛥️', name: 'Ocean Yacht',      speedMult: 1.80, imgSrc: 'assets/vessels/yacht.png',     drawWidth: 100, drawHeight: 150 }
             ];
             VESSEL_TIERS.forEach(v => loadCustomImage(v, v.imgSrc));
 
@@ -641,17 +1796,20 @@
 
             function renderCoverStageMenu() {
                 if (state.selectedStartStage > maxUnlockedStage) state.selectedStartStage = maxUnlockedStage;
+                const loc = t();
                 stageMenuBtns.forEach(btn => {
-                    const idx = parseInt(btn.dataset.stage, 10), lvl = LEVELS[idx], unlocked = idx <= maxUnlockedStage;
+                    const idx = parseInt(btn.dataset.stage, 10);
+                    const stgMeta = getLocalizedStageMeta(idx);
+                    const unlocked = idx <= maxUnlockedStage;
                     btn.disabled = !unlocked;
                     btn.classList.toggle('selected', unlocked && idx === state.selectedStartStage);
-                    btn.textContent = unlocked ? lvl.shortName : `🔒 ${lvl.shortName}`;
+                    btn.textContent = unlocked ? stgMeta.shortName : `🔒 ${stgMeta.shortName}`;
                 });
-                const chosenLvl = LEVELS[state.selectedStartStage];
-                coverStartBtn.textContent = `▶ 开始游戏（${chosenLvl.shortName}）`;
-                if (maxUnlockedStage === 0) coverTipEl.textContent = '通关第一关后解锁第二关';
-                else if (maxUnlockedStage === 1) coverTipEl.textContent = '已解锁第二关！可直接从第二关起航，通关后解锁第三关';
-                else coverTipEl.textContent = '已解锁全部三关，可任选关卡起航';
+                const chosenMeta = getLocalizedStageMeta(state.selectedStartStage);
+                coverStartBtn.textContent = `${loc.startGamePrefix} (${chosenMeta.shortName})`;
+                if (maxUnlockedStage === 0) coverTipEl.textContent = loc.tipUnlock1;
+                else if (maxUnlockedStage === 1) coverTipEl.textContent = loc.tipUnlock2;
+                else coverTipEl.textContent = loc.tipUnlockAll;
             }
 
             stageMenuBtns.forEach(btn => {
@@ -662,9 +1820,9 @@
                     state.selectedStartStage = idx; renderCoverStageMenu();
                 });
             });
-            renderCoverStageMenu();
 
             const stageDisplayEl = document.getElementById('stageDisplay'), dayDisplayEl = document.getElementById('dayDisplay');
+            const scorePrefixEl = document.getElementById('scorePrefix');
             const scoreDisplayEl = document.getElementById('scoreDisplay'), fishCountDisplayEl = document.getElementById('fishCountDisplay');
             const catchBannerEl = document.getElementById('catchBanner'), roundOverlayEl = document.getElementById('roundOverlay');
             const roundBadgeEl = document.getElementById('roundBadge'), roundTitleEl = document.getElementById('roundTitle');
@@ -676,7 +1834,66 @@
             function spawnObstacle() {
                 if (!OBSTACLE_SPECIES.length || obstacles.length >= 3) return;
                 const cfg = OBSTACLE_SPECIES[Math.floor(Math.random() * OBSTACLE_SPECIES.length)];
-                obstacles.push({ cfg, z: 0.08, xNorm: 0.22 + Math.random() * 0.56, driftX: (Math.random() - 0.5) * 0.03, bobPhase: Math.random() * Math.PI * 2, splashedNear: false });
+                obstacles.push({
+                    cfg,
+                    z: 0.035,
+                    horizonPause: OBS_CFG.horizonPauseDuration ?? 1.15,
+                    horizonPauseMax: OBS_CFG.horizonPauseDuration ?? 1.15,
+                    horizonGrow: 0,
+                    xNorm: 0.22 + Math.random() * 0.56,
+                    driftX: (Math.random() - 0.5) * 0.025,
+                    bobPhase: Math.random() * Math.PI * 2,
+                    splashedNear: false
+                });
+            }
+
+            function refreshRoundSummaryText() {
+                if (!state.roundEnded) return;
+                const loc = t();
+                const stgMeta = getLocalizedStageMeta(state.levelIndex);
+                const completedDays = Math.min(state.daysPerRound, Math.floor(state.celestialClock / DAY_CYCLE_SECONDS) + 1);
+                finalScoreValEl.textContent = loc.ptsSuffix(state.score);
+                finalFishValEl.textContent = `${state.caughtCount}`;
+
+                if (state.endReason === 'crash') {
+                    roundBadgeEl.textContent = loc.crashBadge;
+                    roundBadgeEl.className = 'round-badge crash';
+                    roundTitleEl.textContent = loc.crashTitle;
+                    roundDescEl.textContent = loc.crashDesc(completedDays, stgMeta.name, stgMeta.waveName);
+                    restartRoundBtn.textContent = loc.crashRestartBtn;
+                    return;
+                }
+
+                let targetTier = state.vesselTier;
+                for (let i = VESSEL_TIERS.length - 1; i >= 0; i--) {
+                    if (state.score >= VESSEL_TIERS[i].minScore) { targetTier = Math.max(targetTier, i); break; }
+                }
+                const willUpgrade = targetTier > state.vesselTier;
+                const upgradedVessel = VESSEL_TIERS[targetTier];
+                const upgradedVesselName = getLocalizedVesselName(targetTier);
+                const nextVessel = VESSEL_TIERS[state.vesselTier + 1];
+                const nextVesselName = getLocalizedVesselName(state.vesselTier + 1);
+
+                const upgradeTip = willUpgrade
+                    ? loc.upgradeTipYes(upgradedVessel.icon, upgradedVesselName)
+                    : nextVessel
+                        ? loc.upgradeTipNeed(state.score, nextVessel.minScore, nextVesselName)
+                        : loc.upgradeTipMax(upgradedVessel.icon, upgradedVesselName);
+
+                if (state.endReason === 'level_up') {
+                    const nextMeta = getLocalizedStageMeta(state.levelIndex + 1);
+                    roundBadgeEl.textContent = loc.levelUpBadge(stgMeta.name, state.daysPerRound, stgMeta.waveName);
+                    roundBadgeEl.className = 'round-badge';
+                    roundTitleEl.textContent = loc.levelUpTitle(nextMeta.name, nextMeta.waveName);
+                    roundDescEl.textContent = loc.levelUpDesc(nextMeta.waveName, upgradeTip);
+                    restartRoundBtn.textContent = loc.levelUpBtn(nextMeta.name, nextMeta.waveName);
+                } else if (state.endReason === 'victory') {
+                    roundBadgeEl.textContent = loc.victoryBadge;
+                    roundBadgeEl.className = 'round-badge win';
+                    roundTitleEl.textContent = loc.victoryTitle;
+                    roundDescEl.textContent = loc.victoryDesc(upgradeTip);
+                    restartRoundBtn.textContent = loc.victoryBtn;
+                }
             }
 
             function triggerCrashGameOver(obsLabel, x, y) {
@@ -684,15 +1901,10 @@
                 state.roundEnded = true; state.awaitingAnyKeyForPortButtons = false; state.endReason = 'crash';
                 state.draggingBoat = false; state.isBoosting = false; syncBodyPhaseClass();
                 spawnSplash(x, y, 42, 80, 1.4, 1.5);
-                const lvl = getCurrentLevelConfig();
-                const completedDays = Math.min(state.daysPerRound, Math.floor(state.celestialClock / DAY_CYCLE_SECONDS) + 1);
                 roundOverlayEl.classList.remove('port-mode', 'port-fade-in', 'buttons-revealed');
-                roundBadgeEl.textContent = '碰撞失事 · 未能过关（船只未升级）'; roundBadgeEl.className = 'round-badge crash';
-                roundTitleEl.textContent = '撞上礁石了！';
-                roundDescEl.textContent = `在${lvl.name}（${lvl.waveName}）第 ${completedDays} 天碰撞失败，未过关不升级船只。`;
-                finalScoreValEl.textContent = `${state.score} 分`; finalFishValEl.textContent = `${state.caughtCount} 条`;
-                restartRoundBtn.textContent = '重新开始（第 1 关）';
+                refreshRoundSummaryText();
                 roundOverlayEl.classList.add('show');
+                renderCaughtSidePanels();
             }
 
             function triggerStageClearWithPort() {
@@ -701,38 +1913,10 @@
                 setPortBackgroundForStage(state.levelIndex);
                 if (state.levelIndex + 1 < LEVELS.length) unlockStage(state.levelIndex + 1);
 
-                let targetTier = 0;
-                for (let i = VESSEL_TIERS.length - 1; i >= 0; i--) {
-                    if (state.score >= VESSEL_TIERS[i].minScore) { targetTier = i; break; }
-                }
-                if (targetTier > state.vesselTier) state.vesselTier = targetTier;
-                refreshVesselHud();
+                state.endReason = state.levelIndex < LEVELS.length - 1 ? 'level_up' : 'victory';
+                refreshRoundSummaryText();
 
-                const curVessel = VESSEL_TIERS[state.vesselTier], nextVessel = VESSEL_TIERS[state.vesselTier + 1], curLvl = getCurrentLevelConfig();
-                const upgradeTip = state.vesselTier > 0 && state.score >= curVessel.minScore
-                    ? `🎉 过关且积分达标，船只升级为 ${curVessel.icon} ${curVessel.name}！`
-                    : nextVessel
-                        ? `当前 ${state.score} 分（升级${nextVessel.name}需 ${nextVessel.minScore} 分），积分不足暂不升级船只。`
-                        : `已驾驶最高级 ${curVessel.icon} ${curVessel.name}。`;
-
-                if (state.levelIndex < LEVELS.length - 1) {
-                    const nextLvl = LEVELS[state.levelIndex + 1];
-                    state.endReason = 'level_up';
-                    roundBadgeEl.textContent = `⚓ 抵达港口 · ${curLvl.name}（${state.daysPerRound}天）过关！`;
-                    roundBadgeEl.className = 'round-badge';
-                    roundTitleEl.textContent = `靠岸休整 · 晋级${nextLvl.name}（${nextLvl.waveName}）`;
-                    roundDescEl.textContent = `下一关海浪将转为「${nextLvl.waveName}」。${upgradeTip}`;
-                    restartRoundBtn.textContent = `起航进入${nextLvl.name}（${nextLvl.waveName}）`;
-                } else {
-                    state.endReason = 'victory';
-                    roundBadgeEl.textContent = '⚓ 凯旋归港 · 三关全通！';
-                    roundBadgeEl.className = 'round-badge win';
-                    roundTitleEl.textContent = '🏆 恭喜通关全部三关！';
-                    roundDescEl.textContent = `顺利闯过微浪、浪涌、巨浪三关凯旋归港！${upgradeTip}`;
-                    restartRoundBtn.textContent = '重新开始（第 1 关）';
-                }
-
-                finalScoreValEl.textContent = `${state.score} 分`; finalFishValEl.textContent = `${state.caughtCount} 条`;
+                hideCaughtSidePanels();
                 roundOverlayEl.classList.remove('buttons-revealed', 'port-fade-in');
                 roundOverlayEl.classList.add('show', 'port-mode');
                 requestAnimationFrame(() => requestAnimationFrame(() => roundOverlayEl.classList.add('port-fade-in')));
@@ -765,8 +1949,8 @@
                 const obsCenterY = obsY - obsH * 0.22;
                 const obsRx = Math.max(12, obsW * 0.28);
                 const obsRy = Math.max(10, obsH * 0.25);
-                const boatRx = Math.max(18, 36 * boatScale);
-                const boatRy = Math.max(12, 20 * boatScale);
+                const boatRx = Math.max(16, 28 * boatScale);
+                const boatRy = Math.max(12, 22 * boatScale);
 
                 const totalRx = obsRx + boatRx;
                 const totalRy = obsRy + boatRy;
@@ -782,13 +1966,35 @@
                 const w = state.width, h = state.height, seaHeight = h - horizonY, { boatX, boatY, boatScale } = getBoatScreenPos();
                 for (let i = obstacles.length - 1; i >= 0; i--) {
                     const obs = obstacles[i];
-                    obs.z += dt * (0.16 + 0.26 * obs.z) * preset.speed * lvl.obsSpeedMult;
-                    obs.xNorm = clamp(obs.xNorm + obs.driftX * dt, 0.16, 0.84); obs.bobPhase += dt * 4;
+                    obs.bobPhase += dt * 3.5;
+
+                    if (obs.horizonPause > 0) {
+                        obs.horizonPause = Math.max(0, obs.horizonPause - dt);
+                        obs.horizonGrow = 1 - (obs.horizonPause / Math.max(0.01, obs.horizonPauseMax));
+                    } else {
+                        obs.horizonGrow = 1;
+                        obs.z += dt * (0.15 + 0.25 * obs.z) * preset.speed * lvl.obsSpeedMult;
+                        obs.xNorm = clamp(obs.xNorm + obs.driftX * dt, 0.16, 0.84);
+                    }
+
                     if (obs.z > 1.05) { obstacles.splice(i, 1); continue; }
-                    const baseY = horizonY + obs.z * (seaHeight + 65), elev = getWaveElevation(obs.xNorm, clamp(obs.z, 0, 1.2), state.time, preset);
-                    const x = obs.xNorm * (w + 80) - 40, y = baseY - elev * 0.65 + Math.sin(obs.bobPhase) * 3 * obs.z;
-                    const scale = 0.35 + Math.pow(obs.z, 1.45) * 1.85, alpha = clamp((obs.z - 0.08) * 2.2, 0.2, 1);
-                    if (!obs.splashedNear && obs.z > 0.55) { obs.splashedNear = true; spawnSplash(x, y, 16, 36 * scale, 1.0, clamp(scale, 0.7, 1.6)); }
+                    const growEase = smoothstep(0, 1, obs.horizonGrow);
+                    const emergeProgress = smoothstep(0.035, 0.26, obs.z);
+                    const zEffective = obs.z + growEase * 0.055;
+                    const aboveWaterLift = (1 - emergeProgress) * (14 + growEase * 14);
+                    const baseY = horizonY + zEffective * (seaHeight + 65) - aboveWaterLift;
+                    const elev = getWaveElevation(obs.xNorm, clamp(zEffective, 0, 1.2), state.time, preset);
+                    const x = obs.xNorm * (w + 80) - 40;
+                    const y = baseY - elev * (0.22 + 0.45 * emergeProgress) + Math.sin(obs.bobPhase) * 2.2 * zEffective;
+                    const horizonGrowMult = OBS_CFG.horizonPauseGrowMult || 1.38;
+                    const horizonBaseScale = lerp(0.22, 0.22 * horizonGrowMult, growEase);
+                    const scale = horizonBaseScale + Math.pow(Math.max(0, zEffective - 0.035), 1.42) * 1.82;
+                    const alpha = clamp(0.55 + growEase * 0.3 + emergeProgress * 0.15, 0.55, 1);
+
+                    if (!obs.splashedNear && obs.z > 0.56) {
+                        obs.splashedNear = true;
+                        spawnSplash(x, y, 10, 28 * scale, 0.85, clamp(scale * 0.85, 0.6, 1.35));
+                    }
                     drawObstacleShape(obs, x, y, scale, alpha);
                     if (!state.roundEnded && obs.z > 0.42) {
                         const obsW = obs.cfg.baseW * scale;
@@ -804,26 +2010,69 @@
                 if (Math.random() < 0.78) return 0.26 + Math.random() * 0.48;
                 return Math.random() < 0.5 ? (0.14 + Math.random() * 0.12) : (0.74 + Math.random() * 0.12);
             }
-            function pickRandomFishSpecies() { return FISH_SPECIES.length ? FISH_SPECIES[Math.floor(Math.random() * FISH_SPECIES.length)] : FALLBACK_FISH_STYLES[0]; }
+            function pickRandomFishSpecies(preferJumpable = false) {
+                if (!FISH_SPECIES.length) return FALLBACK_FISH_STYLES[0];
+                if (!preferJumpable) return FISH_SPECIES[Math.floor(Math.random() * FISH_SPECIES.length)];
+                const weighted = [];
+                for (const sp of FISH_SPECIES) {
+                    const weight = Math.max(1, Math.round((sp.jumpProb || 0.3) * 10));
+                    for (let w = 0; w < weight; w++) weighted.push(sp);
+                }
+                return weighted[Math.floor(Math.random() * weighted.length)];
+            }
+            function createFishInstance(species, z, xNorm) {
+                const sp = species || pickRandomFishSpecies();
+                const randomSizeJitter = 0.88 + Math.random() * 0.26;
+                return {
+                    species: sp,
+                    z,
+                    xNorm,
+                    yOffset: (Math.random() - 0.5) * 24,
+                    swimSpeed: (0.05 + Math.random() * 0.07) * (Math.random() < 0.5 ? -1 : 1),
+                    tailPhase: Math.random() * Math.PI * 2,
+                    baseSize: (13 + Math.random() * 6) * randomSizeJitter
+                };
+            }
             function initUnderwaterFish() {
                 underwaterFish.length = 0;
                 if (!FISH_SPECIES.length) return;
-                const total = Math.max(12, FISH_SPECIES.length * 3);
+                const total = Math.max(14, FISH_SPECIES.length);
                 for (let i = 0; i < total; i++) {
-                    underwaterFish.push({ species: FISH_SPECIES[i % FISH_SPECIES.length], z: 0.12 + (i / total) * 0.82, xNorm: randomFrontLaneX(), yOffset: (Math.random() - 0.5) * 24, swimSpeed: (0.05 + Math.random() * 0.07) * (Math.random() < 0.5 ? -1 : 1), tailPhase: Math.random() * Math.PI * 2, baseSize: 13 + Math.random() * 6 });
+                    const sp = FISH_SPECIES[i % FISH_SPECIES.length];
+                    underwaterFish.push(createFishInstance(sp, 0.12 + (i / total) * 0.82, randomFrontLaneX()));
                 }
             }
             initUnderwaterFish();
 
-            const JUMP_FISH_SCALE = 2.2;
-            function spawnJumpingFish(preset) {
+            const JUMP_FISH_SCALE = 2.15;
+            function spawnJumpingFish(preset, fixedSpecies = null) {
                 if (!FISH_SPECIES.length || jumpingFish.length >= 6) return;
-                const startZ = 0.20 + Math.random() * 0.22, endZ = 0.48 + Math.random() * 0.16, startXNorm = 0.30 + Math.random() * 0.40;
-                jumpingFish.push({ species: pickRandomFishSpecies(), t: 0, duration: (1.05 + Math.random() * 0.35) / Math.max(0.75, preset.speed * 0.9), startZ, endZ, startXNorm, endXNorm: clamp(startXNorm + (Math.random() - 0.5) * 0.24, 0.25, 0.75), arcHeight: (65 + Math.random() * 55) * preset.amp, tailPhase: Math.random() * Math.PI * 2, baseSize: (14 + Math.random() * 5) * JUMP_FISH_SCALE, entrySplashed: false, exitSplashed: false });
+                const sp = fixedSpecies || pickRandomFishSpecies(true);
+                const startZ = 0.20 + Math.random() * 0.22;
+                const endZ = 0.48 + Math.random() * 0.16;
+                const startXNorm = 0.30 + Math.random() * 0.40;
+                const randomSizeJitter = 0.90 + Math.random() * 0.25;
+                const tierArcMult = sp.sizeTier === 'large' ? 1.18 : (sp.sizeTier === 'small' ? 0.92 : 1.0);
+                jumpingFish.push({
+                    species: sp,
+                    t: 0,
+                    duration: (1.05 + Math.random() * 0.35) / Math.max(0.75, preset.speed * 0.9),
+                    startZ,
+                    endZ,
+                    startXNorm,
+                    endXNorm: clamp(startXNorm + (Math.random() - 0.5) * 0.24, 0.25, 0.75),
+                    arcHeight: (65 + Math.random() * 55) * preset.amp * tierArcMult,
+                    tailPhase: Math.random() * Math.PI * 2,
+                    baseSize: (14 + Math.random() * 5) * JUMP_FISH_SCALE * randomSizeJitter,
+                    entrySplashed: false,
+                    exitSplashed: false
+                });
             }
 
             function drawFishShape(fish, x, y, scale, pitchAngle, yawAngle, alpha) {
-                const sp = fish.species, len = fish.baseSize * sp.lenRatio * scale, halfThick = len * sp.thickRatio * 0.5;
+                const sp = fish.species;
+                const len = fish.baseSize * sp.lenRatio * scale;
+                const halfThick = len * sp.thickRatio * 0.5;
                 ctx.save(); ctx.translate(x, y); ctx.globalAlpha = clamp(alpha, 0, 1);
                 const facingX = Math.cos(yawAngle); ctx.scale((facingX >= 0 ? 1 : -1) * Math.max(0.35, Math.abs(facingX)), 1); ctx.rotate(pitchAngle);
                 if (sp.imgReady && sp.img) {
@@ -842,7 +2091,14 @@
                     fish.xNorm += fish.swimSpeed * dt; fish.tailPhase += dt * (11 + fish.z * 8);
                     if (fish.xNorm < 0.18) { fish.xNorm = 0.18; fish.swimSpeed = Math.abs(fish.swimSpeed); }
                     else if (fish.xNorm > 0.82) { fish.xNorm = 0.82; fish.swimSpeed = -Math.abs(fish.swimSpeed); }
-                    if (fish.z > 1.05) { fish.z = 0.1; fish.xNorm = randomFrontLaneX(); fish.species = pickRandomFishSpecies(); }
+                    if (fish.z > 1.05) {
+                        const nextSp = pickRandomFishSpecies();
+                        const replacement = createFishInstance(nextSp, 0.1, randomFrontLaneX());
+                        Object.assign(fish, replacement);
+                        if (state.gameStarted && !state.roundEnded && Math.random() < (nextSp.jumpProb || 0.3) * 0.45) {
+                            spawnJumpingFish(preset, nextSp);
+                        }
+                    }
                 }
                 const sorted = [...underwaterFish].sort((a, b) => a.z - b.z);
                 for (let fish of sorted) {
@@ -875,30 +2131,119 @@
             helpCloseBtn.addEventListener('click', (e) => { e.stopPropagation(); helpModalEl.classList.remove('show'); });
 
             const daysBtns = document.querySelectorAll('.days-btn'), daysSettingLabelEl = document.getElementById('daysSettingLabel');
+            function syncDaysButtonsUI() {
+                const loc = t();
+                daysBtns.forEach(b => {
+                    const d = parseInt(b.dataset.days, 10);
+                    b.classList.toggle('active', d === state.daysPerRound);
+                    b.textContent = loc.dayShortFormat(d);
+                });
+                daysSettingLabelEl.textContent = loc.daysPerStageFormat(state.daysPerRound);
+                const completedDays = Math.min(state.daysPerRound, Math.floor(state.celestialClock / DAY_CYCLE_SECONDS) + 1);
+                dayDisplayEl.textContent = loc.dayFormat(completedDays, state.daysPerRound);
+            }
             daysBtns.forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    e.stopPropagation(); state.daysPerRound = parseInt(btn.dataset.days, 10) || 10;
-                    daysBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active');
-                    daysSettingLabelEl.textContent = `${state.daysPerRound} 天/关`;
-                    const completedDays = Math.min(state.daysPerRound, Math.floor(state.celestialClock / DAY_CYCLE_SECONDS) + 1);
-                    dayDisplayEl.textContent = `第 ${completedDays} / ${state.daysPerRound} 天`;
+                    e.stopPropagation(); state.daysPerRound = parseInt(btn.dataset.days, 10) || 3;
+                    syncDaysButtonsUI();
                 });
             });
 
-            function syncStageHud() { const lvl = getCurrentLevelConfig(); stageDisplayEl.textContent = `${lvl.name}/3 · ${lvl.waveName}`; }
+            function syncStageHud() {
+                const meta = getLocalizedStageMeta(state.levelIndex);
+                stageDisplayEl.textContent = `${meta.name}/3 · ${meta.waveName}`;
+            }
+
+            function refreshHudLanguage() {
+                const loc = t();
+                document.title = loc.pageTitle;
+                document.getElementById('langValText').textContent = loc.langVal;
+                document.getElementById('portraitTipText').textContent = loc.portraitTip;
+                syncCoverImageByLanguage();
+                document.getElementById('badgeText').textContent = loc.badgeText;
+                document.getElementById('hintSubText').textContent = loc.hintSubText;
+                scorePrefixEl.textContent = loc.scorePrefix;
+                scoreDisplayEl.textContent = `${state.score}`;
+                fishCountDisplayEl.textContent = loc.caughtFormat(state.caughtCount);
+                helpBtn.textContent = loc.helpBtn;
+                topRestartBtn.textContent = loc.topRestartBtn;
+                topExitBtn.textContent = loc.topExitBtn;
+                document.getElementById('helpTitleText').textContent = loc.helpTitleText;
+                helpCloseBtn.textContent = loc.helpCloseBtn;
+                document.getElementById('ruleDodgeText').innerHTML = loc.ruleDodgeText;
+                document.getElementById('ruleNetText').innerHTML = loc.ruleNetText;
+                document.getElementById('ruleScoreText').innerHTML = loc.ruleScoreText;
+                document.getElementById('rulePortText').innerHTML = loc.rulePortText;
+                document.getElementById('langLabelText').textContent = loc.langLabelText;
+                document.getElementById('daysLabelText').textContent = loc.daysLabelText;
+                document.getElementById('moodLabelText').textContent = loc.moodLabelText;
+                document.querySelector('.mood-btn[data-mood="sunset"]').textContent = loc.moodSunset;
+                document.querySelector('.mood-btn[data-mood="daylight"]').textContent = loc.moodDaylight;
+                document.querySelector('.mood-btn[data-mood="moonlight"]').textContent = loc.moodMoonlight;
+                document.getElementById('waveLabelText').textContent = loc.waveLabelText;
+                document.querySelector('.wave-btn[data-wave="calm"]').textContent = loc.waveCalm;
+                document.querySelector('.wave-btn[data-wave="choppy"]').textContent = loc.waveChoppy;
+                document.querySelector('.wave-btn[data-wave="stormy"]').textContent = loc.waveStormy;
+                document.getElementById('speedLabelText').textContent = loc.speedLabelText;
+                document.getElementById('boostBtn').textContent = loc.boostBtn;
+                document.getElementById('caughtLeftTitle').textContent = loc.caughtLeftTitle;
+                document.getElementById('caughtRightTitle').textContent = loc.caughtRightTitle;
+                document.getElementById('finalScoreLabel').textContent = loc.finalScoreLabel;
+                document.getElementById('finalFishLabel').textContent = loc.finalFishLabel;
+                modalExitBtn.textContent = loc.modalExitBtn;
+                document.getElementById('detailPrimaryNameLabel').textContent = loc.primaryNameLabel;
+                document.getElementById('detailPrimaryProtectLabel').textContent = loc.primaryProtectLabel;
+                document.getElementById('detailPrimaryEdibleLabel').textContent = loc.primaryEdibleLabel;
+                document.getElementById('detailPageLabel').textContent = loc.pageLabel;
+                document.getElementById('detailPage1Text').textContent = loc.page1Text;
+                document.getElementById('detailPage2Indicator').textContent = loc.page2Indicator;
+                document.getElementById('detailHabitLabel').textContent = loc.habitLabel;
+                document.getElementById('detailFeatureLabel').textContent = loc.featureLabel;
+                document.getElementById('detailEdibleDescLabel').textContent = loc.edibleDescLabel;
+                closeFishDetailBtn.textContent = loc.closeBtn;
+                setFishDetailPage(currentFishDetailPage);
+
+                renderCoverStageMenu();
+                syncDaysButtonsUI();
+                syncStageHud();
+                refreshVesselHud();
+                if (state.roundEnded) {
+                    if (state.endReason === 'crash') renderCaughtSidePanels();
+                    refreshRoundSummaryText();
+                }
+                if (fishDetailBackdropEl.classList.contains('show') && activeDetailSpecies) {
+                    renderFishDetailContent(activeDetailSpecies, false);
+                }
+            }
+
+            const langBtns = document.querySelectorAll('.lang-btn');
+            function setUILanguage(lang) {
+                state.uiLang = lang === 'zh' ? 'zh' : 'en';
+                try { localStorage.setItem(STORAGE_LANG_KEY, state.uiLang); } catch (_) {}
+                langBtns.forEach(b => b.classList.toggle('active', b.dataset.lang === state.uiLang));
+                refreshHudLanguage();
+            }
+            langBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    setUILanguage(btn.dataset.lang);
+                });
+            });
 
             function startGameAtStage(startStageIdx = 0) {
                 enterFullscreenSafe();
+                hideCaughtSidePanels();
                 const safeStage = clamp(startStageIdx, 0, maxUnlockedStage);
                 state.levelIndex = safeStage; state.score = 0; state.caughtCount = 0; state.vesselTier = 0;
+                state.caughtSpeciesMap = {};
                 state.celestialClock = 0; state.roundEnded = false; state.awaitingAnyKeyForPortButtons = false;
                 state.endReason = 'crash'; state.boatXNorm = 0.5; state.boatYNorm = BOAT_DEFAULT_Y_NORM;
                 state.draggingBoat = false; state.gameStarted = true; state.approachingPort = false;
                 activeNets.length = 0; floatingPopups.length = 0; jumpingFish.length = 0;
                 inkClouds.length = 0; obstacles.length = 0; nextObstacleTimer = 2.0;
                 initUnderwaterFish(); applyLevelWaveMode(); syncStageHud();
-                dayDisplayEl.textContent = `第 1 / ${state.daysPerRound} 天`;
-                scoreDisplayEl.textContent = '0'; fishCountDisplayEl.textContent = '已捕 0 条';
+                dayDisplayEl.textContent = t().dayFormat(1, state.daysPerRound);
+                scoreDisplayEl.textContent = '0'; fishCountDisplayEl.textContent = t().caughtFormat(0);
                 refreshVesselHud();
                 roundOverlayEl.classList.remove('show', 'port-mode', 'port-fade-in', 'buttons-revealed');
                 coverScreenEl.classList.add('hidden'); syncBodyPhaseClass();
@@ -907,13 +2252,22 @@
             function handleRoundContinueOrRestart() {
                 if (state.roundEnded && state.endReason === 'level_up') {
                     enterFullscreenSafe();
+                    hideCaughtSidePanels();
+                    let targetTier = state.vesselTier;
+                    for (let i = VESSEL_TIERS.length - 1; i >= 0; i--) {
+                        if (state.score >= VESSEL_TIERS[i].minScore) { targetTier = Math.max(targetTier, i); break; }
+                    }
+                    if (targetTier > state.vesselTier) {
+                        state.vesselTier = targetTier;
+                        refreshVesselHud();
+                    }
                     state.levelIndex = Math.min(LEVELS.length - 1, state.levelIndex + 1);
                     state.celestialClock = 0; state.roundEnded = false; state.awaitingAnyKeyForPortButtons = false;
                     state.endReason = 'crash'; state.boatYNorm = BOAT_DEFAULT_Y_NORM; state.draggingBoat = false;
                     state.approachingPort = false;
                     obstacles.length = 0; jumpingFish.length = 0; nextObstacleTimer = 1.8;
                     applyLevelWaveMode(); syncStageHud();
-                    dayDisplayEl.textContent = `第 1 / ${state.daysPerRound} 天`;
+                    dayDisplayEl.textContent = t().dayFormat(1, state.daysPerRound);
                     roundOverlayEl.classList.remove('show', 'port-mode', 'port-fade-in', 'buttons-revealed');
                     syncBodyPhaseClass();
                 } else startGameAtStage(0);
@@ -921,6 +2275,7 @@
 
             function returnToCover() {
                 exitFullscreenSafe();
+                hideCaughtSidePanels();
                 state.gameStarted = false; state.roundEnded = false; state.awaitingAnyKeyForPortButtons = false;
                 state.draggingBoat = false; state.isBoosting = false; state.approachingPort = false;
                 roundOverlayEl.classList.remove('show', 'port-mode', 'port-fade-in', 'buttons-revealed');
@@ -937,12 +2292,19 @@
             const vesselIconEl = document.getElementById('vesselIcon'), vesselNameEl = document.getElementById('vesselName'), vesselNextHintEl = document.getElementById('vesselNextHint');
 
             function refreshVesselHud() {
-                const cur = VESSEL_TIERS[state.vesselTier] || VESSEL_TIERS[0], next = VESSEL_TIERS[state.vesselTier + 1];
-                vesselIconEl.textContent = cur.icon; vesselNameEl.textContent = cur.name;
+                const loc = t();
+                const cur = VESSEL_TIERS[state.vesselTier] || VESSEL_TIERS[0];
+                const curName = getLocalizedVesselName(state.vesselTier);
+                const next = VESSEL_TIERS[state.vesselTier + 1];
+                const nextName = getLocalizedVesselName(state.vesselTier + 1);
+                vesselIconEl.textContent = cur.icon;
+                vesselNameEl.textContent = curName;
                 if (next) {
                     const diff = next.minScore - state.score;
-                    vesselNextHintEl.textContent = diff > 0 ? `过关升${next.name.slice(-2)}还差 ${diff} 分` : `已达标，过关即可升${next.name.slice(-2)}`;
-                } else vesselNextHintEl.textContent = '已达最高旗舰';
+                    vesselNextHintEl.textContent = diff > 0
+                        ? loc.vesselNeedFormat(diff, nextName)
+                        : loc.vesselReadyFormat(nextName);
+                } else vesselNextHintEl.textContent = loc.vesselMaxTier;
             }
 
             function spawnInkCloud(x, y) {
@@ -952,23 +2314,45 @@
                 }
             }
 
+            function recordCaughtSpecies(species) {
+                const key = species?.id || 'fish1';
+                if (!state.caughtSpeciesMap[key]) {
+                    state.caughtSpeciesMap[key] = { species, count: 0 };
+                }
+                state.caughtSpeciesMap[key].count += 1;
+                getFishMetaOnDemand(species, state.uiLang).then((meta) => {
+                    if (meta && meta.cnName) species.label = meta.cnName;
+                });
+            }
+
             function showCatchNotification(speciesLabel, isBig, isCuttlefish, points) {
-                scoreDisplayEl.textContent = state.score; fishCountDisplayEl.textContent = `已捕 ${state.caughtCount} 条`;
-                const prefix = isCuttlefish ? '🖤 喷墨警告！网住' : (isBig ? '🌟 网住跃浪' : '🕸️ 网住');
-                catchBannerEl.textContent = `${prefix}${speciesLabel}！+${points} 分`; catchBannerEl.classList.add('show');
+                const loc = t();
+                scoreDisplayEl.textContent = `${state.score}`;
+                fishCountDisplayEl.textContent = loc.caughtFormat(state.caughtCount);
+                const prefix = isCuttlefish ? loc.inkPrefix : (isBig ? loc.bigPrefix : loc.normalPrefix);
+                catchBannerEl.textContent = `${prefix} ${speciesLabel}! +${loc.ptsSuffix(points)}`;
+                catchBannerEl.classList.add('show');
                 if (bannerHideTimer) clearTimeout(bannerHideTimer);
                 bannerHideTimer = setTimeout(() => catchBannerEl.classList.remove('show'), 2200);
             }
 
             function triggerNetCatch(fish, isBig) {
-                const sp = fish.species, points = isBig ? Math.max(5, (sp.bonusPoints || 1) * 2) : (sp.bonusPoints || 1);
+                const loc = t();
+                const sp = fish.species;
+                const jumpPts = sp.jumpScore || Math.max(NET_CFG.minJumpScore || 5, (sp.bonusPoints || 1) * (NET_CFG.jumpBonusMult || 2));
+                const basePts = sp.bonusPoints || 1;
+                const points = isBig ? jumpPts : basePts;
                 state.score += points; state.caughtCount += 1;
-                const cx = fish._screenX, cy = fish._screenY, netRadius = clamp(fish._hitRadius * 1.25, 34, 96);
+                recordCaughtSpecies(sp);
+                const cachedMeta = fishMetaCache[state.uiLang]?.[sp.id];
+                const displayName = cachedMeta?.cnName || sp.label;
+                const cx = fish._screenX, cy = fish._screenY, netRadius = clamp(fish._hitRadius * (NET_CFG.radiusMult || 1.25), NET_CFG.minRadius || 34, NET_CFG.maxRadius || 96);
                 spawnSplash(cx, cy, isBig ? 24 : 14, netRadius * 0.8, 1.0, isBig ? 1.2 : 0.85);
                 if (sp.isCuttlefish) spawnInkCloud(cx, cy);
-                activeNets.push({ x: cx, y: cy, targetRadius: netRadius, fishSnapshot: { species: sp, baseSize: fish.baseSize, tailPhase: fish.tailPhase, scale: isBig ? 1.35 : 0.95 }, isBig: isBig || points >= 3, points, life: 0, maxLife: 0.95 });
-                floatingPopups.push({ x: cx, y: cy - netRadius * 0.45, vy: -52, title: `${sp.isCuttlefish ? '抓到乌鱼' : (isBig ? '抓到大鱼' : '抓到')}·${sp.label}！`, scoreText: `+${points} 分`, isBig: isBig || points >= 3, life: 0, maxLife: 1.35 });
-                showCatchNotification(sp.label, isBig, !!sp.isCuttlefish, points); refreshVesselHud();
+                activeNets.push({ x: cx, y: cy, targetRadius: netRadius, fishSnapshot: { species: sp, baseSize: fish.baseSize, tailPhase: fish.tailPhase, scale: isBig ? 1.35 : 0.95 }, isBig: isBig || points >= 3, points, life: 0, maxLife: NET_CFG.duration || 0.95 });
+                const tagText = sp.isCuttlefish ? loc.popupInk : (isBig ? loc.popupBig : loc.popupNormal);
+                floatingPopups.push({ x: cx, y: cy - netRadius * 0.45, vy: -52, title: `${tagText} · ${displayName}!`, scoreText: `+${loc.ptsSuffix(points)}`, isBig: isBig || points >= 3, life: 0, maxLife: 1.35 });
+                showCatchNotification(displayName, isBig, !!sp.isCuttlefish, points); refreshVesselHud();
             }
 
             function updateAndDrawNetsAndPopups(dt) {
@@ -1004,12 +2388,12 @@
                 if (!state.approachingPort || !state.gameStarted || state.roundEnded) return;
                 const pulse = 0.55 + 0.18 * Math.sin(state.time * 4.5);
                 const fontSize = Math.round(clamp(15 * boatScale, 13, 21));
-                const text = '渐入码头，小心驾驶';
-                const tx = clamp(boatX, 110, state.width - 110);
+                const text = t().dockSignText;
+                const tx = clamp(boatX, 130, state.width - 130);
                 const ty = Math.max(state.height * 0.39, boatY - 66 * boatScale);
 
                 ctx.save();
-                ctx.font = `700 ${fontSize}px -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif`;
+                ctx.font = `700 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
 
@@ -1040,7 +2424,7 @@
                 const boatScale = clamp(Math.min(state.width, state.height) / 660, 0.72, 1.35) * (0.72 + Math.pow(boatZ, 1.35) * 0.72) * (1 + state.boatForwardImpulse * 0.05 + (state.isBoosting ? 0.03 : 0));
                 return { boatX: state.width * state.boatXNorm + Math.sin(state.time * 1.6) * 14 * preset.amp, boatY: state.height * state.boatYNorm - swellAtBoat * 0.62 + state.boatForwardImpulse * 10, boatScale, boatZ };
             }
-            function isPointerOnBoat(clientX, clientY) { const { boatX, boatY, boatScale } = getBoatScreenPos(); return Math.abs(clientX - boatX) <= 135 * boatScale && Math.abs(clientY - boatY) <= 95 * boatScale; }
+            function isPointerOnBoat(clientX, clientY) { const { boatX, boatY, boatScale } = getBoatScreenPos(); return Math.abs(clientX - boatX) <= 75 * boatScale && Math.abs(clientY - boatY) <= 95 * boatScale; }
             function updateBoatPosFromPointer(clientX, clientY) { state.boatXNorm = clamp(clientX / Math.max(1, state.width), 0.16, 0.84); state.boatYNorm = clamp(clientY / Math.max(1, state.height), BOAT_MIN_Y_NORM, BOAT_MAX_Y_NORM); }
             function tryCatchFishAt(clientX, clientY) {
                 if (!state.gameStarted || state.roundEnded) return false;
@@ -1073,10 +2457,14 @@
             window.addEventListener('resize', resizeCanvas); resizeCanvas();
 
             function spawnSplash(x, y, count, spreadX, upVel, scale = 1) {
-                for (let i = 0; i < count; i++) {
-                    if (splashes.length > 420) splashes.shift();
-                    const angle = -Math.PI * 0.5 + (Math.random() - 0.5) * 1.45, speed = (120 + Math.random() * 240) * scale;
-                    splashes.push({ x: x + (Math.random() - 0.5) * spreadX, y: y + (Math.random() - 0.5) * 10, vx: Math.cos(angle) * speed * 1.35 + (Math.random() - 0.5) * 60, vy: Math.sin(angle) * speed * upVel, vz: (0.4 + Math.random() * 0.9) * scale, size: (2.4 + Math.random() * 4.2) * scale, life: 0, maxLife: 0.45 + Math.random() * 0.45 });
+                const preset = WAVE_PRESETS[state.waveMode] || WAVE_PRESETS.calm;
+                const maxPool = preset.maxSplashes || 180;
+                const dampedCount = Math.max(3, Math.round(count * 0.62));
+                const dampedScale = Math.min(scale, 1.25);
+                for (let i = 0; i < dampedCount; i++) {
+                    if (splashes.length > maxPool) splashes.shift();
+                    const angle = -Math.PI * 0.5 + (Math.random() - 0.5) * 1.35, speed = (105 + Math.random() * 195) * dampedScale;
+                    splashes.push({ x: x + (Math.random() - 0.5) * spreadX, y: y + (Math.random() - 0.5) * 8, vx: Math.cos(angle) * speed * 1.25 + (Math.random() - 0.5) * 45, vy: Math.sin(angle) * speed * upVel, vz: (0.4 + Math.random() * 0.8) * dampedScale, size: (2.0 + Math.random() * 3.2) * dampedScale, life: 0, maxLife: 0.38 + Math.random() * 0.36 });
                 }
             }
             function triggerLensSplash() {
@@ -1090,7 +2478,6 @@
             }
             function getCelestialPhase() { return ((state.celestialClock % DAY_CYCLE_SECONDS) + DAY_CYCLE_SECONDS) % DAY_CYCLE_SECONDS / DAY_CYCLE_SECONDS; }
 
-            // 太阳和月亮均从左（东）升起、向西（右）落下
             function computeCelestial(horizonY) {
                 const p = getCelestialPhase(), w = state.width, h = state.height;
                 let sun = { visible: false, x: w * 0.18, y: horizonY, size: 0 };
@@ -1117,51 +2504,45 @@
                 return { sun, moon, nightFactor, sunsetFactor };
             }
 
-            // 绘制月牙形月亮
-        function drawCrescentMoon(x, y, radius) {
-    const r = radius;
+            function drawCrescentMoon(x, y, radius) {
+                const r = radius;
 
-    ctx.save();
-    ctx.translate(x, y);
-    // 微微向东/斜上方仰起一点，更有夜空弯月的味道
-    ctx.rotate(-0.28);
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(-0.28);
 
-    // 1. 柔和外晕
-    const aura = ctx.createRadialGradient(0, 0, r * 0.15, 0, 0, r * 3.3);
-    aura.addColorStop(0, 'rgba(232, 242, 255, 0.34)');
-    aura.addColorStop(0.5, 'rgba(147, 197, 253, 0.11)');
-    aura.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = aura;
-    ctx.beginPath();
-    ctx.arc(0, 0, r * 3.3, 0, Math.PI * 2);
-    ctx.fill();
+                const aura = ctx.createRadialGradient(0, 0, r * 0.15, 0, 0, r * 3.3);
+                aura.addColorStop(0, 'rgba(232, 242, 255, 0.34)');
+                aura.addColorStop(0.5, 'rgba(147, 197, 253, 0.11)');
+                aura.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = aura;
+                ctx.beginPath();
+                ctx.arc(0, 0, r * 3.3, 0, Math.PI * 2);
+                ctx.fill();
 
-    // 2. 单一闭合月牙路径：上下尖角收拢，外弧饱满、内弧内收
-    ctx.beginPath();
-    ctx.moveTo(r * 0.12, -r * 0.98);
-    ctx.bezierCurveTo(-r * 1.05, -r * 0.95, -r * 1.15, r * 0.92, r * 0.16, r * 0.98);
-    ctx.bezierCurveTo(-r * 0.36, r * 0.42, -r * 0.36, -r * 0.44, r * 0.12, -r * 0.98);
-    ctx.closePath();
+                ctx.beginPath();
+                ctx.moveTo(r * 0.12, -r * 0.98);
+                ctx.bezierCurveTo(-r * 1.05, -r * 0.95, -r * 1.15, r * 0.92, r * 0.16, r * 0.98);
+                ctx.bezierCurveTo(-r * 0.36, r * 0.42, -r * 0.36, -r * 0.44, r * 0.12, -r * 0.98);
+                ctx.closePath();
 
-    // 月面微渐变（尖角与外缘略亮，内侧略柔）
-    const moonGrad = ctx.createLinearGradient(-r * 0.85, -r, r * 0.2, r);
-    moonGrad.addColorStop(0, '#ffffff');
-    moonGrad.addColorStop(0.55, '#eef5ff');
-    moonGrad.addColorStop(1, '#cfe2ff');
+                const moonGrad = ctx.createLinearGradient(-r * 0.85, -r, r * 0.2, r);
+                moonGrad.addColorStop(0, '#ffffff');
+                moonGrad.addColorStop(0.55, '#eef5ff');
+                moonGrad.addColorStop(1, '#cfe2ff');
 
-    ctx.fillStyle = moonGrad;
-    ctx.shadowColor = 'rgba(191, 219, 254, 0.7)';
-    ctx.shadowBlur = 12;
-    ctx.fill();
+                ctx.fillStyle = moonGrad;
+                ctx.shadowColor = 'rgba(191, 219, 254, 0.7)';
+                ctx.shadowBlur = 12;
+                ctx.fill();
 
-    // 3. 极细的边缘高光，让月牙在深色夜空里更利落
-    ctx.shadowBlur = 0;
-    ctx.lineWidth = Math.max(0.8, r * 0.035);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
-    ctx.stroke();
+                ctx.shadowBlur = 0;
+                ctx.lineWidth = Math.max(0.8, r * 0.035);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+                ctx.stroke();
 
-    ctx.restore();
-}
+                ctx.restore();
+            }
 
             function parseColor(str) {
                 if (str.startsWith('#')) { let hex = str.slice(1); if (hex.length === 3) hex = hex.split('').map(c => c + c).join(''); return { r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16), a: 1 }; }
@@ -1361,9 +2742,9 @@
                     if (completedDays >= state.daysPerRound) {
                         state.celestialClock = state.daysPerRound * DAY_CYCLE_SECONDS;
                         state.approachingPort = false;
-                        dayDisplayEl.textContent = `第 ${state.daysPerRound} / ${state.daysPerRound} 天`;
+                        dayDisplayEl.textContent = t().dayFormat(state.daysPerRound, state.daysPerRound);
                         triggerStageClearWithPort();
-                    } else dayDisplayEl.textContent = `第 ${completedDays + 1} / ${state.daysPerRound} 天`;
+                    } else dayDisplayEl.textContent = t().dayFormat(completedDays + 1, state.daysPerRound);
                 } else if (!state.gameStarted) state.time += dt * 0.65;
 
                 const preset = WAVE_PRESETS[state.waveMode], horizonY = state.height * 0.36;
@@ -1375,16 +2756,18 @@
                 const lift = Math.cos(state.rowPhase), { boatX, boatY, boatScale, boatZ } = getBoatScreenPos();
                 if (prevLift >= 0 && lift < 0) {
                     state.boatForwardImpulse = 1.0;
-                    spawnSplash(boatX - 155 * boatScale, boatY + 5 * boatScale, 20, 30, 0.9, boatScale * 1.15);
-                    spawnSplash(boatX + 155 * boatScale, boatY + 5 * boatScale, 20, 30, 0.9, boatScale * 1.15);
+                    spawnSplash(boatX - 68 * boatScale, boatY + 12 * boatScale, 11, 20, 0.82, boatScale * 0.92);
+                    spawnSplash(boatX + 68 * boatScale, boatY + 12 * boatScale, 11, 20, 0.82, boatScale * 0.92);
                 }
                 prevLift = lift; state.boatForwardImpulse = Math.max(0, state.boatForwardImpulse - dt * 1.9);
 
                 const swellAtBoat = getWaveElevation(state.boatXNorm, boatZ, state.time, preset);
                 const waveSlope = (getWaveElevation(state.boatXNorm, boatZ + 0.05, state.time, preset) - swellAtBoat) * 0.035;
                 if (prevSwellSign < 0 && Math.sign(swellAtBoat) >= 0 && preset.amp >= 0.8) {
-                    spawnSplash(boatX, boatY + 32 * boatScale, 24, 60, 1.2, boatScale * 1.2);
-                    if (Math.random() < 0.6) triggerLensSplash();
+                    if (Math.random() < (preset.boatSplashChance ?? 0.45)) {
+                        spawnSplash(boatX, boatY + 38 * boatScale, 12, 42, 0.92, Math.min(boatScale, 1.1));
+                    }
+                    if (Math.random() < 0.25) triggerLensSplash();
                 }
                 prevSwellSign = Math.sign(swellAtBoat);
 
@@ -1464,6 +2847,14 @@
             });
 
             window.addEventListener('keydown', (e) => {
+                if (fishDetailBackdropEl.classList.contains('show')) {
+                    if (e.code === 'Escape') {
+                        e.preventDefault();
+                        fishDetailBackdropEl.classList.remove('show');
+                        activeDetailSpecies = null;
+                    }
+                    return;
+                }
                 if (state.awaitingAnyKeyForPortButtons) { e.preventDefault(); revealPortButtons(); return; }
                 heldKeys[e.code] = true;
                 if (e.code === 'Space') { e.preventDefault(); setBoost(true); }
@@ -1472,6 +2863,7 @@
             });
             window.addEventListener('keyup', (e) => { heldKeys[e.code] = false; if (e.code === 'Space') setBoost(false); });
 
+            setUILanguage(state.uiLang);
             requestAnimationFrame(animate);
         })();
     </script>
