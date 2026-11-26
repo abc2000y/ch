@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ride the Waves · Three-Stage Deep Sea Fishing</title>
+    <title>Ride the Waves · Four-Stage Deep Sea Fishing</title>
     <style>
         * {
             box-sizing: border-box;
@@ -30,8 +30,7 @@
         @media screen and (orientation: portrait) and (max-width: 768px) {
             .portrait-tip {
                 position: fixed; inset: 0; z-index: 5000;
-                background: rgba(5, 10, 20, 0.9);
-                backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+                background: rgba(5, 10, 20, 0.92);
                 color: #ffffff; display: flex; flex-direction: column;
                 justify-content: center; align-items: center; gap: 14px;
                 font-size: 16px; letter-spacing: 1px; text-align: center; padding: 20px;
@@ -54,17 +53,17 @@
         }
         .cover-controls {
             position: relative; z-index: 10; margin-top: 24vh;
-            display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 94vw;
+            display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 96vw;
         }
         .stage-menu-bar {
             display: flex; align-items: center; gap: 6px; padding: 5px 7px; border-radius: 12px;
-            background: rgba(6, 18, 36, 0.65); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            background: rgba(6, 18, 36, 0.72);
             border: 1px solid rgba(255, 255, 255, 0.25); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.42);
             flex-wrap: wrap; justify-content: center;
         }
         .stage-menu-btn {
-            padding: 7px 12px; border-radius: 8px; border: 1.5px solid rgba(255, 255, 255, 0.45);
-            background: rgba(255, 255, 255, 0.16); color: #ffffff; font-size: 12.5px; font-weight: 700;
+            padding: 7px 11px; border-radius: 8px; border: 1.5px solid rgba(255, 255, 255, 0.45);
+            background: rgba(255, 255, 255, 0.16); color: #ffffff; font-size: 12px; font-weight: 700;
             cursor: pointer; transition: all 0.15s ease; white-space: nowrap; min-height: 34px;
         }
         .stage-menu-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.32); transform: translateY(-1px); }
@@ -73,18 +72,17 @@
             color: #090d16; box-shadow: 0 0 14px rgba(251, 191, 36, 0.65);
         }
         .stage-menu-btn:disabled {
-            opacity: 0.36; filter: grayscale(0.75); border-style: dashed;
+            opacity: 0.38; filter: grayscale(0.75); border-style: dashed;
             border-color: rgba(255, 255, 255, 0.35); background: rgba(15, 23, 42, 0.35);
             color: rgba(255, 255, 255, 0.65); cursor: not-allowed;
         }
         .btn-glass {
             position: relative; overflow: hidden;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(220, 240, 255, 0.22) 100%);
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(220, 240, 255, 0.30) 100%);
             border: 1.5px solid rgba(255, 255, 255, 0.88); border-radius: 8px;
             box-shadow: 0 3px 0 rgba(200, 230, 255, 0.65), 0 0 22px rgba(135, 206, 250, 0.55), 0 8px 20px rgba(0, 20, 50, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.95);
             color: #06213e; text-shadow: 0 0 8px rgba(255, 255, 255, 0.85);
-            font-size: 15px; font-weight: 800; letter-spacing: 1.2px; padding: 9px 36px; min-height: 40px;
+            font-size: 15px; font-weight: 800; letter-spacing: 1px; padding: 9px 32px; min-height: 40px;
             cursor: pointer; transition: transform 0.15s ease, background 0.15s ease;
         }
         .btn-glass::before {
@@ -95,7 +93,7 @@
         @keyframes autoShine { 0% { left: -100%; } 25% { left: 160%; } 100% { left: 160%; } }
         .btn-glass:hover { transform: translateY(-2px); }
         .btn-glass:active { transform: translateY(2px); }
-        .cover-tip { font-size: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85); min-height: 16px; }
+        .cover-tip { font-size: 12px; color: rgba(255, 255, 255, 0.92); text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85); min-height: 16px; text-align: center; }
 
         /* 2. Game Canvas & HUD */
         canvas { position: fixed; inset: 0; display: block; width: 100%; height: 100%; z-index: 1; touch-action: none; }
@@ -108,12 +106,12 @@
         }
         .badge {
             display: inline-flex; align-items: center; gap: 7px; width: fit-content; padding: 5px 10px; border-radius: 999px;
-            background: rgba(0,0,0,0.34); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.14); color: rgba(255,255,255,0.92); font-size: 12px; font-weight: 500;
+            background: rgba(0,0,0,0.42);
+            border: 1px solid rgba(255,255,255,0.16); color: rgba(255,255,255,0.94); font-size: 12px; font-weight: 600;
         }
         .badge-dot { width: 7px; height: 7px; border-radius: 50%; background: #fbbf24; animation: pulse 2s infinite; }
         @keyframes pulse { 0%,100% { opacity:1; transform:scale(1);} 50% { opacity:0.45; transform:scale(0.85);} }
-        .hint-sub { font-size: 11px; color: rgba(255,255,255,0.78); padding-left: 4px; text-shadow: 0 1px 4px rgba(0,0,0,0.65); line-height: 1.35; }
+        .hint-sub { font-size: 11px; color: rgba(255,255,255,0.82); padding-left: 4px; text-shadow: 0 1px 4px rgba(0,0,0,0.65); line-height: 1.35; }
 
         .action-bar {
             position: fixed;
@@ -123,7 +121,7 @@
         }
         .ctrl-action-btn {
             padding: 8px 13px; min-height: 36px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.25);
-            background: rgba(9,16,28,0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            background: rgba(9,16,28,0.88);
             color: #f8fafc; font-size: 12px; font-weight: 700; cursor: pointer;
             box-shadow: 0 8px 22px rgba(0,0,0,0.4); transition: transform 0.15s ease, background 0.15s ease;
         }
@@ -137,27 +135,24 @@
             right: calc(12px + env(safe-area-inset-right));
             z-index: 260;
             display: flex; flex-direction: column; align-items: flex-end; gap: 5px; pointer-events: none;
-            max-width: 54vw;
+            max-width: 58vw;
         }
         .top-right-row { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
         .score-card {
             display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end;
-            padding: 5px 11px; border-radius: 999px; background: rgba(8, 15, 28, 0.78);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            padding: 5px 11px; border-radius: 999px; background: rgba(8, 15, 28, 0.82);
             border: 1px solid rgba(251, 191, 36, 0.35); font-size: 12px; font-weight: 600; color: #f8fafc;
         }
         .score-num { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; font-weight: 800; color: #fbbf24; }
-        .score-sub { font-size: 11px; color: rgba(255, 255, 255, 0.75); padding-left: 5px; border-left: 1px solid rgba(255, 255, 255, 0.18); }
+        .score-sub { font-size: 11px; color: rgba(255, 255, 255, 0.78); padding-left: 5px; border-left: 1px solid rgba(255, 255, 255, 0.18); }
 
         body:not(.at-cover) #helpBtn { display: none !important; }
         body.at-cover .score-card,
         body.at-cover .vessel-pill,
-        body.at-cover .catch-banner,
         body.at-cover .top-hint,
         body.at-cover .action-bar,
         body.game-running .score-card,
         body.game-running .vessel-pill,
-        body.game-running .catch-banner,
         body.game-running .top-hint,
         body.game-running .action-bar { display: none; }
 
@@ -171,16 +166,10 @@
 
         .vessel-pill {
             display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px;
-            background: rgba(8, 15, 28, 0.75); border: 1px solid rgba(56, 189, 248, 0.35);
+            background: rgba(8, 15, 28, 0.80); border: 1px solid rgba(56, 189, 248, 0.35);
             font-size: 11.5px; font-weight: 600; color: #bae6fd;
         }
-        .vessel-progress { font-size: 10.5px; color: rgba(255, 255, 255, 0.65); margin-left: 3px; }
-        .catch-banner {
-            padding: 4px 10px; border-radius: 10px; background: rgba(16, 185, 129, 0.25);
-            border: 1px solid rgba(52, 211, 153, 0.5); color: #a7f3d0; font-size: 11.5px; font-weight: 600;
-            opacity: 0; transform: translateY(-6px); transition: opacity 0.22s ease, transform 0.22s ease;
-        }
-        .catch-banner.show { opacity: 1; transform: translateY(0); }
+        .vessel-progress { font-size: 10.5px; color: rgba(255, 255, 255, 0.68); margin-left: 3px; }
 
         @media screen and (orientation: landscape) and (max-height: 520px) {
             .cover-controls { margin-top: 16vh; gap: 7px; }
@@ -200,12 +189,11 @@
             position: fixed;
             top: calc(54px + env(safe-area-inset-top));
             right: calc(12px + env(safe-area-inset-right));
-            z-index: 320; width: 316px;
+            z-index: 320; width: 326px;
             max-width: calc(100vw - 24px - env(safe-area-inset-left) - env(safe-area-inset-right));
             max-height: calc(100dvh - 76px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
             overflow-y: auto;
-            padding: 14px 15px; border-radius: 16px; background: rgba(8, 15, 28, 0.95);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            padding: 14px 15px; border-radius: 16px; background: rgba(8, 15, 28, 0.96);
             border: 1px solid rgba(251, 191, 36, 0.45); box-shadow: 0 18px 44px rgba(0, 0, 0, 0.72);
             color: #f8fafc; font-size: 12px; line-height: 1.45; display: none;
         }
@@ -243,7 +231,7 @@
         /* 4. Round Summary Overlay */
         .round-overlay {
             position: fixed; inset: 0; z-index: 400; display: none; align-items: center; justify-content: center;
-            background: rgba(5, 10, 20, 0.78); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            background: rgba(5, 10, 20, 0.82);
             padding: calc(14px + env(safe-area-inset-top)) calc(108px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(108px + env(safe-area-inset-left));
         }
         .round-overlay.show { display: flex; }
@@ -255,12 +243,12 @@
         }
         .round-overlay.port-mode .port-fullscreen-bg { display: block; }
         .round-overlay.port-mode.port-fade-in .port-fullscreen-bg { opacity: 1; }
-        .round-overlay.port-mode { background: rgba(5, 10, 20, 0.35); backdrop-filter: none; -webkit-backdrop-filter: none; }
+        .round-overlay.port-mode { background: rgba(5, 10, 20, 0.35); }
         .round-overlay.port-mode:not(.buttons-revealed) .round-card { display: none; }
 
         .round-card {
-            position: relative; z-index: 5; width: 390px; max-width: 100%; padding: 18px 20px; border-radius: 18px;
-            background: linear-gradient(160deg, rgba(16, 28, 48, 0.94), rgba(9, 16, 30, 0.96));
+            position: relative; z-index: 5; width: 400px; max-width: 100%; padding: 18px 20px; border-radius: 18px;
+            background: linear-gradient(160deg, rgba(16, 28, 48, 0.95), rgba(9, 16, 30, 0.97));
             border: 1px solid rgba(251, 191, 36, 0.5); box-shadow: 0 22px 50px rgba(0, 0, 0, 0.72);
             text-align: center; color: #f8fafc;
         }
@@ -410,9 +398,7 @@
             display: none;
             align-items: center;
             justify-content: center;
-            background: rgba(3, 8, 18, 0.78);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background: rgba(3, 8, 18, 0.82);
             padding: 16px;
         }
         .fish-detail-backdrop.show { display: flex; }
@@ -563,12 +549,13 @@
         <img id="coverBgImg" class="cover-bg" src="assets/cover_no_button_en.png" alt="Deep Sea Fishing Cover">
         <div class="cover-controls">
             <div class="stage-menu-bar" id="stageMenuBar">
-                <button type="button" class="stage-menu-btn selected" data-stage="0">Stage 1 · Light Ripples</button>
-                <button type="button" class="stage-menu-btn" data-stage="1" disabled>🔒 Stage 2 · Choppy Swell</button>
-                <button type="button" class="stage-menu-btn" data-stage="2" disabled>🔒 Stage 3 · Heavy Surge</button>
+                <button type="button" class="stage-menu-btn selected" data-stage="0">Stage 1 · Harpoon</button>
+                <button type="button" class="stage-menu-btn" data-stage="1" disabled>🔒 Stage 2 · Cast Net</button>
+                <button type="button" class="stage-menu-btn" data-stage="2" disabled>🔒 Stage 3 · Alternate</button>
+                <button type="button" class="stage-menu-btn" data-stage="3" disabled>🔒 Stage 4 · Mixed Seas</button>
             </div>
             <button id="coverStartBtn" type="button" class="btn-glass">▶ Start Game</button>
-            <div id="coverTip" class="cover-tip">Clear Stage 1 to unlock Stage 2</div>
+            <div id="coverTip" class="cover-tip">Clear Stage 1 (99 pts) to unlock Stage 2</div>
         </div>
     </div>
 
@@ -576,17 +563,18 @@
 
     <div class="top-hint">
         <div class="badge"><span class="badge-dot"></span><span id="badgeText">Row Against Waves · Deep Sea Fishing</span></div>
-        <p id="hintSubText" class="hint-sub">Drag boat to dodge rocks (forward range limited) · Click fish to cast net · Clear stage &amp; hit score goal to upgrade boat</p>
+        <p id="hintSubText" class="hint-sub">Drag boat to dodge rocks · Click fish to strike with Harpoon / Net · Hit target score &amp; survive days to clear</p>
     </div>
 
     <div class="top-right-score">
         <div class="top-right-row">
             <div class="score-card">
-                <span id="stageDisplay" style="color:#fcd34d;">Stage 1/3 · Light Ripples</span>
+                <span id="stageDisplay" style="color:#fcd34d;">Stage 1/4 · Light Ripples</span>
                 <span class="score-sub"></span>
                 <span id="dayDisplay" style="color:#7dd3fc;">Day 1 / 3</span>
+                <span id="gearDisplay" class="score-sub" style="color:#6ee7b7;">🔱 Harpoon</span>
                 <span id="scorePrefix" class="score-sub">🎣 Score</span>
-                <span id="scoreDisplay" class="score-num">0</span>
+                <span id="scoreDisplay" class="score-num">0 / 99</span>
                 <span id="fishCountDisplay" class="score-sub">Caught 0</span>
             </div>
             <button id="helpBtn" type="button">❓ Help</button>
@@ -594,9 +582,8 @@
         <div class="vessel-pill">
             <span id="vesselIcon">🚣</span>
             <span id="vesselName">Wooden Rowboat</span>
-            <span id="vesselNextHint" class="vessel-progress">25 pts to Sailboat on clear</span>
+            <span id="vesselNextHint" class="vessel-progress">55 pts to Sailboat on clear</span>
         </div>
-        <div id="catchBanner" class="catch-banner">Net Cast Success!</div>
     </div>
 
     <div class="action-bar">
@@ -611,9 +598,9 @@
         </div>
         <div class="help-rules">
             <div id="ruleDodgeText"><strong>⛵ Dodge Rocks:</strong> Drag your boat (or use Arrow keys / WASD) to avoid incoming rocks.</div>
-            <div id="ruleNetText"><strong>🕸️ Cast Net:</strong> Click swimming or leaping fish to net them; click empty water or press Space to row faster.</div>
-            <div id="ruleScoreText"><strong>🐟 Fish Points:</strong> Small underwater fish (#1–4) = <strong>1 pt</strong>, Medium (#5–8) = <strong>2 pts</strong>, Large (#9–12) = <strong>4 pts</strong>; netting <strong>leaping fish</strong> gives double bonus (min <strong>5 pts</strong>, up to <strong>8 pts</strong> for large fish)!</div>
-            <div id="rulePortText"><strong>⚓ Dock &amp; Upgrade:</strong> Survive each stage's days without crashing to reach port; boats upgrade when advancing with enough points (25 Sailboat / 60 Speedboat / 110 Yacht).</div>
+            <div id="ruleNetText"><strong>🔱 Harpoon &amp; 🕸️ Net:</strong> Stage 1 uses the <strong>Harpoon</strong> (45° left/right strike, <strong>Large Fish #9–12 only</strong>); Stage 2 uses the <strong>Cast Net</strong>; Stage 3 alternates daily; Stage 4 uses <strong>Cast Net only</strong>!</div>
+            <div id="ruleScoreText"><strong>🐟 Fish Points &amp; Stage Goals:</strong> Stages 1–3: Small (#1–4) = <strong>1 pt</strong>, Medium (#5–8) = <strong>2 pts</strong>, Large (#9–12) = <strong>4 pts</strong> (leaping fish: 5–8 pts). Stage 4: <strong>Protected fish incur fines (can push score below 0)</strong>, <strong>non-edible fish grant +1 pt</strong>, and <strong>edible fish award standard points</strong>. Stage clear goals: <strong>99 / 188 / 399 / 599 pts</strong>.</div>
+            <div id="rulePortText"><strong>⚓ Dock &amp; Upgrade:</strong> Survive all days without crashing and reach the stage score goal to clear! Boats upgrade on clear at <strong>55 / 100 / 200 / 400 pts</strong>.</div>
         </div>
         <div class="hud-group">
             <div class="hud-label-row">
@@ -752,7 +739,8 @@
         </div>
     </div>
 
-    <script src="game_config.js" onerror="var s=document.createElement('script');s.src='game_fonfig.js';document.head.appendChild(s);"></script>
+    <!-- 加载全局配置文件：优先加载 game_config.js，若未找到则自动尝试备用文件名 -->
+    <script src="game_config.js" onerror="var s=document.createElement('script');s.src='game_config_5.js';document.head.appendChild(s);"></script>
     <script>
         (() => {
             const EXT_CFG = window.GAME_CONFIG || {};
@@ -770,38 +758,95 @@
             const BOAT_MAX_Y_NORM = 0.83;
             const BOAT_DEFAULT_Y_NORM = 0.67;
 
-            const LEVELS = Array.isArray(EXT_CFG.levels) && EXT_CFG.levels.length ? EXT_CFG.levels : [
-                { level: 1, name: 'Stage 1', shortName: 'Stage 1 · Light Ripples', waveName: 'Light Ripples', waveMode: 'calm',   obsInterval: 2.8, obsSpeedMult: 0.90, clearImg: 'assets/gk1.jpg', fallbackClearImg: 'gk1.jpg' },
-                { level: 2, name: 'Stage 2', shortName: 'Stage 2 · Choppy Swell', waveName: 'Choppy Swell', waveMode: 'choppy', obsInterval: 2.1, obsSpeedMult: 1.08, clearImg: 'assets/gk2.jpg', fallbackClearImg: 'gk2.jpg' },
-                { level: 3, name: 'Stage 3', shortName: 'Stage 3 · Heavy Surge', waveName: 'Heavy Surge', waveMode: 'stormy', obsInterval: 1.6, obsSpeedMult: 1.25, clearImg: 'assets/gk3.jpg', fallbackClearImg: 'gk3.jpg' }
+            const DEFAULT_LEVELS = [
+                {
+                    level: 1,
+                    name: 'Stage 1',
+                    shortName: 'Stage 1 · Harpoon',
+                    waveName: 'Light Ripples',
+                    waveMode: 'calm',
+                    gearPattern: 'harpoon',
+                    targetScore: 99,
+                    obsInterval: 2.8,
+                    obsSpeedMult: 0.90,
+                    clearImg: 'assets/gk1.jpg',
+                    fallbackClearImg: 'gk1.jpg'
+                },
+                {
+                    level: 2,
+                    name: 'Stage 2',
+                    shortName: 'Stage 2 · Cast Net',
+                    waveName: 'Choppy Swell',
+                    waveMode: 'choppy',
+                    gearPattern: 'net',
+                    targetScore: 188,
+                    obsInterval: 2.1,
+                    obsSpeedMult: 1.08,
+                    clearImg: 'assets/gk2.jpg',
+                    fallbackClearImg: 'gk2.jpg'
+                },
+                {
+                    level: 3,
+                    name: 'Stage 3',
+                    shortName: 'Stage 3 · Alternate',
+                    waveName: 'Heavy Surge',
+                    waveMode: 'stormy',
+                    gearPattern: 'alternate_day',
+                    targetScore: 399,
+                    obsInterval: 1.6,
+                    obsSpeedMult: 1.25,
+                    clearImg: 'assets/gk3.jpg',
+                    fallbackClearImg: 'gk3.jpg'
+                },
+                {
+                    level: 4,
+                    name: 'Stage 4',
+                    shortName: 'Stage 4 · Mixed Seas',
+                    waveName: 'Mixed Seas',
+                    waveMode: 'calm',
+                    waveSequence: ['calm', 'choppy', 'stormy'],
+                    gearPattern: 'net',
+                    targetScore: 599,
+                    obsInterval: 1.5,
+                    obsSpeedMult: 1.30,
+                    clearImg: 'assets/gk4.jpg',
+                    fallbackClearImg: 'gk4.jpg'
+                }
             ];
+
+            const LEVELS = (Array.isArray(EXT_CFG.levels) && EXT_CFG.levels.length >= 4)
+                ? EXT_CFG.levels
+                : DEFAULT_LEVELS;
 
             const I18N = {
                 en: {
-                    pageTitle: 'Ride the Waves · Three-Stage Deep Sea Fishing',
+                    pageTitle: 'Ride the Waves · Four-Stage Deep Sea Fishing',
                     langVal: 'English',
                     portraitTip: 'Please rotate your device to landscape for the best experience',
                     startGamePrefix: '▶ Start Game',
-                    tipUnlock1: 'Clear Stage 1 to unlock Stage 2',
-                    tipUnlock2: 'Stage 2 unlocked! Start from Stage 2 or clear it for Stage 3',
-                    tipUnlockAll: 'All 3 stages unlocked; pick any stage to launch',
+                    tipUnlock1: 'Clear Stage 1 (99 pts) to unlock Stage 2',
+                    tipUnlock2: 'Stage 2 unlocked! Clear Stage 2 (188 pts) for Stage 3',
+                    tipUnlock3: 'Stage 3 unlocked! Clear Stage 3 (399 pts) for Stage 4',
+                    tipUnlockAll: 'All 4 stages unlocked; pick any stage to launch',
                     badgeText: 'Row Against Waves · Deep Sea Fishing',
-                    hintSubText: 'Drag boat to dodge rocks (forward range limited) · Click fish to cast net · Clear stage & hit score goal to upgrade boat',
+                    hintSubText: 'Drag boat to dodge rocks · Click fish to strike with Harpoon / Net · Hit target score & survive days to clear',
                     scorePrefix: '🎣 Score',
                     caughtFormat: (n) => `Caught ${n}`,
                     dayFormat: (cur, total) => `Day ${cur} / ${total}`,
                     dayShortFormat: (d) => `${d} Days`,
                     daysPerStageFormat: (d) => `${d} Days/Stage`,
                     ptsSuffix: (n) => `${n} pts`,
+                    gearHarpoon: '🔱 Harpoon (Large Fish)',
+                    gearNet: '🕸️ Cast Net',
                     helpBtn: '❓ Help',
                     topRestartBtn: '🔄 Restart',
                     topExitBtn: '🏠 Cover',
                     helpTitleText: '📖 How to Play & Controls',
                     helpCloseBtn: 'Close ✕',
                     ruleDodgeText: '<strong>⛵ Dodge Rocks:</strong> Drag your boat (or use Arrow keys / WASD) to avoid incoming rocks.',
-                    ruleNetText: '<strong>🕸️ Cast Net:</strong> Click swimming or leaping fish to net them; click empty water or press Space to row faster.',
-                    ruleScoreText: '<strong>🐟 Fish Points:</strong> Small underwater fish (#1–4) = <strong>1 pt</strong>, Medium (#5–8) = <strong>2 pts</strong>, Large (#9–12) = <strong>4 pts</strong>; netting <strong>leaping fish</strong> gives double bonus (min <strong>5 pts</strong>, up to <strong>8 pts</strong> for large fish)!',
-                    rulePortText: '<strong>⚓ Dock & Upgrade:</strong> Survive each stage\'s days without crashing to reach port; boats upgrade when advancing with enough points (25 Sailboat / 60 Speedboat / 110 Yacht).',
+                    ruleNetText: '<strong>🔱 Harpoon &amp; 🕸️ Net:</strong> Stage 1 uses the <strong>Harpoon</strong> (45° left/right strike, <strong>Large Fish #9–12 only</strong>); Stage 2 uses the <strong>Cast Net</strong>; Stage 3 alternates daily; Stage 4 uses <strong>Cast Net only</strong>!',
+                    ruleScoreText: '<strong>🐟 Fish Points &amp; Stage Goals:</strong> Stages 1–3: Small (#1–4) = <strong>1 pt</strong>, Medium (#5–8) = <strong>2 pts</strong>, Large (#9–12) = <strong>4 pts</strong> (leaping fish: 5–8 pts). Stage 4: <strong>Protected fish deduct points</strong>, <strong>non-edible fish grant +1 pt</strong>, and <strong>edible fish award standard points</strong>. Stage clear goals: <strong>99 / 188 / 399 / 599 pts</strong>.',
+                    rulePortText: '<strong>⚓ Dock &amp; Upgrade:</strong> Survive all days without crashing and reach the stage score goal to clear! Boats upgrade on clear at <strong>55 / 100 / 200 / 400 pts</strong>.',
                     langLabelText: 'Language / 语言',
                     daysLabelText: 'Days per Stage',
                     moodLabelText: 'Sky & Lighting',
@@ -827,26 +872,24 @@
                     crashTitle: 'Hit a Rock!',
                     crashDesc: (day, stgName, waveName) => `Crashed on Day ${day} in ${stgName} (${waveName}). Click fish thumbnails on the sides to view conservation info.`,
                     crashRestartBtn: 'Restart (Stage 1)',
+                    shortScoreBadge: (stgName) => `Score Short · ${stgName} Not Cleared`,
+                    shortScoreTitle: 'Target Score Not Reached!',
+                    shortScoreDesc: (score, target, stgName) => `You docked safely in ${stgName}, scoring ${score} pts, but ${target} pts are needed to clear this stage.`,
+                    shortScoreRetryBtn: (stgName) => `Retry ${stgName}`,
                     upgradeTipYes: (icon, name) => `🎉 Stage cleared & score met! You will board ${icon} ${name} next!`,
                     upgradeTipNeed: (score, need, name) => `Current ${score} pts (${need} pts needed for ${name}) — boat stays the same.`,
                     upgradeTipMax: (icon, name) => `Already commanding top-tier ${icon} ${name}.`,
                     levelUpBadge: (stgName, days, waveName) => `⚓ Docked · ${stgName} (${days}d) Cleared!`,
                     levelUpTitle: (nextName, nextWave) => `Port Rest · Advancing to ${nextName} (${nextWave})`,
-                    levelUpDesc: (nextWave, tip) => `Waves will shift to "${nextWave}". ${tip}`,
+                    levelUpDesc: (nextWave, tip) => `Next stage sea state: "${nextWave}". ${tip}`,
                     levelUpBtn: (nextName, nextWave) => `Set Sail for ${nextName} (${nextWave})`,
-                    victoryBadge: '⚓ Returned to Port · All 3 Stages Cleared!',
-                    victoryTitle: '🏆 All Three Stages Cleared!',
-                    victoryDesc: (tip) => `You conquered Light, Choppy, and Heavy waves and returned safely! ${tip}`,
+                    victoryBadge: '⚓ Returned to Port · All 4 Stages Cleared!',
+                    victoryTitle: '🏆 All Four Stages Cleared!',
+                    victoryDesc: (tip) => `You conquered all four stages and returned safely to port! ${tip}`,
                     victoryBtn: 'Restart (Stage 1)',
                     vesselNeedFormat: (diff, nextName) => `${diff} pts to ${nextName} on clear`,
                     vesselReadyFormat: (nextName) => `Ready to upgrade to ${nextName} on clear`,
                     vesselMaxTier: 'Max Flagship Reached',
-                    inkPrefix: '🖤 Ink Alert! Netted',
-                    bigPrefix: '🌟 Leap Catch!',
-                    normalPrefix: '🕸️ Netted',
-                    popupInk: 'Ink Catch',
-                    popupBig: 'Big Catch',
-                    popupNormal: 'Caught',
                     dockSignText: 'Approaching Dock, Drive Carefully',
                     page2TitleSuffix: 'Details',
                     pillProtected: '🛡️ Protected / Rare',
@@ -870,49 +913,54 @@
                     prevPageBtn: '← Back: Overview',
                     closeBtn: 'Close',
                     stages: [
-                        { name: 'Stage 1', shortName: 'Stage 1 · Light Ripples', waveName: 'Light Ripples' },
-                        { name: 'Stage 2', shortName: 'Stage 2 · Choppy Swell', waveName: 'Choppy Swell' },
-                        { name: 'Stage 3', shortName: 'Stage 3 · Heavy Surge', waveName: 'Heavy Surge' }
+                        { name: 'Stage 1', shortName: 'Stage 1 · Harpoon (99)', waveName: 'Light Ripples' },
+                        { name: 'Stage 2', shortName: 'Stage 2 · Net (188)', waveName: 'Choppy Swell' },
+                        { name: 'Stage 3', shortName: 'Stage 3 · Alternate (399)', waveName: 'Heavy Surge' },
+                        { name: 'Stage 4', shortName: 'Stage 4 · Mixed (599)', waveName: 'Mixed Seas' }
                     ],
                     vessels: [
                         { name: 'Wooden Rowboat' },
                         { name: 'Wind Sailboat' },
                         { name: 'Turbo Speedboat' },
-                        { name: 'Ocean Yacht' }
+                        { name: 'Ocean Yacht' },
+                        { name: 'Ocean Cruiser' }
                     ]
                 },
                 zh: {
-                    pageTitle: '捕鱼在浪划行 · 三关深海垂钓',
+                    pageTitle: '捕鱼在浪划行 · 四关深海垂钓',
                     langVal: '中文',
                     portraitTip: '请将设备旋转至横屏以获得最佳体验',
                     startGamePrefix: '▶ 开始航行',
-                    tipUnlock1: '通关第 1 关解锁第 2 关',
-                    tipUnlock2: '第 2 关已解锁！可从第 2 关出发或通关解锁第 3 关',
-                    tipUnlockAll: '全部 3 关已解锁，可任选关卡出发',
+                    tipUnlock1: '通关第 1 关（达 99 分）解锁第 2 关',
+                    tipUnlock2: '第 2 关已解锁！通关第 2 关（达 188 分）解锁第 3 关',
+                    tipUnlock3: '第 3 关已解锁！通关第 3 关（达 399 分）解锁第 4 关',
+                    tipUnlockAll: '全部 4 关已解锁，可任选关卡出发',
                     badgeText: '逆浪划行 · 深海捕鱼',
-                    hintSubText: '拖动船只躲避礁石（前移范围受限）· 点击鱼群撒网捕鱼 · 达成分数与通关可升级船只',
+                    hintSubText: '拖动船只躲避礁石 · 点击鱼群使用鱼叉/鱼网捕鱼 · 达成分数与天数即可通关',
                     scorePrefix: '🎣 积分',
                     caughtFormat: (n) => `已捕 ${n} 条`,
                     dayFormat: (cur, total) => `第 ${cur} / ${total} 天`,
                     dayShortFormat: (d) => `${d} 天`,
                     daysPerStageFormat: (d) => `每关 ${d} 天`,
                     ptsSuffix: (n) => `${n} 分`,
+                    gearHarpoon: '🔱 鱼叉（仅限大鱼）',
+                    gearNet: '🕸️ 鱼网',
                     helpBtn: '❓ 帮助',
                     topRestartBtn: '🔄 重开',
                     topExitBtn: '🏠 封面',
                     helpTitleText: '📖 玩法说明与设置',
                     helpCloseBtn: '关闭 ✕',
                     ruleDodgeText: '<strong>⛵ 躲避礁石：</strong>拖动船只（或使用方向键 / WASD）躲避前方礁石。',
-                    ruleNetText: '<strong>🕸️ 撒网捕鱼：</strong>点击水中或跃起的鱼撒网捕获；点击空白海面或按空格键可加速划行。',
-                    ruleScoreText: '<strong>🐟 鱼获分值：</strong>水下小鱼（#1–4）= <strong>1 分</strong>，中型（#5–8）= <strong>2 分</strong>，大型（#9–12）= <strong>4 分</strong>；捕获<strong>跃起鱼类</strong>享翻倍奖励（最低 <strong>5 分</strong>，大鱼最高 <strong>8 分</strong>）！',
-                    rulePortText: '<strong>⚓ 靠港与升级：</strong>安全度过本关天数即可靠港结算；通关且达到积分门槛即可升级船只（25 帆船 / 60 快艇 / 110 游艇）。',
+                    ruleNetText: '<strong>🔱 鱼叉与 🕸️ 鱼网：</strong>第 1 关使用<strong>鱼叉</strong>（按船左右呈 45° 刺出，<strong>仅可叉中大鱼 #9–12</strong>）；第 2 关使用<strong>鱼网</strong>；第 3 关按天轮换；第 4 关<strong>仅使用鱼网</strong>！',
+                    ruleScoreText: '<strong>🐟 鱼获分值与通关分数：</strong>第 1–3 关：小鱼（#1–4）= <strong>1 分</strong>，中型（#5–8）= <strong>2 分</strong>，大型（#9–12）= <strong>4 分</strong>（跃起鱼 5–8 分）。第 4 关：<strong>受保护鱼罚款扣分（积分可为负）</strong>、<strong>无食用价值加 1 分</strong>、<strong>可食用鱼正常加分</strong>。四关通关目标分：<strong>99 / 188 / 399 / 599 分</strong>。',
+                    rulePortText: '<strong>⚓ 靠港与换船：</strong>安全度过本关天数且达到通关分数即可靠港过关！换船积分门槛为 <strong>55 / 100 / 200 / 400 分</strong>。',
                     langLabelText: '语言 / Language',
                     daysLabelText: '每关天数',
                     moodLabelText: '天色与光照',
                     moodSunset: '落日',
                     moodDaylight: '白昼',
                     moodMoonlight: '月夜',
-                    waveLabelText: '海浪强度（随关卡自动切换）',
+                    waveLabelText: '海浪强度（随关卡/天数自动切换）',
                     waveCalm: '微浪',
                     waveChoppy: '浪涌',
                     waveStormy: '巨浪',
@@ -931,26 +979,24 @@
                     crashTitle: '撞上礁石了！',
                     crashDesc: (day, stgName, waveName) => `在${stgName}（${waveName}）第 ${day} 天撞礁。点击两侧鱼获缩略图可查看生态与保护说明。`,
                     crashRestartBtn: '重新开始（第 1 关）',
+                    shortScoreBadge: (stgName) => `积分未达标 · ${stgName}未通关`,
+                    shortScoreTitle: '未达到通关分数！',
+                    shortScoreDesc: (score, target, stgName) => `你已安全靠港，但${stgName}需要达到 ${target} 分才能通关（当前 ${score} 分）。`,
+                    shortScoreRetryBtn: (stgName) => `重玩${stgName}`,
                     upgradeTipYes: (icon, name) => `🎉 成功通关且达标！下一关将驾驶 ${icon} ${name} 出发！`,
                     upgradeTipNeed: (score, need, name) => `当前 ${score} 分（升级 ${name} 需 ${need} 分）—— 暂保持当前船只。`,
                     upgradeTipMax: (icon, name) => `已驾驶最高级座驾 ${icon} ${name}。`,
                     levelUpBadge: (stgName, days, waveName) => `⚓ 已靠港 · ${stgName}（${days}天）通关！`,
                     levelUpTitle: (nextName, nextWave) => `港湾休整 · 前往${nextName}（${nextWave}）`,
-                    levelUpDesc: (nextWave, tip) => `海况将切换为“${nextWave}”。${tip}`,
+                    levelUpDesc: (nextWave, tip) => `下一关海况为“${nextWave}”。${tip}`,
                     levelUpBtn: (nextName, nextWave) => `启航前往${nextName}（${nextWave}）`,
-                    victoryBadge: '⚓ 安全返港 · 三关全部通关！',
-                    victoryTitle: '🏆 恭喜通关全部三关！',
-                    victoryDesc: (tip) => `你成功穿越微浪、浪涌与巨浪并安全返港！${tip}`,
+                    victoryBadge: '⚓ 安全返港 · 四关全部通关！',
+                    victoryTitle: '🏆 恭喜通关全部四关！',
+                    victoryDesc: (tip) => `你成功征服全部四关并安全返港！${tip}`,
                     victoryBtn: '重新开始（第 1 关）',
                     vesselNeedFormat: (diff, nextName) => `通关还差 ${diff} 分升级${nextName}`,
                     vesselReadyFormat: (nextName) => `通关即可升级为${nextName}`,
                     vesselMaxTier: '已达最高船型',
-                    inkPrefix: '🖤 墨汁警报！捕获',
-                    bigPrefix: '🌟 跃起捕获！',
-                    normalPrefix: '🕸️ 捕获',
-                    popupInk: '墨汁捕获',
-                    popupBig: '跃起大鱼',
-                    popupNormal: '已捕获',
                     dockSignText: '前方即将靠港，请小心驾驶',
                     page2TitleSuffix: '详细档案',
                     pillProtected: '🛡️ 受保护 / 珍稀',
@@ -974,15 +1020,17 @@
                     prevPageBtn: '← 返回：概览',
                     closeBtn: '关闭',
                     stages: [
-                        { name: '第 1 关', shortName: '第 1 关 · 微浪', waveName: '微浪' },
-                        { name: '第 2 关', shortName: '第 2 关 · 浪涌', waveName: '浪涌' },
-                        { name: '第 3 关', shortName: '第 3 关 · 巨浪', waveName: '巨浪' }
+                        { name: '第 1 关', shortName: '第 1 关 · 鱼叉 (99分)', waveName: '微浪' },
+                        { name: '第 2 关', shortName: '第 2 关 · 鱼网 (188分)', waveName: '浪涌' },
+                        { name: '第 3 关', shortName: '第 3 关 · 轮换 (399分)', waveName: '巨浪' },
+                        { name: '第 4 关', shortName: '第 4 关 · 变浪 (599分)', waveName: '微/大/巨浪' }
                     ],
                     vessels: [
                         { name: '木质划艇' },
                         { name: '风帆小船' },
                         { name: '涡轮快艇' },
-                        { name: '远洋游艇' }
+                        { name: '远洋游艇' },
+                        { name: '远洋巡洋舰' }
                     ]
                 }
             };
@@ -1000,7 +1048,7 @@
             const FISH_SIZE_TIERS = {
                 small:  { key: 'small',  label: 'Small Fish',  sizeMult: CFG_TIERS.small?.sizeMult  ?? 0.82, jumpProb: CFG_TIERS.small?.jumpProb  ?? 0.42, baseScore: CFG_TIERS.small?.basePoints  ?? CFG_TIERS.small?.baseScore  ?? 1, jumpScore: CFG_TIERS.small?.jumpPoints  ?? 5 },
                 medium: { key: 'medium', label: 'Medium Fish', sizeMult: CFG_TIERS.medium?.sizeMult ?? 1.00, jumpProb: CFG_TIERS.medium?.jumpProb ?? 0.32, baseScore: CFG_TIERS.medium?.basePoints ?? CFG_TIERS.medium?.baseScore ?? 2, jumpScore: CFG_TIERS.medium?.jumpPoints ?? 5 },
-                large:  { key: 'large',  label: 'Large Fish',  sizeMult: CFG_TIERS.large?.sizeMult  ?? 1.50, jumpProb: CFG_TIERS.large?.jumpProb  ?? 0.22, baseScore: CFG_TIERS.large?.basePoints  ?? CFG_TIERS.large?.baseScore  ?? 4, jumpScore: CFG_TIERS.large?.jumpPoints  ?? 8 }
+                large:  { key: 'large',  label: 'Large Fish',  sizeMult: CFG_TIERS.large?.sizeMult  ?? 1.50, jumpProb: CFG_TIERS.large?.jumpProb  ?? 0.25, baseScore: CFG_TIERS.large?.basePoints  ?? CFG_TIERS.large?.baseScore  ?? 4, jumpScore: CFG_TIERS.large?.jumpPoints  ?? 8 }
             };
             function getFishSizeTierByIndex(idx) {
                 if (idx < 4) return FISH_SIZE_TIERS.small;
@@ -1009,7 +1057,9 @@
             }
             const GEAR_CFG = EXT_CFG.fishingGear || EXT_CFG.tools || {};
             const NET_CFG = GEAR_CFG.net || {};
+            const HARPOON_CFG = GEAR_CFG.harpoon || {};
             const NET_IMG_SRC = NET_CFG.imgSrc || 'assets/net.png';
+            const HARPOON_IMG_SRC = HARPOON_CFG.imgSrc || 'assets/harpoon.png';
 
             const portFullscreenBgEl = document.getElementById('portFullscreenBg');
 
@@ -1034,16 +1084,39 @@
                 }
             }
 
-            LEVELS.forEach(lvl => {
+            // 预加载每一关的“通关入港图(clearImg)”与“失败回退上一关港口图(failImg)”
+            LEVELS.forEach((lvl, idx) => {
                 lvl.resolvedClearImg = lvl.clearImg;
-                const probe = new Image();
-                probe.src = lvl.clearImg;
-                probe.onerror = () => { lvl.resolvedClearImg = lvl.fallbackClearImg; };
+                const probeClear = new Image();
+                probeClear.src = lvl.clearImg;
+                probeClear.onerror = () => { lvl.resolvedClearImg = lvl.fallbackClearImg || lvl.clearImg; };
+
+                // 若配置未显式指定 failImg，则自动指向前一关的港口图（第 1 关失败时兜底使用第 1 关港口）
+                const prevLvl = LEVELS[Math.max(0, idx - 1)];
+                const defaultFailImg = lvl.failImg || prevLvl.clearImg;
+                const defaultFallbackFailImg = lvl.fallbackFailImg || prevLvl.fallbackClearImg || defaultFailImg;
+
+                lvl.resolvedFailImg = defaultFailImg;
+                const probeFail = new Image();
+                probeFail.src = defaultFailImg;
+                probeFail.onerror = () => { lvl.resolvedFailImg = defaultFallbackFailImg; };
             });
 
-            function setPortBackgroundForStage(stageIdx) {
-                const lvl = LEVELS[clamp(stageIdx, 0, LEVELS.length - 1)];
-                const imgPath = lvl.resolvedClearImg || lvl.clearImg;
+            /**
+             * 设置全屏入港背景图
+             * @param {number} stageIdx 当前关卡索引（0 ~ 3）
+             * @param {boolean} isCleared true=闯关成功（显示本关港口）；false=闯关失败（显示上一关港口）
+             */
+            function setPortBackgroundForStage(stageIdx, isCleared = true) {
+                const safeIdx = clamp(stageIdx, 0, LEVELS.length - 1);
+                const lvl = LEVELS[safeIdx];
+                let imgPath;
+                if (isCleared) {
+                    imgPath = lvl.resolvedClearImg || lvl.clearImg;
+                } else {
+                    const prevLvl = LEVELS[Math.max(0, safeIdx - 1)];
+                    imgPath = lvl.resolvedFailImg || lvl.failImg || prevLvl.resolvedClearImg || prevLvl.clearImg;
+                }
                 portFullscreenBgEl.style.backgroundImage =
                     `linear-gradient(180deg, rgba(5, 12, 24, 0.20) 0%, rgba(5, 12, 24, 0.50) 100%), url('${imgPath}')`;
             }
@@ -1367,8 +1440,7 @@
             function parseFishTxtContent(rawText, baseMeta) {
                 const meta = { ...baseMeta };
                 if (!rawText || typeof rawText !== 'string') return meta;
-
-                const lines = rawText.replace(/\r\n/g, '\n').split('\n');
+                const lines = rawText.replace(/\r/g, '').split(/\n/);
                 for (const line of lines) {
                     const trimmed = line.trim();
                     if (!trimmed || trimmed.startsWith('#')) continue;
@@ -1414,16 +1486,15 @@
                             const rawText = await resp.text();
                             meta = parseFishTxtContent(rawText, meta);
                         }
-                    } catch (_) {
-                        // Fallback to built-in encyclopedia on file:// or offline
-                    }
+                    } catch (_) {}
                 }
                 fishMetaCache[safeLang][fishId] = meta;
                 return meta;
             }
 
+            // 礁石基础宽高兜底值（保持 400x300 的 4:3 原图比例，略微放大）
             const FALLBACK_OBS_STYLES = [
-                { kind: 'rock', label: 'Rock', baseW: OBS_CFG.baseW || 96, baseH: OBS_CFG.baseH || 72, hitX: 0.11 }
+                { kind: 'rock', label: 'Rock', baseW: OBS_CFG.baseW || 112, baseH: OBS_CFG.baseH || 84, hitX: 0.11 }
             ];
 
             function loadCustomImage(entry, src) {
@@ -1437,6 +1508,9 @@
 
             const netAsset = {};
             loadCustomImage(netAsset, NET_IMG_SRC);
+
+            const harpoonAsset = {};
+            loadCustomImage(harpoonAsset, HARPOON_IMG_SRC);
 
             const OBSTACLE_SPECIES = OBSTACLE_FILES.map((file, idx) => {
                 const fb = FALLBACK_OBS_STYLES[idx % FALLBACK_OBS_STYLES.length];
@@ -1518,12 +1592,12 @@
 
             const CFG_WAVES = EXT_CFG.wavePresets || {};
             const WAVE_PRESETS = {
-                calm:   { amp: 0.56, speed: 0.75, foamDensity: 0.45, maxSplashes: 160, boatSplashChance: 0.35, ...(CFG_WAVES.calm || {}) },
-                choppy: { amp: 1.05, speed: 1.02, foamDensity: 0.72, maxSplashes: 180, boatSplashChance: 0.42, ...(CFG_WAVES.choppy || {}) },
-                stormy: { amp: 1.55, speed: 1.38, foamDensity: 0.95, maxSplashes: 210, boatSplashChance: 0.48, ...(CFG_WAVES.stormy || {}) }
+                calm:   { amp: 0.56, speed: 0.75, foamDensity: 0.45, maxSplashes: 140, boatSplashChance: 0.35, ...(CFG_WAVES.calm || {}) },
+                choppy: { amp: 1.05, speed: 1.02, foamDensity: 0.72, maxSplashes: 160, boatSplashChance: 0.42, ...(CFG_WAVES.choppy || {}) },
+                stormy: { amp: 1.55, speed: 1.38, foamDensity: 0.95, maxSplashes: 185, boatSplashChance: 0.48, ...(CFG_WAVES.stormy || {}) }
             };
 
-            const STORAGE_UNLOCK_KEY = 'ocean_hunting_unlocked_stage';
+            const STORAGE_UNLOCK_KEY = 'ocean_hunting_unlocked_stage_v4';
             const STORAGE_LANG_KEY = 'ocean_hunting_ui_lang';
             let maxUnlockedStage = 0;
             try {
@@ -1541,7 +1615,7 @@
 
             const state = {
                 width: window.innerWidth, height: window.innerHeight,
-                dpr: Math.min(window.devicePixelRatio || 1, 2),
+                dpr: Math.min(window.devicePixelRatio || 1, 1.75),
                 uiLang: initialLang,
                 time: 0, mood: EXT_CFG.defaultMood || 'sunset', waveMode: EXT_CFG.defaultWaveMode || 'calm',
                 baseRowSpeed: 1.0, currentRowSpeed: 1.0, isBoosting: false,
@@ -1551,7 +1625,8 @@
                 selectedStartStage: 0, levelIndex: 0, score: 0, caughtCount: 0,
                 caughtSpeciesMap: {},
                 roundEnded: false, awaitingAnyKeyForPortButtons: false, endReason: 'crash',
-                vesselTier: 0, approachingPort: false
+                vesselTier: 0, approachingPort: false,
+                activeGear: 'harpoon'
             };
 
             function t() { return I18N[state.uiLang] || I18N.en; }
@@ -1569,6 +1644,40 @@
                 const dict = t().vessels;
                 const fallback = VESSEL_TIERS[clamp(tierIdx, 0, VESSEL_TIERS.length - 1)];
                 return (dict[tierIdx] && dict[tierIdx].name) || fallback.name;
+            }
+
+            function getCurrentDayIndex() {
+                return Math.min(state.daysPerRound - 1, Math.floor(state.celestialClock / DAY_CYCLE_SECONDS));
+            }
+
+            function resolveActiveGearForCurrentMoment() {
+                if (state.levelIndex === 3) return 'net';
+                const lvl = getCurrentLevelConfig();
+                const pattern = lvl.gearPattern || lvl.gearMode || (state.levelIndex === 0 ? 'harpoon' : (state.levelIndex === 1 ? 'net' : 'alternate_day'));
+                if (pattern === 'harpoon') return 'harpoon';
+                if (pattern === 'net') return 'net';
+                const dayIdx = getCurrentDayIndex();
+                return (dayIdx % 2 === 0) ? 'harpoon' : 'net';
+            }
+
+            function resolveWaveModeForCurrentMoment() {
+                const lvl = getCurrentLevelConfig();
+                const seq = Array.isArray(lvl.waveSequence) && lvl.waveSequence.length > 0
+                    ? lvl.waveSequence
+                    : (Array.isArray(lvl.waveCycle) && lvl.waveCycle.length > 0 ? lvl.waveCycle : null);
+                if (seq) {
+                    const dayIdx = getCurrentDayIndex();
+                    return seq[dayIdx % seq.length] || lvl.waveMode;
+                }
+                return lvl.waveMode || 'calm';
+            }
+
+            function getStageTargetScore(stageIdx = state.levelIndex) {
+                const lvl = LEVELS[clamp(stageIdx, 0, LEVELS.length - 1)];
+                if (typeof lvl.targetScore === 'number') return lvl.targetScore;
+                if (typeof lvl.passScore === 'number') return lvl.passScore;
+                const defaults = [99, 188, 399, 599];
+                return defaults[stageIdx] || 99;
             }
 
             const coverBgImgEl = document.getElementById('coverBgImg');
@@ -1761,24 +1870,40 @@
                 }
             }
 
-            const VESSEL_TIERS = Array.isArray(EXT_CFG.vessels) && EXT_CFG.vessels.length ? EXT_CFG.vessels : [
-                { minScore: 0,   id: 'rowboat',   icon: '🚣', name: 'Wooden Rowboat',   speedMult: 1.0,  imgSrc: 'assets/vessels/rowboat.png',   drawWidth: 100, drawHeight: 150 },
-                { minScore: 25,  id: 'sailboat',  icon: '⛵', name: 'Wind Sailboat',    speedMult: 1.25, imgSrc: 'assets/vessels/sailboat.png',  drawWidth: 100, drawHeight: 150 },
-                { minScore: 60,  id: 'speedboat', icon: '🚤', name: 'Turbo Speedboat',  speedMult: 1.55, imgSrc: 'assets/vessels/speedboat.png', drawWidth: 100, drawHeight: 150 },
-                { minScore: 110, id: 'yacht',     icon: '🛥️', name: 'Ocean Yacht',      speedMult: 1.80, imgSrc: 'assets/vessels/yacht.png',     drawWidth: 100, drawHeight: 150 }
+            const DEFAULT_VESSELS = [
+                { minScore: 0,   id: 'rowboat',   icon: '🚣', name: 'Wooden Rowboat',   speedMult: 1.00, imgSrc: 'assets/vessels/rowboat.png',   drawWidth: 100, drawHeight: 150 },
+                { minScore: 55,  id: 'sailboat',  icon: '⛵', name: 'Wind Sailboat',    speedMult: 1.20, imgSrc: 'assets/vessels/sailboat.png',  drawWidth: 100, drawHeight: 150 },
+                { minScore: 100, id: 'speedboat', icon: '🚤', name: 'Turbo Speedboat',  speedMult: 1.45, imgSrc: 'assets/vessels/speedboat.png', drawWidth: 100, drawHeight: 150 },
+                { minScore: 200, id: 'yacht',     icon: '🛥️', name: 'Ocean Yacht',      speedMult: 1.70, imgSrc: 'assets/vessels/yacht.png',     drawWidth: 100, drawHeight: 150 },
+                { minScore: 400, id: 'flagship',  icon: '🚢', name: 'Ocean Cruiser',    speedMult: 1.95, imgSrc: 'assets/vessels/flagship.png',  drawWidth: 100, drawHeight: 150 }
             ];
+            const VESSEL_TIERS = (Array.isArray(EXT_CFG.vessels) && EXT_CFG.vessels.length >= 5)
+                ? EXT_CFG.vessels
+                : DEFAULT_VESSELS;
             VESSEL_TIERS.forEach(v => loadCustomImage(v, v.imgSrc));
 
-            const splashes = [], lensDrops = [], underwaterFish = [], jumpingFish = [], activeNets = [], floatingPopups = [], inkClouds = [], obstacles = [];
+            const splashes = [], lensDrops = [], underwaterFish = [], jumpingFish = [], activeNets = [], activeHarpoons = [], floatingPopups = [], inkClouds = [], obstacles = [];
             let nextJumpTimer = 1.0, nextObstacleTimer = 2.2;
 
             function getCurrentLevelConfig() { return LEVELS[clamp(state.levelIndex, 0, LEVELS.length - 1)]; }
 
             const waveBtns = document.querySelectorAll('.wave-btn');
-            function applyLevelWaveMode() {
-                const lvl = getCurrentLevelConfig();
-                state.waveMode = lvl.waveMode;
-                waveBtns.forEach(b => b.classList.toggle('active', b.dataset.wave === state.waveMode));
+            const gearDisplayEl = document.getElementById('gearDisplay');
+
+            function syncDynamicStageGearAndWave() {
+                const nextWave = resolveWaveModeForCurrentMoment();
+                if (state.waveMode !== nextWave) {
+                    state.waveMode = nextWave;
+                    waveBtns.forEach(b => b.classList.toggle('active', b.dataset.wave === state.waveMode));
+                }
+                const nextGear = resolveActiveGearForCurrentMoment();
+                if (state.activeGear !== nextGear) {
+                    state.activeGear = nextGear;
+                }
+                if (gearDisplayEl) {
+                    gearDisplayEl.textContent = state.activeGear === 'harpoon' ? t().gearHarpoon : t().gearNet;
+                }
+                syncStageHud();
             }
 
             const coverScreenEl = document.getElementById('coverScreen');
@@ -1809,6 +1934,7 @@
                 coverStartBtn.textContent = `${loc.startGamePrefix} (${chosenMeta.shortName})`;
                 if (maxUnlockedStage === 0) coverTipEl.textContent = loc.tipUnlock1;
                 else if (maxUnlockedStage === 1) coverTipEl.textContent = loc.tipUnlock2;
+                else if (maxUnlockedStage === 2) coverTipEl.textContent = loc.tipUnlock3;
                 else coverTipEl.textContent = loc.tipUnlockAll;
             }
 
@@ -1824,12 +1950,17 @@
             const stageDisplayEl = document.getElementById('stageDisplay'), dayDisplayEl = document.getElementById('dayDisplay');
             const scorePrefixEl = document.getElementById('scorePrefix');
             const scoreDisplayEl = document.getElementById('scoreDisplay'), fishCountDisplayEl = document.getElementById('fishCountDisplay');
-            const catchBannerEl = document.getElementById('catchBanner'), roundOverlayEl = document.getElementById('roundOverlay');
+            const roundOverlayEl = document.getElementById('roundOverlay');
             const roundBadgeEl = document.getElementById('roundBadge'), roundTitleEl = document.getElementById('roundTitle');
             const roundDescEl = document.getElementById('roundDesc'), finalScoreValEl = document.getElementById('finalScoreVal');
             const finalFishValEl = document.getElementById('finalFishVal'), restartRoundBtn = document.getElementById('restartRoundBtn');
             const topRestartBtn = document.getElementById('topRestartBtn'), topExitBtn = document.getElementById('topExitBtn');
             const modalExitBtn = document.getElementById('modalExitBtn');
+
+            function syncScoreHud() {
+                const target = getStageTargetScore(state.levelIndex);
+                scoreDisplayEl.textContent = `${state.score} / ${target}`;
+            }
 
             function spawnObstacle() {
                 if (!OBSTACLE_SPECIES.length || obstacles.length >= 3) return;
@@ -1837,8 +1968,8 @@
                 obstacles.push({
                     cfg,
                     z: 0.035,
-                    horizonPause: OBS_CFG.horizonPauseDuration ?? 1.15,
-                    horizonPauseMax: OBS_CFG.horizonPauseDuration ?? 1.15,
+                    horizonPause: OBS_CFG.horizonPauseDuration ?? 0.85,
+                    horizonPauseMax: OBS_CFG.horizonPauseDuration ?? 0.85,
                     horizonGrow: 0,
                     xNorm: 0.22 + Math.random() * 0.56,
                     driftX: (Math.random() - 0.5) * 0.025,
@@ -1861,6 +1992,16 @@
                     roundTitleEl.textContent = loc.crashTitle;
                     roundDescEl.textContent = loc.crashDesc(completedDays, stgMeta.name, stgMeta.waveName);
                     restartRoundBtn.textContent = loc.crashRestartBtn;
+                    return;
+                }
+
+                if (state.endReason === 'score_short') {
+                    const targetScore = getStageTargetScore(state.levelIndex);
+                    roundBadgeEl.textContent = loc.shortScoreBadge(stgMeta.name);
+                    roundBadgeEl.className = 'round-badge crash';
+                    roundTitleEl.textContent = loc.shortScoreTitle;
+                    roundDescEl.textContent = loc.shortScoreDesc(state.score, targetScore, stgMeta.name);
+                    restartRoundBtn.textContent = loc.shortScoreRetryBtn(stgMeta.name);
                     return;
                 }
 
@@ -1896,21 +2037,53 @@
                 }
             }
 
+            // 撞礁失败：同样淡入“上一关的港口”入港图，并保留两侧鱼获回顾与结算按钮
             function triggerCrashGameOver(obsLabel, x, y) {
                 if (state.roundEnded) return;
-                state.roundEnded = true; state.awaitingAnyKeyForPortButtons = false; state.endReason = 'crash';
-                state.draggingBoat = false; state.isBoosting = false; syncBodyPhaseClass();
+                state.roundEnded = true;
+                state.awaitingAnyKeyForPortButtons = false;
+                state.endReason = 'crash';
+                state.draggingBoat = false;
+                state.isBoosting = false;
+                syncBodyPhaseClass();
+
                 spawnSplash(x, y, 42, 80, 1.4, 1.5);
-                roundOverlayEl.classList.remove('port-mode', 'port-fade-in', 'buttons-revealed');
+
+                // 失败时传入 isCleared = false，显示上一关港口图片
+                setPortBackgroundForStage(state.levelIndex, false);
                 refreshRoundSummaryText();
-                roundOverlayEl.classList.add('show');
+
+                roundOverlayEl.classList.remove('port-fade-in');
+                roundOverlayEl.classList.add('show', 'port-mode', 'buttons-revealed');
+                requestAnimationFrame(() => requestAnimationFrame(() => roundOverlayEl.classList.add('port-fade-in')));
                 renderCaughtSidePanels();
             }
 
+            // 天数结束后的入港结算：达标则显示本关港口，未达标（闯关不过）则显示上一关港口
             function triggerStageClearWithPort() {
-                state.roundEnded = true; state.awaitingAnyKeyForPortButtons = true;
-                state.draggingBoat = false; state.isBoosting = false; syncBodyPhaseClass();
-                setPortBackgroundForStage(state.levelIndex);
+                state.roundEnded = true;
+                state.draggingBoat = false;
+                state.isBoosting = false;
+                syncBodyPhaseClass();
+
+                const targetScore = getStageTargetScore(state.levelIndex);
+                if (state.score < targetScore) {
+                    // 分数未达标（闯关不过）：同样展示上一关港口入港图，并直接显示重玩/返回按钮与鱼获
+                    state.awaitingAnyKeyForPortButtons = false;
+                    state.endReason = 'score_short';
+                    setPortBackgroundForStage(state.levelIndex, false);
+                    refreshRoundSummaryText();
+
+                    roundOverlayEl.classList.remove('port-fade-in');
+                    roundOverlayEl.classList.add('show', 'port-mode', 'buttons-revealed');
+                    requestAnimationFrame(() => requestAnimationFrame(() => roundOverlayEl.classList.add('port-fade-in')));
+                    renderCaughtSidePanels();
+                    return;
+                }
+
+                // 闯关成功：显示本关港口入港图，等待玩家点击/按键后再弹出下一关按钮
+                state.awaitingAnyKeyForPortButtons = true;
+                setPortBackgroundForStage(state.levelIndex, true);
                 if (state.levelIndex + 1 < LEVELS.length) unlockStage(state.levelIndex + 1);
 
                 state.endReason = state.levelIndex < LEVELS.length - 1 ? 'level_up' : 'victory';
@@ -1986,9 +2159,10 @@
                     const elev = getWaveElevation(obs.xNorm, clamp(zEffective, 0, 1.2), state.time, preset);
                     const x = obs.xNorm * (w + 80) - 40;
                     const y = baseY - elev * (0.22 + 0.45 * emergeProgress) + Math.sin(obs.bobPhase) * 2.2 * zEffective;
-                    const horizonGrowMult = OBS_CFG.horizonPauseGrowMult || 1.38;
-                    const horizonBaseScale = lerp(0.22, 0.22 * horizonGrowMult, growEase);
-                    const scale = horizonBaseScale + Math.pow(Math.max(0, zEffective - 0.035), 1.42) * 1.82;
+                    // 礁石远近透视缩放（适度调大初始比例与近景成长系数，使礁石更清晰醒目）
+                    const horizonGrowMult = OBS_CFG.horizonPauseGrowMult || 1.45;
+                    const horizonBaseScale = lerp(0.26, 0.26 * horizonGrowMult, growEase);
+                    const scale = horizonBaseScale + Math.pow(Math.max(0, zEffective - 0.035), 1.40) * 2.08;
                     const alpha = clamp(0.55 + growEase * 0.3 + emergeProgress * 0.15, 0.55, 1);
 
                     if (!obs.splashedNear && obs.z > 0.56) {
@@ -2010,16 +2184,38 @@
                 if (Math.random() < 0.78) return 0.26 + Math.random() * 0.48;
                 return Math.random() < 0.5 ? (0.14 + Math.random() * 0.12) : (0.74 + Math.random() * 0.12);
             }
+
+            const EDIBLE_FISH_IDS = new Set(['fish1', 'fish2', 'fish5']);
+
             function pickRandomFishSpecies(preferJumpable = false) {
                 if (!FISH_SPECIES.length) return FALLBACK_FISH_STYLES[0];
-                if (!preferJumpable) return FISH_SPECIES[Math.floor(Math.random() * FISH_SPECIES.length)];
+                const isHarpoonMode = state.activeGear === 'harpoon';
+                const isStage4 = state.levelIndex === 3;
+                if (!preferJumpable) {
+                    if (isStage4) {
+                        const weighted = [];
+                        for (const sp of FISH_SPECIES) {
+                            const weight = EDIBLE_FISH_IDS.has(sp.id) ? 5 : 1;
+                            for (let w = 0; w < weight; w++) weighted.push(sp);
+                        }
+                        return weighted[Math.floor(Math.random() * weighted.length)];
+                    }
+                    if (isHarpoonMode && Math.random() < 0.55) {
+                        const largePool = FISH_SPECIES.filter(sp => sp.sizeTier === 'large');
+                        if (largePool.length) return largePool[Math.floor(Math.random() * largePool.length)];
+                    }
+                    return FISH_SPECIES[Math.floor(Math.random() * FISH_SPECIES.length)];
+                }
                 const weighted = [];
                 for (const sp of FISH_SPECIES) {
-                    const weight = Math.max(1, Math.round((sp.jumpProb || 0.3) * 10));
+                    const mult = (isHarpoonMode && sp.sizeTier === 'large') ? 2.2 : 1.0;
+                    const edibleMult = isStage4 && EDIBLE_FISH_IDS.has(sp.id) ? 4.0 : 1.0;
+                    const weight = Math.max(1, Math.round((sp.jumpProb || 0.3) * 10 * mult * edibleMult));
                     for (let w = 0; w < weight; w++) weighted.push(sp);
                 }
                 return weighted[Math.floor(Math.random() * weighted.length)];
             }
+
             function createFishInstance(species, z, xNorm) {
                 const sp = species || pickRandomFishSpecies();
                 const randomSizeJitter = 0.88 + Math.random() * 0.26;
@@ -2104,7 +2300,7 @@
                 for (let fish of sorted) {
                     const z = fish.z, baseY = horizonY + z * (seaHeight + 65), elev = getWaveElevation(fish.xNorm, z, state.time, preset);
                     const y = baseY - elev * 0.65 + (14 + z * 26) + fish.yOffset * z, x = fish.xNorm * (w + 80) - 40, scale = 0.35 + Math.pow(z, 1.45) * 1.95;
-                    fish._screenX = x; fish._screenY = y; fish._hitRadius = Math.max(22, fish.baseSize * fish.species.lenRatio * scale * 0.75);
+                    fish._screenX = x; fish._screenY = y; fish._hitRadius = Math.max(24, fish.baseSize * fish.species.lenRatio * scale * 0.78);
                     drawFishShape(fish, x, y, scale, Math.sin(fish.tailPhase) * 0.06, fish.swimSpeed >= 0 ? 0 : Math.PI, clamp((z - 0.1) * 1.6, 0.15, 0.78));
                 }
             }
@@ -2122,7 +2318,7 @@
                     const scale = (0.45 + Math.pow(z, 1.5) * 2.45) * (1 + arcSin * 0.22);
                     if (!jf.exitSplashed && progress > 0.12) { jf.exitSplashed = true; spawnSplash(surfaceX, surfaceY, 20, 36, 1.15, clamp(scale * 1.15, 0.8, 2.4)); }
                     if (!jf.entrySplashed && progress > 0.86) { jf.entrySplashed = true; spawnSplash(surfaceX, surfaceY, 26, 46, 1.25, clamp(scale * 1.3, 0.8, 2.6)); }
-                    jf._screenX = surfaceX; jf._screenY = y; jf._hitRadius = Math.max(28, jf.baseSize * jf.species.lenRatio * scale * 0.72);
+                    jf._screenX = surfaceX; jf._screenY = y; jf._hitRadius = Math.max(30, jf.baseSize * jf.species.lenRatio * scale * 0.75);
                     drawFishShape(jf, surfaceX, y, scale, 0, jf.endXNorm >= jf.startXNorm ? 0 : Math.PI, arcSin < 0.12 ? clamp(arcSin / 0.12, 0.2, 1) : 1);
                 }
             }
@@ -2151,7 +2347,8 @@
 
             function syncStageHud() {
                 const meta = getLocalizedStageMeta(state.levelIndex);
-                stageDisplayEl.textContent = `${meta.name}/3 · ${meta.waveName}`;
+                const waveKey = state.waveMode === 'calm' ? t().waveCalm : (state.waveMode === 'choppy' ? t().waveChoppy : t().waveStormy);
+                stageDisplayEl.textContent = `${meta.name}/${LEVELS.length} · ${waveKey}`;
             }
 
             function refreshHudLanguage() {
@@ -2163,8 +2360,11 @@
                 document.getElementById('badgeText').textContent = loc.badgeText;
                 document.getElementById('hintSubText').textContent = loc.hintSubText;
                 scorePrefixEl.textContent = loc.scorePrefix;
-                scoreDisplayEl.textContent = `${state.score}`;
+                syncScoreHud();
                 fishCountDisplayEl.textContent = loc.caughtFormat(state.caughtCount);
+                if (gearDisplayEl) {
+                    gearDisplayEl.textContent = state.activeGear === 'harpoon' ? loc.gearHarpoon : loc.gearNet;
+                }
                 helpBtn.textContent = loc.helpBtn;
                 topRestartBtn.textContent = loc.topRestartBtn;
                 topExitBtn.textContent = loc.topExitBtn;
@@ -2208,7 +2408,7 @@
                 syncStageHud();
                 refreshVesselHud();
                 if (state.roundEnded) {
-                    if (state.endReason === 'crash') renderCaughtSidePanels();
+                    if (state.endReason === 'crash' || state.endReason === 'score_short') renderCaughtSidePanels();
                     refreshRoundSummaryText();
                 }
                 if (fishDetailBackdropEl.classList.contains('show') && activeDetailSpecies) {
@@ -2238,12 +2438,18 @@
                 state.caughtSpeciesMap = {};
                 state.celestialClock = 0; state.roundEnded = false; state.awaitingAnyKeyForPortButtons = false;
                 state.endReason = 'crash'; state.boatXNorm = 0.5; state.boatYNorm = BOAT_DEFAULT_Y_NORM;
-                state.draggingBoat = false; state.gameStarted = true; state.approachingPort = false;
-                activeNets.length = 0; floatingPopups.length = 0; jumpingFish.length = 0;
+                state.draggingBoat = false; state.isBoosting = false; state.gameStarted = true; state.approachingPort = false;
+                activeNets.length = 0; activeHarpoons.length = 0; floatingPopups.length = 0; jumpingFish.length = 0;
                 inkClouds.length = 0; obstacles.length = 0; nextObstacleTimer = 2.0;
-                initUnderwaterFish(); applyLevelWaveMode(); syncStageHud();
+                syncDynamicStageGearAndWave();
+                initUnderwaterFish();
+                if (state.levelIndex === 3) {
+                    for (let i = 0; i < underwaterFish.length; i++) {
+                        if (i % 2 === 0) underwaterFish[i].species = pickRandomFishSpecies(false);
+                    }
+                }
                 dayDisplayEl.textContent = t().dayFormat(1, state.daysPerRound);
-                scoreDisplayEl.textContent = '0'; fishCountDisplayEl.textContent = t().caughtFormat(0);
+                syncScoreHud(); fishCountDisplayEl.textContent = t().caughtFormat(0);
                 refreshVesselHud();
                 roundOverlayEl.classList.remove('show', 'port-mode', 'port-fade-in', 'buttons-revealed');
                 coverScreenEl.classList.add('hidden'); syncBodyPhaseClass();
@@ -2264,13 +2470,24 @@
                     state.levelIndex = Math.min(LEVELS.length - 1, state.levelIndex + 1);
                     state.celestialClock = 0; state.roundEnded = false; state.awaitingAnyKeyForPortButtons = false;
                     state.endReason = 'crash'; state.boatYNorm = BOAT_DEFAULT_Y_NORM; state.draggingBoat = false;
-                    state.approachingPort = false;
+                    state.isBoosting = false; state.approachingPort = false;
+                    activeNets.length = 0; activeHarpoons.length = 0; floatingPopups.length = 0;
                     obstacles.length = 0; jumpingFish.length = 0; nextObstacleTimer = 1.8;
-                    applyLevelWaveMode(); syncStageHud();
+                    syncDynamicStageGearAndWave();
+                    if (state.levelIndex === 3) {
+                        for (let i = 0; i < underwaterFish.length; i++) {
+                            if (i % 2 === 0) underwaterFish[i].species = pickRandomFishSpecies(false);
+                        }
+                    }
+                    syncScoreHud();
                     dayDisplayEl.textContent = t().dayFormat(1, state.daysPerRound);
                     roundOverlayEl.classList.remove('show', 'port-mode', 'port-fade-in', 'buttons-revealed');
                     syncBodyPhaseClass();
-                } else startGameAtStage(0);
+                } else if (state.roundEnded && state.endReason === 'score_short') {
+                    startGameAtStage(state.levelIndex);
+                } else {
+                    startGameAtStage(0);
+                }
             }
 
             function returnToCover() {
@@ -2288,7 +2505,6 @@
             topExitBtn.addEventListener('click', (e) => { e.stopPropagation(); returnToCover(); });
             modalExitBtn.addEventListener('click', (e) => { e.stopPropagation(); returnToCover(); });
 
-            let bannerHideTimer = null;
             const vesselIconEl = document.getElementById('vesselIcon'), vesselNameEl = document.getElementById('vesselName'), vesselNextHintEl = document.getElementById('vesselNextHint');
 
             function refreshVesselHud() {
@@ -2308,7 +2524,7 @@
             }
 
             function spawnInkCloud(x, y) {
-                for (let i = 0; i < 12; i++) {
+                for (let i = 0; i < 10; i++) {
                     const ang = Math.random() * Math.PI * 2, spd = 25 + Math.random() * 65;
                     inkClouds.push({ x: x + (Math.random() - 0.5) * 20, y: y + (Math.random() - 0.5) * 20, vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd, r: 12 + Math.random() * 18, life: 0, maxLife: 1.1 + Math.random() * 0.5 });
                 }
@@ -2325,34 +2541,137 @@
                 });
             }
 
-            function showCatchNotification(speciesLabel, isBig, isCuttlefish, points) {
-                const loc = t();
-                scoreDisplayEl.textContent = `${state.score}`;
-                fishCountDisplayEl.textContent = loc.caughtFormat(state.caughtCount);
-                const prefix = isCuttlefish ? loc.inkPrefix : (isBig ? loc.bigPrefix : loc.normalPrefix);
-                catchBannerEl.textContent = `${prefix} ${speciesLabel}! +${loc.ptsSuffix(points)}`;
-                catchBannerEl.classList.add('show');
-                if (bannerHideTimer) clearTimeout(bannerHideTimer);
-                bannerHideTimer = setTimeout(() => catchBannerEl.classList.remove('show'), 2200);
-            }
-
-            function triggerNetCatch(fish, isBig) {
+            function triggerFishCatch(fish, isBig, gearUsed = 'net') {
                 const loc = t();
                 const sp = fish.species;
                 const jumpPts = sp.jumpScore || Math.max(NET_CFG.minJumpScore || 5, (sp.bonusPoints || 1) * (NET_CFG.jumpBonusMult || 2));
                 const basePts = sp.bonusPoints || 1;
-                const points = isBig ? jumpPts : basePts;
-                state.score += points; state.caughtCount += 1;
+                const normalPts = isBig ? jumpPts : basePts;
+
+                let points = normalPts;
+                let isPenalty = false;
+
+                if (state.levelIndex === 3) {
+                    const meta = fishMetaCache[state.uiLang]?.[sp.id] || buildFallbackFishMeta(sp, sp.id, state.uiLang);
+                    if (meta.isProtected) {
+                        points = -normalPts;
+                        isPenalty = true;
+                    } else if (!meta.edible) {
+                        points = 1;
+                    } else {
+                        points = normalPts;
+                    }
+                }
+
+                state.score = state.score + points;
+                state.caughtCount += 1;
                 recordCaughtSpecies(sp);
-                const cachedMeta = fishMetaCache[state.uiLang]?.[sp.id];
-                const displayName = cachedMeta?.cnName || sp.label;
-                const cx = fish._screenX, cy = fish._screenY, netRadius = clamp(fish._hitRadius * (NET_CFG.radiusMult || 1.25), NET_CFG.minRadius || 34, NET_CFG.maxRadius || 96);
-                spawnSplash(cx, cy, isBig ? 24 : 14, netRadius * 0.8, 1.0, isBig ? 1.2 : 0.85);
+
+                syncScoreHud();
+                fishCountDisplayEl.textContent = loc.caughtFormat(state.caughtCount);
+
+                const cx = fish._screenX, cy = fish._screenY;
+                const netRadius = clamp(fish._hitRadius * (NET_CFG.radiusMult || 1.25), NET_CFG.minRadius || 34, NET_CFG.maxRadius || 96);
+                spawnSplash(cx, cy, isPenalty ? 10 : (isBig ? 20 : 12), netRadius * 0.8, 1.0, isBig ? 1.15 : 0.85);
                 if (sp.isCuttlefish) spawnInkCloud(cx, cy);
-                activeNets.push({ x: cx, y: cy, targetRadius: netRadius, fishSnapshot: { species: sp, baseSize: fish.baseSize, tailPhase: fish.tailPhase, scale: isBig ? 1.35 : 0.95 }, isBig: isBig || points >= 3, points, life: 0, maxLife: NET_CFG.duration || 0.95 });
-                const tagText = sp.isCuttlefish ? loc.popupInk : (isBig ? loc.popupBig : loc.popupNormal);
-                floatingPopups.push({ x: cx, y: cy - netRadius * 0.45, vy: -52, title: `${tagText} · ${displayName}!`, scoreText: `+${loc.ptsSuffix(points)}`, isBig: isBig || points >= 3, life: 0, maxLife: 1.35 });
-                showCatchNotification(displayName, isBig, !!sp.isCuttlefish, points); refreshVesselHud();
+
+                const fishSnapshot = {
+                    species: sp,
+                    baseSize: fish.baseSize,
+                    tailPhase: fish.tailPhase,
+                    scale: isBig ? 1.35 : 0.95
+                };
+
+                if (gearUsed === 'harpoon' && state.levelIndex !== 3) {
+                    const { boatX } = getBoatScreenPos();
+                    const isRightSide = cx >= boatX;
+                    const angleRad = isRightSide ? (-Math.PI * 0.25) : (-Math.PI * 0.75);
+                    activeHarpoons.push({
+                        x: cx,
+                        y: cy,
+                        isRightSide,
+                        angleRad,
+                        fishSnapshot,
+                        life: 0,
+                        maxLife: HARPOON_CFG.duration || 0.85
+                    });
+                } else {
+                    activeNets.push({
+                        x: cx,
+                        y: cy,
+                        targetRadius: netRadius,
+                        fishSnapshot,
+                        isBig: !isPenalty && (isBig || points >= 3),
+                        points,
+                        life: 0,
+                        maxLife: NET_CFG.duration || 0.95
+                    });
+                }
+
+                floatingPopups.push({
+                    x: cx,
+                    y: cy - 18,
+                    vy: -54,
+                    scoreText: points > 0 ? `+${points}` : `${points}`,
+                    isPenalty,
+                    isBig: !isPenalty && (isBig || points >= 3),
+                    life: 0,
+                    maxLife: 1.15
+                });
+
+                refreshVesselHud();
+            }
+
+            function drawHarpoonStrike(hp) {
+                const p = hp.life / hp.maxLife;
+                const alpha = p < 0.7 ? 1 : 1 - (p - 0.7) / 0.3;
+                const thrustOffset = p < 0.22 ? (1 - p / 0.22) * 44 : 0;
+
+                const tiltRad = hp.isRightSide ? (-Math.PI / 4) : (-3 * Math.PI / 4);
+                const dirX = Math.cos(tiltRad);
+                const dirY = Math.sin(tiltRad);
+
+                const drawX = hp.x - dirX * thrustOffset;
+                const drawY = hp.y - dirY * thrustOffset;
+
+                hp.fishSnapshot.tailPhase += 0.35;
+                drawFishShape(
+                    hp.fishSnapshot,
+                    drawX,
+                    drawY,
+                    hp.fishSnapshot.scale * (1 - p * 0.12),
+                    Math.sin(hp.life * 30) * 0.28,
+                    hp.isRightSide ? 0 : Math.PI,
+                    alpha * 0.95
+                );
+
+                ctx.save();
+                ctx.translate(drawX, drawY);
+                ctx.globalAlpha = clamp(alpha, 0, 1);
+                ctx.rotate(tiltRad);
+
+                const len = 112;
+                const thick = 36;
+                if (harpoonAsset.imgReady && harpoonAsset.img) {
+                    ctx.drawImage(harpoonAsset.img, -len * 0.5, -thick * 0.5, len, thick);
+                } else {
+                    ctx.strokeStyle = '#e2e8f0';
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.moveTo(-58, 0);
+                    ctx.lineTo(26, 0);
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.beginPath();
+                    ctx.moveTo(46, 0);
+                    ctx.lineTo(20, -10);
+                    ctx.lineTo(25, 0);
+                    ctx.lineTo(20, 10);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                ctx.restore();
             }
 
             function updateAndDrawNetsAndPopups(dt) {
@@ -2362,6 +2681,11 @@
                     const p = ink.life / ink.maxLife; ink.x += ink.vx * dt * (1 - p * 0.6); ink.y += ink.vy * dt * (1 - p * 0.6);
                     ctx.save(); ctx.globalAlpha = (1 - p) * 0.68; ctx.fillStyle = 'rgba(25, 15, 45, 0.85)';
                     ctx.beginPath(); ctx.arc(ink.x, ink.y, ink.r * (0.7 + p * 0.9), 0, Math.PI * 2); ctx.fill(); ctx.restore();
+                }
+                for (let i = activeHarpoons.length - 1; i >= 0; i--) {
+                    const hp = activeHarpoons[i]; hp.life += dt;
+                    if (hp.life >= hp.maxLife) { activeHarpoons.splice(i, 1); continue; }
+                    drawHarpoonStrike(hp);
                 }
                 for (let i = activeNets.length - 1; i >= 0; i--) {
                     const net = activeNets[i]; net.life += dt;
@@ -2378,9 +2702,16 @@
                     const pop = floatingPopups[i]; pop.life += dt;
                     if (pop.life >= pop.maxLife) { floatingPopups.splice(i, 1); continue; }
                     const p = pop.life / pop.maxLife; pop.y += pop.vy * dt * (1 - p * 0.45);
-                    ctx.save(); ctx.globalAlpha = clamp(p < 0.15 ? p / 0.15 : (p > 0.72 ? 1 - (p - 0.72) / 0.28 : 1), 0, 1);
-                    ctx.textAlign = 'center'; ctx.font = 'bold 14px sans-serif';
-                    ctx.fillStyle = '#ffffff'; ctx.fillText(pop.title, pop.x, pop.y); ctx.fillStyle = '#fbbf24'; ctx.fillText(pop.scoreText, pop.x, pop.y + 18); ctx.restore();
+                    ctx.save();
+                    ctx.globalAlpha = clamp(p < 0.15 ? p / 0.15 : (p > 0.72 ? 1 - (p - 0.72) / 0.28 : 1), 0, 1);
+                    ctx.textAlign = 'center';
+                    ctx.font = pop.isBig ? '900 22px ui-monospace, SFMono-Regular, Menlo, sans-serif' : '800 18px ui-monospace, SFMono-Regular, Menlo, sans-serif';
+                    ctx.lineWidth = 4;
+                    ctx.strokeStyle = 'rgba(5, 10, 20, 0.85)';
+                    ctx.strokeText(pop.scoreText, pop.x, pop.y);
+                    ctx.fillStyle = pop.isPenalty ? '#f87171' : (pop.isBig ? '#fde047' : '#fbbf24');
+                    ctx.fillText(pop.scoreText, pop.x, pop.y);
+                    ctx.restore();
                 }
             }
 
@@ -2426,20 +2757,46 @@
             }
             function isPointerOnBoat(clientX, clientY) { const { boatX, boatY, boatScale } = getBoatScreenPos(); return Math.abs(clientX - boatX) <= 75 * boatScale && Math.abs(clientY - boatY) <= 95 * boatScale; }
             function updateBoatPosFromPointer(clientX, clientY) { state.boatXNorm = clamp(clientX / Math.max(1, state.width), 0.16, 0.84); state.boatYNorm = clamp(clientY / Math.max(1, state.height), BOAT_MIN_Y_NORM, BOAT_MAX_Y_NORM); }
+
+            function canCurrentGearCatchFish(fish) {
+                if (state.activeGear === 'harpoon') {
+                    return fish?.species?.sizeTier === 'large';
+                }
+                return true;
+            }
+
             function tryCatchFishAt(clientX, clientY) {
                 if (!state.gameStarted || state.roundEnded) return false;
                 const rect = canvas.getBoundingClientRect(), x = clientX - rect.left, y = clientY - rect.top;
+                const gearUsed = state.activeGear;
+
                 for (let i = jumpingFish.length - 1; i >= 0; i--) {
                     const jf = jumpingFish[i];
-                    if (jf._screenX !== undefined && Math.hypot(x - jf._screenX, y - jf._screenY) <= jf._hitRadius) { jumpingFish.splice(i, 1); triggerNetCatch(jf, true); return true; }
+                    if (jf._screenX !== undefined && Math.hypot(x - jf._screenX, y - jf._screenY) <= jf._hitRadius) {
+                        if (!canCurrentGearCatchFish(jf)) {
+                            spawnSplash(jf._screenX, jf._screenY, 6, 18, 0.7, 0.65);
+                            return true;
+                        }
+                        jumpingFish.splice(i, 1);
+                        triggerFishCatch(jf, true, gearUsed);
+                        return true;
+                    }
                 }
                 let bestIdx = -1, bestZ = -1;
                 for (let i = 0; i < underwaterFish.length; i++) {
                     const uf = underwaterFish[i];
-                    if (uf._screenX !== undefined && Math.hypot(x - uf._screenX, y - uf._screenY) <= uf._hitRadius && uf.z > bestZ) { bestZ = uf.z; bestIdx = i; }
+                    if (uf._screenX !== undefined && Math.hypot(x - uf._screenX, y - uf._screenY) <= uf._hitRadius && uf.z > bestZ) {
+                        bestZ = uf.z;
+                        bestIdx = i;
+                    }
                 }
                 if (bestIdx !== -1) {
-                    const caught = underwaterFish[bestIdx]; triggerNetCatch(caught, false);
+                    const caught = underwaterFish[bestIdx];
+                    if (!canCurrentGearCatchFish(caught)) {
+                        spawnSplash(caught._screenX, caught._screenY, 6, 18, 0.7, 0.65);
+                        return true;
+                    }
+                    triggerFishCatch(caught, false, gearUsed);
                     caught.z = 0.1; caught.xNorm = 0.15 + Math.random() * 0.7; caught.species = pickRandomFishSpecies(); caught._screenX = undefined;
                     return true;
                 }
@@ -2450,7 +2807,9 @@
 
             function resizeCanvas() {
                 state.width = window.innerWidth; state.height = window.innerHeight;
-                state.dpr = Math.min(window.devicePixelRatio || 1, 2);
+                const isSmallScreen = Math.min(state.width, state.height) <= 500;
+                const maxDpr = isSmallScreen ? 1.35 : 1.75;
+                state.dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
                 canvas.width = Math.floor(state.width * state.dpr); canvas.height = Math.floor(state.height * state.dpr);
                 ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
             }
@@ -2458,13 +2817,13 @@
 
             function spawnSplash(x, y, count, spreadX, upVel, scale = 1) {
                 const preset = WAVE_PRESETS[state.waveMode] || WAVE_PRESETS.calm;
-                const maxPool = preset.maxSplashes || 180;
-                const dampedCount = Math.max(3, Math.round(count * 0.62));
-                const dampedScale = Math.min(scale, 1.25);
+                const maxPool = preset.maxSplashes || 160;
+                const dampedCount = Math.max(3, Math.round(count * 0.58));
+                const dampedScale = Math.min(scale, 1.2);
                 for (let i = 0; i < dampedCount; i++) {
                     if (splashes.length > maxPool) splashes.shift();
                     const angle = -Math.PI * 0.5 + (Math.random() - 0.5) * 1.35, speed = (105 + Math.random() * 195) * dampedScale;
-                    splashes.push({ x: x + (Math.random() - 0.5) * spreadX, y: y + (Math.random() - 0.5) * 8, vx: Math.cos(angle) * speed * 1.25 + (Math.random() - 0.5) * 45, vy: Math.sin(angle) * speed * upVel, vz: (0.4 + Math.random() * 0.8) * dampedScale, size: (2.0 + Math.random() * 3.2) * dampedScale, life: 0, maxLife: 0.38 + Math.random() * 0.36 });
+                    splashes.push({ x: x + (Math.random() - 0.5) * spreadX, y: y + (Math.random() - 0.5) * 8, vx: Math.cos(angle) * speed * 1.25 + (Math.random() - 0.5) * 45, vy: Math.sin(angle) * speed * upVel, vz: (0.4 + Math.random() * 0.8) * dampedScale, size: (2.0 + Math.random() * 3.2) * dampedScale, life: 0, maxLife: 0.36 + Math.random() * 0.34 });
                 }
             }
             function triggerLensSplash() {
@@ -2506,7 +2865,6 @@
 
             function drawCrescentMoon(x, y, radius) {
                 const r = radius;
-
                 ctx.save();
                 ctx.translate(x, y);
                 ctx.rotate(-0.28);
@@ -2532,11 +2890,8 @@
                 moonGrad.addColorStop(1, '#cfe2ff');
 
                 ctx.fillStyle = moonGrad;
-                ctx.shadowColor = 'rgba(191, 219, 254, 0.7)';
-                ctx.shadowBlur = 12;
                 ctx.fill();
 
-                ctx.shadowBlur = 0;
                 ctx.lineWidth = Math.max(0.8, r * 0.035);
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
                 ctx.stroke();
@@ -2586,14 +2941,14 @@
                 ctx.strokeStyle = theme.glitterColor;
                 ctx.lineCap = 'round';
 
-                const rows = 28;
+                const rows = 20;
                 for (let r = 1; r <= rows; r++) {
                     const v = Math.pow(r / rows, 1.55);
                     const y = horizonY + 2 + v * (seaHeight - 8);
                     const spreadHalf = (22 + v * state.width * 0.22) * (0.7 + 0.3 * altFactor);
                     const centerX = lerp(state.width * 0.5, body.x, 0.72) + Math.sin(state.time * 1.4 + r * 0.8) * (8 + v * 18);
 
-                    const sparksPerRow = Math.round(3 + v * 7);
+                    const sparksPerRow = Math.round(3 + v * 6);
                     for (let k = 0; k < sparksPerRow; k++) {
                         const seed = r * 37 + k * 91;
                         const waveShift = Math.sin(state.time * (2.2 + preset.speed) + seed) * (0.25 + v * 0.45);
@@ -2621,17 +2976,15 @@
                 baseSeaGrad.addColorStop(0, theme.seaFar); baseSeaGrad.addColorStop(0.45, theme.seaMid); baseSeaGrad.addColorStop(1, theme.seaNear);
                 ctx.fillStyle = baseSeaGrad; ctx.fillRect(0, horizonY, w, seaHeight + 20);
 
-                const horizonGlow = ctx.createLinearGradient(0, horizonY, 0, horizonY + seaHeight * 0.36);
-                horizonGlow.addColorStop(0, theme.waveSheen);
-                horizonGlow.addColorStop(1, 'rgba(0,0,0,0)');
-                ctx.fillStyle = horizonGlow;
-                ctx.fillRect(0, horizonY, w, seaHeight * 0.36);
+                const isSmallScreen = Math.min(w, h) <= 500;
+                const numLayers = isSmallScreen ? 24 : 30;
+                const segments = isSmallScreen ? 26 : 34;
 
-                const numLayers = 44, segments = 48;
                 for (let i = 1; i <= numLayers; i++) {
-                    const z = Math.pow(i / numLayers, 2.1);
+                    const z = Math.pow(i / numLayers, 2.05);
                     const baseY = horizonY + z * (seaHeight + 65);
                     const crestPoints = [];
+
                     ctx.beginPath();
                     for (let s = 0; s <= segments; s++) {
                         const xNorm = s / segments;
@@ -2643,33 +2996,19 @@
                     }
                     ctx.lineTo(w + 50, h + 100); ctx.lineTo(-50, h + 100); ctx.closePath();
 
-                    const shade = ctx.createLinearGradient(0, baseY - 55 * z, 0, baseY + 65 * z + 20);
-                    if (z < 0.35) { shade.addColorStop(0, theme.seaMid); shade.addColorStop(1, theme.seaFar); }
-                    else { shade.addColorStop(0, theme.waveHighlight); shade.addColorStop(0.26, theme.seaMid); shade.addColorStop(1, theme.seaNear); }
-                    ctx.fillStyle = shade;
+                    ctx.fillStyle = z < 0.32 ? theme.seaFar : (z < 0.68 ? theme.seaMid : theme.seaNear);
+                    ctx.globalAlpha = 0.92;
                     ctx.fill();
 
-                    if (z > 0.05) {
-                        ctx.save();
-                        ctx.beginPath();
-                        for (let s = 0; s < crestPoints.length; s++) {
-                            const pt = crestPoints[s];
-                            const midY = pt.y + 8 * z;
-                            if (s === 0) ctx.moveTo(pt.x, midY); else ctx.lineTo(pt.x, midY);
-                        }
-                        ctx.strokeStyle = theme.waveSheen;
-                        ctx.lineWidth = Math.max(0.5, z * 1.4);
-                        ctx.globalAlpha = clamp(z * 0.72, 0.06, 0.42);
-                        ctx.stroke();
-
+                    if (z > 0.1) {
                         ctx.beginPath();
                         for (let s = 0; s < crestPoints.length; s++) {
                             const pt = crestPoints[s];
                             if (s === 0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y);
                         }
                         ctx.strokeStyle = theme.waveCrestLine;
-                        ctx.lineWidth = Math.max(0.45, z * 1.15);
-                        ctx.globalAlpha = clamp(z * 0.68, 0.08, 0.45);
+                        ctx.lineWidth = Math.max(0.5, z * 1.2);
+                        ctx.globalAlpha = clamp(z * 0.58, 0.08, 0.38);
                         ctx.stroke();
 
                         ctx.beginPath();
@@ -2682,21 +3021,23 @@
                             } else drawingFoam = false;
                         }
                         ctx.strokeStyle = theme.foamColor;
-                        ctx.lineWidth = Math.max(0.55, z * 2.1 * preset.foamDensity);
-                        ctx.globalAlpha = clamp(z * 0.85, 0.1, 0.68);
+                        ctx.lineWidth = Math.max(0.55, z * 2.0 * preset.foamDensity);
+                        ctx.globalAlpha = clamp(z * 0.80, 0.1, 0.62);
                         ctx.stroke();
-                        ctx.restore();
                     }
                 }
+                ctx.globalAlpha = 1;
 
-                drawGlitterReflection(theme, preset, horizonY, celestial);
+                if (!isSmallScreen) {
+                    drawGlitterReflection(theme, preset, horizonY, celestial);
+                }
             }
 
             function drawBoatAndRower(theme, boatX, boatY, boatScale, pitch, roll, rowPhase) {
                 const curVessel = VESSEL_TIERS[state.vesselTier] || VESSEL_TIERS[0];
                 ctx.save(); ctx.translate(boatX, boatY); ctx.scale(boatScale, boatScale); ctx.rotate(roll);
                 if (curVessel.imgReady && curVessel.img) {
-                    ctx.drawImage(curVessel.img, -(curVessel.drawWidth || 235) * 0.5, -(curVessel.drawHeight || 165) * 0.55 - pitch * 6, curVessel.drawWidth || 235, curVessel.drawHeight || 165);
+                    ctx.drawImage(curVessel.img, -(curVessel.drawWidth || 100) * 0.5, -(curVessel.drawHeight || 150) * 0.55 - pitch * 6, curVessel.drawWidth || 100, curVessel.drawHeight || 150);
                 } else {
                     ctx.fillStyle = theme.boatMid; ctx.beginPath(); ctx.ellipse(0, 12, 72, 24, 0, 0, Math.PI * 2); ctx.fill();
                     ctx.fillStyle = theme.silhouette; ctx.beginPath(); ctx.arc(0, -34 - Math.sin(rowPhase) * 6, 12, 0, Math.PI * 2); ctx.fill();
@@ -2744,10 +3085,13 @@
                         state.approachingPort = false;
                         dayDisplayEl.textContent = t().dayFormat(state.daysPerRound, state.daysPerRound);
                         triggerStageClearWithPort();
-                    } else dayDisplayEl.textContent = t().dayFormat(completedDays + 1, state.daysPerRound);
+                    } else {
+                        syncDynamicStageGearAndWave();
+                        dayDisplayEl.textContent = t().dayFormat(completedDays + 1, state.daysPerRound);
+                    }
                 } else if (!state.gameStarted) state.time += dt * 0.65;
 
-                const preset = WAVE_PRESETS[state.waveMode], horizonY = state.height * 0.36;
+                const preset = WAVE_PRESETS[state.waveMode] || WAVE_PRESETS.calm, horizonY = state.height * 0.36;
                 const celestial = computeCelestial(horizonY), theme = getBlendedTheme(celestial);
                 const vesselMult = VESSEL_TIERS[state.vesselTier]?.speedMult || 1.0;
                 state.currentRowSpeed = lerp(state.currentRowSpeed, state.baseRowSpeed * vesselMult * (state.isBoosting ? 1.75 : 1.0), dt * 5);
@@ -2801,6 +3145,7 @@
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation(); state.waveMode = btn.dataset.wave;
                     waveBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active');
+                    syncStageHud();
                 });
             });
 
@@ -2842,7 +3187,6 @@
                 }
                 if (!tryCatchFishAt(e.clientX, e.clientY)) {
                     if (e.pointerType === 'touch') enterFullscreenSafe();
-                    setBoost(true);
                 }
             });
 
@@ -2857,11 +3201,10 @@
                 }
                 if (state.awaitingAnyKeyForPortButtons) { e.preventDefault(); revealPortButtons(); return; }
                 heldKeys[e.code] = true;
-                if (e.code === 'Space') { e.preventDefault(); setBoost(true); }
-                else if (e.code === 'KeyR' && state.gameStarted && !state.roundEnded) { e.preventDefault(); startGameAtStage(state.levelIndex); }
+                if (e.code === 'KeyR' && state.gameStarted && !state.roundEnded) { e.preventDefault(); startGameAtStage(state.levelIndex); }
                 else if (e.code === 'Escape' && state.gameStarted && !state.roundEnded) { e.preventDefault(); returnToCover(); }
             });
-            window.addEventListener('keyup', (e) => { heldKeys[e.code] = false; if (e.code === 'Space') setBoost(false); });
+            window.addEventListener('keyup', (e) => { heldKeys[e.code] = false; });
 
             setUILanguage(state.uiLang);
             requestAnimationFrame(animate);
