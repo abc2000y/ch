@@ -223,6 +223,21 @@
         .seg-group.days-grid { grid-template-columns: repeat(4, 1fr); }
         .seg-btn { padding: 6px 4px; min-height: 32px; border: none; border-radius: 7px; background: transparent; color: rgba(255,255,255,0.75); font-size: 11.5px; font-weight: 600; cursor: pointer; }
         .seg-btn.active { background: rgba(251, 191, 36, 0.28); color: #fde68a; border: 1px solid rgba(251, 191, 36, 0.5); }
+        .music-control-row {
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+            padding: 8px 10px; border-radius: 10px;
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+        }
+        .music-control-row .hud-label { color: rgba(255,255,255,0.88); }
+        #musicToggleBtn {
+            flex-shrink: 0; min-width: 92px; min-height: 34px; padding: 6px 13px;
+            border: 1px solid rgba(56,189,248,0.48); border-radius: 999px;
+            background: rgba(14,116,144,0.28); color: #bae6fd;
+            font-size: 11.5px; font-weight: 800; cursor: pointer;
+        }
+        #musicToggleBtn.on {
+            border-color: rgba(52,211,153,0.65); background: rgba(6,95,70,0.45); color: #a7f3d0;
+        }
         .speed-row { display: flex; align-items: center; gap: 8px; }
         input[type="range"] { flex: 1; accent-color: #fbbf24; cursor: pointer; min-height: 28px; }
         #boostBtn { flex-shrink: 0; padding: 6px 12px; min-height: 32px; border: none; border-radius: 8px; background: rgba(245,158,11,0.9); color: #090d16; font-size: 11.5px; font-weight: 700; cursor: pointer; }
@@ -603,6 +618,12 @@
             <div id="rulePortText"><strong>⚓ Dock &amp; Upgrade:</strong> Survive all days without crashing and reach the stage score goal to clear! Boats upgrade on clear at <strong>55 / 100 / 200 / 400 pts</strong>.</div>
         </div>
         <div class="hud-group">
+            <div class="music-control-row">
+                <span id="musicLabelText" class="hud-label">🎵 Background Music</span>
+                <button type="button" id="musicToggleBtn" aria-pressed="false">Music Off</button>
+            </div>
+        </div>
+        <div class="hud-group">
             <div class="hud-label-row">
                 <span id="langLabelText" class="hud-label">Language / 语言</span>
                 <span id="langValText" class="hud-val">English</span>
@@ -847,6 +868,9 @@
                     ruleNetText: '<strong>🔱 Harpoon &amp; 🕸️ Net:</strong> Stage 1 uses the <strong>Harpoon</strong> (45° left/right strike, <strong>Large Fish #9–12 only</strong>); Stage 2 uses the <strong>Cast Net</strong>; Stage 3 alternates daily; Stage 4 uses <strong>Cast Net only</strong>!',
                     ruleScoreText: '<strong>🐟 Fish Points &amp; Stage Goals:</strong> Stages 1–3: Small (#1–4) = <strong>1 pt</strong>, Medium (#5–8) = <strong>2 pts</strong>, Large (#9–12) = <strong>4 pts</strong> (leaping fish: 5–8 pts). Stage 4: <strong>Protected fish deduct points</strong>, <strong>non-edible fish grant +1 pt</strong>, and <strong>edible fish award standard points</strong>. Stage clear goals: <strong>99 / 188 / 399 / 599 pts</strong>.',
                     rulePortText: '<strong>⚓ Dock &amp; Upgrade:</strong> Survive all days without crashing and reach the stage score goal to clear! Boats upgrade on clear at <strong>55 / 100 / 200 / 400 pts</strong>.',
+                    musicLabelText: '🎵 Background Music',
+                    musicOnText: 'Music On',
+                    musicOffText: 'Music Off',
                     langLabelText: 'Language / 语言',
                     daysLabelText: 'Days per Stage',
                     moodLabelText: 'Sky & Lighting',
@@ -954,6 +978,9 @@
                     ruleNetText: '<strong>🔱 鱼叉与 🕸️ 鱼网：</strong>第 1 关使用<strong>鱼叉</strong>（按船左右呈 45° 刺出，<strong>仅可叉中大鱼 #9–12</strong>）；第 2 关使用<strong>鱼网</strong>；第 3 关按天轮换；第 4 关<strong>仅使用鱼网</strong>！',
                     ruleScoreText: '<strong>🐟 鱼获分值与通关分数：</strong>第 1–3 关：小鱼（#1–4）= <strong>1 分</strong>，中型（#5–8）= <strong>2 分</strong>，大型（#9–12）= <strong>4 分</strong>（跃起鱼 5–8 分）。第 4 关：<strong>受保护鱼罚款扣分（积分可为负）</strong>、<strong>无食用价值加 1 分</strong>、<strong>可食用鱼正常加分</strong>。四关通关目标分：<strong>99 / 188 / 399 / 599 分</strong>。',
                     rulePortText: '<strong>⚓ 靠港与换船：</strong>安全度过本关天数且达到通关分数即可靠港过关！换船积分门槛为 <strong>55 / 100 / 200 / 400 分</strong>。',
+                    musicLabelText: '🎵 背景音乐',
+                    musicOnText: '音乐：开',
+                    musicOffText: '音乐：关',
                     langLabelText: '语言 / Language',
                     daysLabelText: '每关天数',
                     moodLabelText: '天色与光照',
@@ -2326,6 +2353,105 @@
             helpBtn.addEventListener('click', (e) => { e.stopPropagation(); helpModalEl.classList.toggle('show'); });
             helpCloseBtn.addEventListener('click', (e) => { e.stopPropagation(); helpModalEl.classList.remove('show'); });
 
+            // Lightweight procedural ocean ambience: no external music file is required.
+            // Audio starts only after the player explicitly enables it (mobile-browser safe).
+            const musicToggleBtn = document.getElementById('musicToggleBtn');
+            const musicLabelTextEl = document.getElementById('musicLabelText');
+            let musicEnabled = false;
+            let musicContext = null;
+            let musicMaster = null;
+            let musicOscillators = [];
+            let musicTimer = null;
+            let musicStep = 0;
+
+            const musicChords = [
+                [130.81, 164.81, 196.00], // C
+                [110.00, 130.81, 164.81], // Am
+                [87.31, 110.00, 130.81],  // F
+                [98.00, 123.47, 146.83]   // G
+            ];
+            const musicMelody = [392.00, 329.63, 293.66, 329.63, 261.63, 293.66, 329.63, 392.00];
+
+            function updateMusicButton() {
+                const loc = t();
+                if (musicLabelTextEl) musicLabelTextEl.textContent = loc.musicLabelText;
+                musicToggleBtn.textContent = musicEnabled ? loc.musicOnText : loc.musicOffText;
+                musicToggleBtn.classList.toggle('on', musicEnabled);
+                musicToggleBtn.setAttribute('aria-pressed', musicEnabled ? 'true' : 'false');
+            }
+
+            function playMusicNote(freq) {
+                if (!musicContext || !musicMaster || musicContext.state !== 'running') return;
+                const osc = musicContext.createOscillator();
+                const gain = musicContext.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, musicContext.currentTime);
+                gain.gain.setValueAtTime(0.0001, musicContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.035, musicContext.currentTime + 0.035);
+                gain.gain.exponentialRampToValueAtTime(0.0001, musicContext.currentTime + 1.05);
+                osc.connect(gain); gain.connect(musicMaster);
+                osc.start(); osc.stop(musicContext.currentTime + 1.08);
+            }
+
+            async function enableBackgroundMusic() {
+                const AudioCtor = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtor) {
+                    musicEnabled = false;
+                    updateMusicButton();
+                    return;
+                }
+                try {
+                    if (!musicContext || musicContext.state === 'closed') {
+                        musicContext = new AudioCtor();
+                        musicMaster = musicContext.createGain();
+                        musicMaster.gain.value = 0.34;
+                        musicMaster.connect(musicContext.destination);
+                        musicOscillators = musicChords[0].map((freq, i) => {
+                            const osc = musicContext.createOscillator();
+                            const gain = musicContext.createGain();
+                            osc.type = 'sine';
+                            osc.frequency.value = freq;
+                            gain.gain.value = i === 0 ? 0.035 : 0.022;
+                            osc.connect(gain); gain.connect(musicMaster); osc.start();
+                            return osc;
+                        });
+                    }
+                    await musicContext.resume();
+                    musicEnabled = true;
+                    musicStep = 0;
+                    if (musicTimer) clearInterval(musicTimer);
+                    musicTimer = setInterval(() => {
+                        if (!musicEnabled || !musicContext || musicContext.state !== 'running') return;
+                        const chord = musicChords[Math.floor(musicStep / 4) % musicChords.length];
+                        musicOscillators.forEach((osc, i) => {
+                            osc.frequency.setTargetAtTime(chord[i], musicContext.currentTime, 0.8);
+                        });
+                        playMusicNote(musicMelody[musicStep % musicMelody.length]);
+                        musicStep++;
+                    }, 1150);
+                } catch (err) {
+                    musicEnabled = false;
+                }
+                updateMusicButton();
+            }
+
+            async function disableBackgroundMusic() {
+                musicEnabled = false;
+                if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
+                if (musicContext && musicContext.state !== 'closed') {
+                    try { await musicContext.close(); } catch (_) {}
+                }
+                musicContext = null; musicMaster = null; musicOscillators = [];
+                updateMusicButton();
+            }
+
+            musicToggleBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (musicEnabled) await disableBackgroundMusic();
+                else await enableBackgroundMusic();
+            });
+            updateMusicButton();
+
             const daysBtns = document.querySelectorAll('.days-btn'), daysSettingLabelEl = document.getElementById('daysSettingLabel');
             function syncDaysButtonsUI() {
                 const loc = t();
@@ -2370,6 +2496,7 @@
                 topExitBtn.textContent = loc.topExitBtn;
                 document.getElementById('helpTitleText').textContent = loc.helpTitleText;
                 helpCloseBtn.textContent = loc.helpCloseBtn;
+                updateMusicButton();
                 document.getElementById('ruleDodgeText').innerHTML = loc.ruleDodgeText;
                 document.getElementById('ruleNetText').innerHTML = loc.ruleNetText;
                 document.getElementById('ruleScoreText').innerHTML = loc.ruleScoreText;
@@ -3120,9 +3247,12 @@
                 ctx.save(); ctx.beginPath(); ctx.rect(0, horizonY, state.width, state.height - horizonY); ctx.clip();
                 drawOcean(theme, preset, horizonY, celestial);
                 updateAndDrawUnderwaterFish(theme, preset, horizonY, dt);
-                updateAndDrawJumpingFish(theme, preset, horizonY, dt);
                 if (state.gameStarted) updateAndDrawObstacles(preset, horizonY, dt);
                 ctx.restore();
+
+                // Leaping fish are intentionally drawn outside the ocean clip:
+                // their jump arc must be visible above the horizon, against the sky.
+                updateAndDrawJumpingFish(theme, preset, horizonY, dt);
 
                 drawBoatAndRower(theme, boatX, boatY, boatScale, clamp(waveSlope - state.boatForwardImpulse * 0.22, -0.55, 0.55), Math.sin(state.time * 2.3) * 0.065 * preset.amp + (state.draggingBoat ? 0.05 : 0), state.rowPhase);
                 drawDockSignInFrontOfBoat(boatX, boatY, boatScale);
