@@ -9,6 +9,20 @@ window.GAME_CONFIG = {
     defaultWaveMode: 'calm',      	 // 默认海浪强度：'calm'(微浪) | 'choppy'(浪涌) | 'stormy'(巨浪)
     defaultMood: 'sunset',         		// 默认天空色调：'sunset'(落日) | 'daylight'(白昼) | 'moonlight'(月夜)
 
+    // ================= 1.5 音频资源配置（assets/audio/） =================
+    audio: {
+        dir: 'assets/audio/',
+        enabledByDefault: true,
+        bgmVolume: 0.5,
+        sfxVolume: 0.85,
+        tracks: {
+            cover: 'backsound.mp3',
+            waves: 'waves.mp3',
+            port: 'backsound2.mp3',
+            net: 'net.mp3'
+        }
+    },
+
     // ================= 2. 关卡配置（共 4 关） =================
     levels: [
         {
@@ -17,13 +31,13 @@ window.GAME_CONFIG = {
             shortName: 'Stage 1 · Harpoon Ripples',
             waveName: 'Light Ripples',
             waveMode: 'calm',
-            gearMode: 'harpoon',                     // 渔具限制：仅限鱼叉（只能捕获大型鱼）
-            passScore: 99,                             	// 本关通关目标分数
-            obsInterval: 2.8,                          	// 礁石生成间隔（秒）
-            obsSpeedMult: 0.90,                       // 礁石移动速度倍率
-            clearImg: 'assets/gk1.jpg',              // 【通关】入港图片（第 1 关港口）
+            gearMode: 'harpoon',
+            passScore: 99,
+            obsInterval: 2.8,
+            obsSpeedMult: 0.90,
+            clearImg: 'assets/gk1.jpg',
             fallbackClearImg: 'gk1.jpg',
-            failImg: 'assets/gk1.jpg',                 // 【失败】入港图片（第 1 关无上一关，兜底显示 gk1.jpg；如有初始港可改为 gk0.jpg）
+            failImg: 'assets/gk1.jpg',
             fallbackFailImg: 'gk1.jpg'
         },
         {
@@ -32,13 +46,13 @@ window.GAME_CONFIG = {
             shortName: 'Stage 2 · Net Swell',
             waveName: 'Choppy Swell',
             waveMode: 'choppy',
-            gearMode: 'net',                           // 渔具限制：仅限撒网
+            gearMode: 'net',
             passScore: 188,
             obsInterval: 2.1,
             obsSpeedMult: 1.08,
-            clearImg: 'assets/gk2.jpg',                // 【通关】显示第 2 关港口
+            clearImg: 'assets/gk2.jpg',
             fallbackClearImg: 'gk2.jpg',
-            failImg: 'assets/gk1.jpg',                 // 【失败】显示上一关（第 1 关）港口
+            failImg: 'assets/gk1.jpg',
             fallbackFailImg: 'gk1.jpg'
         },
         {
@@ -47,13 +61,13 @@ window.GAME_CONFIG = {
             shortName: 'Stage 3 · Alternate Surge',
             waveName: 'Heavy Surge',
             waveMode: 'stormy',
-            gearMode: 'alternate',                     // 渔具限制：按天轮换（第1天鱼叉、第2天撒网、第3天鱼叉…）
+            gearMode: 'alternate',
             passScore: 399,
             obsInterval: 1.65,
             obsSpeedMult: 1.22,
-            clearImg: 'assets/gk3.jpg',                // 【通关】显示第 3 关港口
+            clearImg: 'assets/gk3.jpg',
             fallbackClearImg: 'gk3.jpg',
-            failImg: 'assets/gk2.jpg',                 // 【失败】显示上一关（第 2 关）港口
+            failImg: 'assets/gk2.jpg',
             fallbackFailImg: 'gk2.jpg'
         },
         {
@@ -62,14 +76,14 @@ window.GAME_CONFIG = {
             shortName: 'Stage 4 · Changing Seas',
             waveName: 'Light → Choppy → Heavy',
             waveMode: 'calm',
-            waveCycle: ['calm', 'choppy', 'stormy'],   // 每天海况轮换：第1天微浪、第2天浪涌、第3天巨浪
-            gearMode: 'net',                           // 渔具限制：仅限撒网 + 保护物种/可食用评分规则
+            waveCycle: ['calm', 'choppy', 'stormy'],
+            gearMode: 'net',
             passScore: 599,
             obsInterval: 1.5,
             obsSpeedMult: 1.30,
-            clearImg: 'assets/gk4.jpg',                // 【通关】显示第 4 关港口
+            clearImg: 'assets/gk4.jpg',
             fallbackClearImg: 'gk4.jpg',
-            failImg: 'assets/gk3.jpg',                 // 【失败】显示上一关（第 3 关）港口
+            failImg: 'assets/gk3.jpg',
             fallbackFailImg: 'gk3.jpg'
         }
     ],
@@ -96,18 +110,18 @@ window.GAME_CONFIG = {
         net: {
             name: 'Ocean Cast Net',
             imgSrc: 'assets/net.png',
-            radiusMult: 1.25,     // 撒网判定半径倍率
-            minRadius: 34,        // 最小撒网半径（像素）
-            maxRadius: 96,        // 最大撒网半径（像素）
-            duration: 0.95,       // 撒网持续时间（秒）
+            radiusMult: 1.25,
+            minRadius: 34,
+            maxRadius: 96,
+            duration: 0.95,
             scoreMult: 1.0
         },
         harpoon: {
             name: 'Steel Harpoon',
             imgSrc: 'assets/harpoon.png',
-            largeFishOnly: true,  // true=鱼叉仅可捕获大型鱼
-            angleDeg: 45,         // 刺出角度（度）
-            duration: 0.95,       // 鱼叉持续时间（秒）
+            largeFishOnly: true,
+            angleDeg: 45,
+            duration: 0.95,
             scoreMult: 1.0
         }
     },
@@ -123,9 +137,9 @@ window.GAME_CONFIG = {
     obstacles: {
         dir: 'assets/obstacles/',
         files: ['rock1.png', 'rock2.png', 'rock3.png', 'rock4.png', 'rock5.png', 'rock6.png', 'rock7.png'],
-        baseW: 112,                   		 // 基础绘制宽度（由 84/100 适度放大至 112，保持 4:3 原图比例）
-        baseH: 84,                   			 // 基础绘制高度（由 63/80 适度放大至 84）
-        horizonPauseDuration: 0.85,  	 // 礁石在海平线处停顿显现的时间（秒）
-        horizonPauseGrowMult: 1.45    // 礁石停顿与逼近时的放大倍率（由 1.38 调至 1.45）
+        baseW: 112,
+        baseH: 84,
+        horizonPauseDuration: 0.85,
+        horizonPauseGrowMult: 1.45
     }
 };

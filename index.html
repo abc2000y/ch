@@ -2076,8 +2076,9 @@
 
                 spawnSplash(x, y, 42, 80, 1.4, 1.5);
 
-                // 失败时传入 isCleared = false，显示上一关港口图片
+                // 失败时传入 isCleared = false，显示上一关港口图片，并切换为港口背景音乐
                 setPortBackgroundForStage(state.levelIndex, false);
+                playBGM('port');
                 refreshRoundSummaryText();
 
                 roundOverlayEl.classList.remove('port-fade-in');
@@ -2093,6 +2094,7 @@
                 state.isBoosting = false;
                 syncBodyPhaseClass();
 
+                playBGM('port');
                 const targetScore = getStageTargetScore(state.levelIndex);
                 if (state.score < targetScore) {
                     // 分数未达标（闯关不过）：同样展示上一关港口入港图，并直接显示重玩/返回按钮与鱼获
@@ -2353,24 +2355,25 @@
             helpBtn.addEventListener('click', (e) => { e.stopPropagation(); helpModalEl.classList.toggle('show'); });
             helpCloseBtn.addEventListener('click', (e) => { e.stopPropagation(); helpModalEl.classList.remove('show'); });
 
-            // Lightweight procedural ocean ambience: no external music file is required.
-            // Audio starts only after the player explicitly enables it (mobile-browser safe).
+            // ===============================
+            // 远海垂钓：外部音频文件管理（已移除原合成音乐代码）
+            // ===============================
             const musicToggleBtn = document.getElementById('musicToggleBtn');
             const musicLabelTextEl = document.getElementById('musicLabelText');
-            let musicEnabled = false;
-            let musicContext = null;
-            let musicMaster = null;
-            let musicOscillators = [];
-            let musicTimer = null;
-            let musicStep = 0;
+            let musicEnabled = true;
+            let currentBGM = null;
+            let currentBGMKey = 'cover';
 
-            const musicChords = [
-                [130.81, 164.81, 196.00], // C
-                [110.00, 130.81, 164.81], // Am
-                [87.31, 110.00, 130.81],  // F
-                [98.00, 123.47, 146.83]   // G
-            ];
-            const musicMelody = [392.00, 329.63, 293.66, 329.63, 261.63, 293.66, 329.63, 392.00];
+            const gameAudio = {
+                cover: new Audio('assets/audio/backsound.mp3'),
+                port: new Audio('assets/audio/backsound2.mp3'),
+                waves: new Audio('assets/audio/waves.mp3'),
+                net: new Audio('assets/audio/net.mp3')
+            };
+
+            Object.values(gameAudio).forEach(a => {
+                a.preload = 'auto';
+            });
 
             function updateMusicButton() {
                 const loc = t();
@@ -2380,75 +2383,72 @@
                 musicToggleBtn.setAttribute('aria-pressed', musicEnabled ? 'true' : 'false');
             }
 
-            function playMusicNote(freq) {
-                if (!musicContext || !musicMaster || musicContext.state !== 'running') return;
-                const osc = musicContext.createOscillator();
-                const gain = musicContext.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(freq, musicContext.currentTime);
-                gain.gain.setValueAtTime(0.0001, musicContext.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.035, musicContext.currentTime + 0.035);
-                gain.gain.exponentialRampToValueAtTime(0.0001, musicContext.currentTime + 1.05);
-                osc.connect(gain); gain.connect(musicMaster);
-                osc.start(); osc.stop(musicContext.currentTime + 1.08);
+            function stopBGM() {
+                if (currentBGM) {
+                    currentBGM.pause();
+                    currentBGM.currentTime = 0;
+                    currentBGM = null;
+                }
             }
 
-            async function enableBackgroundMusic() {
-                const AudioCtor = window.AudioContext || window.webkitAudioContext;
-                if (!AudioCtor) {
-                    musicEnabled = false;
-                    updateMusicButton();
-                    return;
+            function playBGM(name) {
+                currentBGMKey = name;
+                if (!musicEnabled) return;
+
+                const next = gameAudio[name];
+                if (!next) return;
+
+                if (currentBGM === next && !next.paused) return;
+
+                if (currentBGM && currentBGM !== next) {
+                    currentBGM.pause();
+                    currentBGM.currentTime = 0;
                 }
-                try {
-                    if (!musicContext || musicContext.state === 'closed') {
-                        musicContext = new AudioCtor();
-                        musicMaster = musicContext.createGain();
-                        musicMaster.gain.value = 0.34;
-                        musicMaster.connect(musicContext.destination);
-                        musicOscillators = musicChords[0].map((freq, i) => {
-                            const osc = musicContext.createOscillator();
-                            const gain = musicContext.createGain();
-                            osc.type = 'sine';
-                            osc.frequency.value = freq;
-                            gain.gain.value = i === 0 ? 0.035 : 0.022;
-                            osc.connect(gain); gain.connect(musicMaster); osc.start();
-                            return osc;
-                        });
-                    }
-                    await musicContext.resume();
-                    musicEnabled = true;
-                    musicStep = 0;
-                    if (musicTimer) clearInterval(musicTimer);
-                    musicTimer = setInterval(() => {
-                        if (!musicEnabled || !musicContext || musicContext.state !== 'running') return;
-                        const chord = musicChords[Math.floor(musicStep / 4) % musicChords.length];
-                        musicOscillators.forEach((osc, i) => {
-                            osc.frequency.setTargetAtTime(chord[i], musicContext.currentTime, 0.8);
-                        });
-                        playMusicNote(musicMelody[musicStep % musicMelody.length]);
-                        musicStep++;
-                    }, 1150);
-                } catch (err) {
-                    musicEnabled = false;
+
+                currentBGM = next;
+                currentBGM.loop = true;
+                currentBGM.volume = 0.55;
+
+                const playPromise = next.play();
+                if (playPromise && typeof playPromise.catch === 'function') {
+                    playPromise.catch(() => {
+                        const resumeOnInteract = () => {
+                            if (musicEnabled && currentBGMKey === name && currentBGM === next && next.paused) {
+                                next.play().catch(() => {});
+                            }
+                            window.removeEventListener('pointerdown', resumeOnInteract);
+                            window.removeEventListener('keydown', resumeOnInteract);
+                        };
+                        window.addEventListener('pointerdown', resumeOnInteract, { once: true });
+                        window.addEventListener('keydown', resumeOnInteract, { once: true });
+                    });
                 }
+            }
+
+            // 叉鱼/捕鱼音效：独立播放一次，不打断当前海浪背景音乐
+            function playNetSound() {
+                if (!musicEnabled) return;
+                const sound = gameAudio.net.cloneNode();
+                sound.volume = 0.85;
+                sound.play().catch(() => {});
+            }
+
+            function enableBackgroundMusic() {
+                musicEnabled = true;
                 updateMusicButton();
+                playBGM(currentBGMKey || 'cover');
             }
 
-            async function disableBackgroundMusic() {
+            function disableBackgroundMusic() {
                 musicEnabled = false;
-                if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
-                if (musicContext && musicContext.state !== 'closed') {
-                    try { await musicContext.close(); } catch (_) {}
-                }
-                musicContext = null; musicMaster = null; musicOscillators = [];
+                stopBGM();
                 updateMusicButton();
             }
 
-            musicToggleBtn.addEventListener('click', async (e) => {
+            musicToggleBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                if (musicEnabled) await disableBackgroundMusic();
-                else await enableBackgroundMusic();
+                if (musicEnabled) disableBackgroundMusic();
+                else enableBackgroundMusic();
             });
             updateMusicButton();
 
@@ -2580,6 +2580,7 @@
                 refreshVesselHud();
                 roundOverlayEl.classList.remove('show', 'port-mode', 'port-fade-in', 'buttons-revealed');
                 coverScreenEl.classList.add('hidden'); syncBodyPhaseClass();
+                playBGM('waves');
             }
 
             function handleRoundContinueOrRestart() {
@@ -2610,6 +2611,7 @@
                     dayDisplayEl.textContent = t().dayFormat(1, state.daysPerRound);
                     roundOverlayEl.classList.remove('show', 'port-mode', 'port-fade-in', 'buttons-revealed');
                     syncBodyPhaseClass();
+                    playBGM('waves');
                 } else if (state.roundEnded && state.endReason === 'score_short') {
                     startGameAtStage(state.levelIndex);
                 } else {
@@ -2624,6 +2626,7 @@
                 state.draggingBoat = false; state.isBoosting = false; state.approachingPort = false;
                 roundOverlayEl.classList.remove('show', 'port-mode', 'port-fade-in', 'buttons-revealed');
                 renderCoverStageMenu(); coverScreenEl.classList.remove('hidden'); syncBodyPhaseClass();
+                playBGM('cover');
             }
 
             coverStartBtn.addEventListener('click', (e) => { e.stopPropagation(); startGameAtStage(state.selectedStartStage); });
@@ -2669,6 +2672,7 @@
             }
 
             function triggerFishCatch(fish, isBig, gearUsed = 'net') {
+                playNetSound();
                 const loc = t();
                 const sp = fish.species;
                 const jumpPts = sp.jumpScore || Math.max(NET_CFG.minJumpScore || 5, (sp.bonusPoints || 1) * (NET_CFG.jumpBonusMult || 2));
@@ -3337,8 +3341,14 @@
             window.addEventListener('keyup', (e) => { heldKeys[e.code] = false; });
 
             setUILanguage(state.uiLang);
+            playBGM('cover');
             requestAnimationFrame(animate);
         })();
+
+
+
+
+
     </script>
 </body>
 </html>
