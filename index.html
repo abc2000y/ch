@@ -26,6 +26,30 @@
             color: #ffffff;
         }
 
+        /* Startup resource loader (added; existing game layout remains unchanged) */
+        #startupLoader {
+            position: fixed; inset: 0; z-index: 10000;
+            display: flex; align-items: center; justify-content: center;
+            padding: 24px; background: radial-gradient(ellipse at center, #102b45 0%, #071321 58%, #030811 100%);
+            color: #f8fafc; opacity: 1; visibility: visible;
+            transition: opacity 0.32s ease, visibility 0.32s ease;
+        }
+        #startupLoader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .startup-panel { width: min(420px, 90vw); text-align: center; }
+        .startup-title { font-size: clamp(25px, 5vw, 34px); font-weight: 900; letter-spacing: 3px; color: #f8fafc; text-shadow: 0 3px 18px rgba(56,189,248,.42); }
+        .startup-subtitle { margin-top: 5px; font-size: 10px; letter-spacing: 3px; color: rgba(186,230,253,.72); }
+        .startup-status { margin: 30px 0 12px; font-size: 13px; color: rgba(226,242,255,.92); }
+        .startup-progress-track { height: 9px; width: 100%; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.18); box-shadow: inset 0 1px 3px rgba(0,0,0,.35); }
+        #startupProgressBar { height: 100%; width: 0%; border-radius: inherit; background: linear-gradient(90deg, #38bdf8, #7dd3fc, #fbbf24); transition: width .18s ease; }
+        .startup-progress-meta { display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; color: rgba(203,213,225,.78); }
+        .startup-credit { margin-top: 28px; font-size: 11px; color: rgba(203,213,225,.62); letter-spacing: .4px; }
+        .game-version {
+            position: absolute; z-index: 12; left: 50%; bottom: calc(9px + env(safe-area-inset-bottom));
+            transform: translateX(-50%); white-space: nowrap; pointer-events: none;
+            font-size: 10px; color: rgba(255,255,255,.72); text-shadow: 0 1px 5px rgba(0,0,0,.9);
+            letter-spacing: .4px;
+        }
+
         .portrait-tip { display: none; }
         @media screen and (orientation: portrait) and (max-width: 768px) {
             .portrait-tip {
@@ -554,6 +578,19 @@
     </style>
 </head>
 <body class="at-cover">
+    <div id="startupLoader" role="status" aria-live="polite">
+        <div class="startup-panel">
+            <div class="startup-title">远海垂钓</div>
+            <div class="startup-subtitle">RIDE THE WAVES · DEEP SEA FISHING</div>
+            <div class="startup-status" id="startupStatus">正在加载游戏资源……</div>
+            <div class="startup-progress-track"><div id="startupProgressBar"></div></div>
+            <div class="startup-progress-meta">
+                <span id="startupProgressText">准备中</span>
+                <span id="startupPercent">0%</span>
+            </div>
+            <div class="startup-credit">版本：V1.0.0　|　作者：佚名（暂定）</div>
+        </div>
+    </div>
 
     <div class="portrait-tip">
         <div class="rotate-icon">📱</div>
@@ -572,6 +609,7 @@
             <button id="coverStartBtn" type="button" class="btn-glass">▶ Start Game</button>
             <div id="coverTip" class="cover-tip">Clear Stage 1 (99 pts) to unlock Stage 2</div>
         </div>
+        <div class="game-version">版本：V1.0.0　|　作者：佚名（暂定）</div>
     </div>
 
     <canvas id="oceanCanvas"></canvas>
@@ -597,7 +635,7 @@
         <div class="vessel-pill">
             <span id="vesselIcon">🚣</span>
             <span id="vesselName">Wooden Rowboat</span>
-            <span id="vesselNextHint" class="vessel-progress">55 pts to Sailboat on clear</span>
+            <span id="vesselNextHint" class="vessel-progress">50 pts to Sailboat on clear</span>
         </div>
     </div>
 
@@ -614,8 +652,8 @@
         <div class="help-rules">
             <div id="ruleDodgeText"><strong>⛵ Dodge Rocks:</strong> Drag your boat (or use Arrow keys / WASD) to avoid incoming rocks.</div>
             <div id="ruleNetText"><strong>🔱 Harpoon &amp; 🕸️ Net:</strong> Stage 1 uses the <strong>Harpoon</strong> (45° left/right strike, <strong>Large Fish #9–12 only</strong>); Stage 2 uses the <strong>Cast Net</strong>; Stage 3 alternates daily; Stage 4 uses <strong>Cast Net only</strong>!</div>
-            <div id="ruleScoreText"><strong>🐟 Fish Points &amp; Stage Goals:</strong> Stages 1–3: Small (#1–4) = <strong>1 pt</strong>, Medium (#5–8) = <strong>2 pts</strong>, Large (#9–12) = <strong>4 pts</strong> (leaping fish: 5–8 pts). Stage 4: <strong>Protected fish incur fines (can push score below 0)</strong>, <strong>non-edible fish grant +1 pt</strong>, and <strong>edible fish award standard points</strong>. Stage clear goals: <strong>99 / 188 / 399 / 599 pts</strong>.</div>
-            <div id="rulePortText"><strong>⚓ Dock &amp; Upgrade:</strong> Survive all days without crashing and reach the stage score goal to clear! Boats upgrade on clear at <strong>55 / 100 / 200 / 400 pts</strong>.</div>
+            <div id="ruleScoreText"><strong>🐟 Fish Points &amp; Stage Goals:</strong> Stages 1–3: Small (#1–4) = <strong>1 pt</strong>, Medium (#5–8) = <strong>2 pts</strong>, Large (#9–12) = <strong>4 pts</strong> (leaping fish: 5–8 pts). Stage 4: <strong>Protected fish deduct points</strong>, <strong>non-edible fish grant +1 pt</strong>, and <strong>edible fish award standard points</strong>. Stage clear goals: <strong>99 / 188 / 399 / 599 pts</strong>.</div>
+            <div id="rulePortText"><strong>⚓ Dock &amp; Upgrade:</strong> Survive all days without crashing and reach the stage score goal to clear! Boats upgrade on clear at <strong>50 / 110 / 220 / 420 pts</strong>.</div>
         </div>
         <div class="hud-group">
             <div class="music-control-row">
@@ -760,13 +798,95 @@
         </div>
     </div>
 
-    <!-- 加载全局配置文件：优先加载 game_config.js，若未找到则自动尝试备用文件名 -->
-    <script src="game_config.js" onerror="var s=document.createElement('script');s.src='game_config_5.js';document.head.appendChild(s);"></script>
+    <script src="game_config.js" onerror="var s=document.createElement('script');s.src='game_config_4.js';document.head.appendChild(s);"></script>
     <script>
         (() => {
             const EXT_CFG = window.GAME_CONFIG || {};
             const canvas = document.getElementById('oceanCanvas');
             const ctx = canvas.getContext('2d', { alpha: false });
+
+            // Startup image preloader: tracks the same images used by the game.
+            const startupLoaderEl = document.getElementById('startupLoader');
+            const startupStatusEl = document.getElementById('startupStatus');
+            const startupProgressBarEl = document.getElementById('startupProgressBar');
+            const startupProgressTextEl = document.getElementById('startupProgressText');
+            const startupPercentEl = document.getElementById('startupPercent');
+            const startupImageTasks = [];
+            let startupImageTotal = 0;
+            let startupImageDone = 0;
+            let startupImageFailed = 0;
+            let startupPercentShown = 0;
+
+            function updateStartupProgress(final = false) {
+                const raw = startupImageTotal > 0
+                    ? Math.round((startupImageDone / startupImageTotal) * 100)
+                    : 0;
+                startupPercentShown = final ? 100 : Math.max(startupPercentShown, Math.min(99, raw));
+                startupProgressBarEl.style.width = `${startupPercentShown}%`;
+                startupPercentEl.textContent = `${startupPercentShown}%`;
+                startupProgressTextEl.textContent = startupImageTotal
+                    ? `${Math.min(startupImageDone, startupImageTotal)} / ${startupImageTotal} 项资源`
+                    : '准备资源中';
+                startupStatusEl.textContent = final
+                    ? (startupImageFailed ? '资源准备完成（部分图片使用备用显示）' : '资源准备完成，祝你航行愉快！')
+                    : '正在加载游戏图片资源……';
+            }
+
+            function trackStartupImage(img, src, onLoad, onError) {
+                if (!src) return Promise.resolve(false);
+                startupImageTotal += 1;
+                const task = new Promise((resolve) => {
+                    let settled = false;
+                    const finish = (loaded) => {
+                        if (settled) return;
+                        settled = true;
+                        if (!loaded) startupImageFailed += 1;
+                        startupImageDone += 1;
+                        updateStartupProgress(false);
+                        resolve(loaded);
+                    };
+                    const loaded = () => {
+                        if (settled) return;
+                        if (typeof onLoad === 'function') onLoad(img);
+                        finish(true);
+                    };
+                    img.onload = loaded;
+                    img.onerror = () => {
+                        if (settled) return;
+                        if (typeof onError === 'function') onError(img);
+                        finish(false);
+                    };
+                    img.src = src;
+                    // Cached images may already be complete before the load event is delivered.
+                    if (img.complete) {
+                        Promise.resolve().then(() => {
+                            if (img.naturalWidth > 0) loaded();
+                            else if (img.src) {
+                                if (typeof onError === 'function') onError(img);
+                                finish(false);
+                            }
+                        });
+                    }
+                });
+                startupImageTasks.push(task);
+                updateStartupProgress(false);
+                return task;
+            }
+
+            async function finishStartupLoading() {
+                let processed = 0;
+                // Error fallbacks can add more tasks, so keep draining until the queue is stable.
+                while (processed < startupImageTasks.length) {
+                    const batch = startupImageTasks.slice(processed);
+                    processed = startupImageTasks.length;
+                    await Promise.all(batch);
+                }
+                updateStartupProgress(true);
+                await new Promise(resolve => setTimeout(resolve, 280));
+                startupLoaderEl.classList.add('hidden');
+                setTimeout(() => startupLoaderEl.remove(), 380);
+                requestAnimationFrame(animate);
+            }
 
             const lerp = (a, b, t) => a + (b - a) * t;
             const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
@@ -788,8 +908,8 @@
                     waveMode: 'calm',
                     gearPattern: 'harpoon',
                     targetScore: 99,
-                    obsInterval: 2.8,
-                    obsSpeedMult: 0.90,
+                    obsInterval: 2.85,
+                    obsSpeedMult: 0.88,
                     clearImg: 'assets/gk1.jpg',
                     fallbackClearImg: 'gk1.jpg'
                 },
@@ -801,8 +921,8 @@
                     waveMode: 'choppy',
                     gearPattern: 'net',
                     targetScore: 188,
-                    obsInterval: 2.1,
-                    obsSpeedMult: 1.08,
+                    obsInterval: 2.15,
+                    obsSpeedMult: 1.06,
                     clearImg: 'assets/gk2.jpg',
                     fallbackClearImg: 'gk2.jpg'
                 },
@@ -814,8 +934,8 @@
                     waveMode: 'stormy',
                     gearPattern: 'alternate_day',
                     targetScore: 399,
-                    obsInterval: 1.6,
-                    obsSpeedMult: 1.25,
+                    obsInterval: 1.65,
+                    obsSpeedMult: 1.22,
                     clearImg: 'assets/gk3.jpg',
                     fallbackClearImg: 'gk3.jpg'
                 },
@@ -828,8 +948,8 @@
                     waveSequence: ['calm', 'choppy', 'stormy'],
                     gearPattern: 'net',
                     targetScore: 599,
-                    obsInterval: 1.5,
-                    obsSpeedMult: 1.30,
+                    obsInterval: 1.50,
+                    obsSpeedMult: 1.28,
                     clearImg: 'assets/gk4.jpg',
                     fallbackClearImg: 'gk4.jpg'
                 }
@@ -867,7 +987,7 @@
                     ruleDodgeText: '<strong>⛵ Dodge Rocks:</strong> Drag your boat (or use Arrow keys / WASD) to avoid incoming rocks.',
                     ruleNetText: '<strong>🔱 Harpoon &amp; 🕸️ Net:</strong> Stage 1 uses the <strong>Harpoon</strong> (45° left/right strike, <strong>Large Fish #9–12 only</strong>); Stage 2 uses the <strong>Cast Net</strong>; Stage 3 alternates daily; Stage 4 uses <strong>Cast Net only</strong>!',
                     ruleScoreText: '<strong>🐟 Fish Points &amp; Stage Goals:</strong> Stages 1–3: Small (#1–4) = <strong>1 pt</strong>, Medium (#5–8) = <strong>2 pts</strong>, Large (#9–12) = <strong>4 pts</strong> (leaping fish: 5–8 pts). Stage 4: <strong>Protected fish deduct points</strong>, <strong>non-edible fish grant +1 pt</strong>, and <strong>edible fish award standard points</strong>. Stage clear goals: <strong>99 / 188 / 399 / 599 pts</strong>.',
-                    rulePortText: '<strong>⚓ Dock &amp; Upgrade:</strong> Survive all days without crashing and reach the stage score goal to clear! Boats upgrade on clear at <strong>55 / 100 / 200 / 400 pts</strong>.',
+                    rulePortText: '<strong>⚓ Dock &amp; Upgrade:</strong> Survive all days without crashing and reach the stage score goal to clear! Boats upgrade on clear at <strong>50 / 110 / 220 / 420 pts</strong>.',
                     musicLabelText: '🎵 Background Music',
                     musicOnText: 'Music On',
                     musicOffText: 'Music Off',
@@ -951,7 +1071,7 @@
                     ]
                 },
                 zh: {
-                    pageTitle: '捕鱼在浪划行 · 四关深海垂钓',
+                    pageTitle: '乘风破浪 · 四关深海垂钓',
                     langVal: '中文',
                     portraitTip: '请将设备旋转至横屏以获得最佳体验',
                     startGamePrefix: '▶ 开始航行',
@@ -977,7 +1097,7 @@
                     ruleDodgeText: '<strong>⛵ 躲避礁石：</strong>拖动船只（或使用方向键 / WASD）躲避前方礁石。',
                     ruleNetText: '<strong>🔱 鱼叉与 🕸️ 鱼网：</strong>第 1 关使用<strong>鱼叉</strong>（按船左右呈 45° 刺出，<strong>仅可叉中大鱼 #9–12</strong>）；第 2 关使用<strong>鱼网</strong>；第 3 关按天轮换；第 4 关<strong>仅使用鱼网</strong>！',
                     ruleScoreText: '<strong>🐟 鱼获分值与通关分数：</strong>第 1–3 关：小鱼（#1–4）= <strong>1 分</strong>，中型（#5–8）= <strong>2 分</strong>，大型（#9–12）= <strong>4 分</strong>（跃起鱼 5–8 分）。第 4 关：<strong>受保护鱼罚款扣分（积分可为负）</strong>、<strong>无食用价值加 1 分</strong>、<strong>可食用鱼正常加分</strong>。四关通关目标分：<strong>99 / 188 / 399 / 599 分</strong>。',
-                    rulePortText: '<strong>⚓ 靠港与换船：</strong>安全度过本关天数且达到通关分数即可靠港过关！换船积分门槛为 <strong>55 / 100 / 200 / 400 分</strong>。',
+                    rulePortText: '<strong>⚓ 靠港与换船：</strong>安全度过本关天数且达到通关分数即可靠港过关！换船积分门槛为 <strong>50 / 110 / 220 / 420 分</strong>。',
                     musicLabelText: '🎵 背景音乐',
                     musicOnText: '音乐：开',
                     musicOffText: '音乐：关',
@@ -1111,29 +1231,31 @@
                 }
             }
 
-            // 预加载每一关的“通关入港图(clearImg)”与“失败回退上一关港口图(failImg)”
             LEVELS.forEach((lvl, idx) => {
                 lvl.resolvedClearImg = lvl.clearImg;
+                const clearFallback = lvl.fallbackClearImg || lvl.clearImg;
                 const probeClear = new Image();
-                probeClear.src = lvl.clearImg;
-                probeClear.onerror = () => { lvl.resolvedClearImg = lvl.fallbackClearImg || lvl.clearImg; };
+                trackStartupImage(probeClear, lvl.clearImg, null, () => {
+                    lvl.resolvedClearImg = clearFallback;
+                    if (clearFallback && clearFallback !== lvl.clearImg) {
+                        trackStartupImage(new Image(), clearFallback);
+                    }
+                });
 
-                // 若配置未显式指定 failImg，则自动指向前一关的港口图（第 1 关失败时兜底使用第 1 关港口）
                 const prevLvl = LEVELS[Math.max(0, idx - 1)];
                 const defaultFailImg = lvl.failImg || prevLvl.clearImg;
                 const defaultFallbackFailImg = lvl.fallbackFailImg || prevLvl.fallbackClearImg || defaultFailImg;
 
                 lvl.resolvedFailImg = defaultFailImg;
                 const probeFail = new Image();
-                probeFail.src = defaultFailImg;
-                probeFail.onerror = () => { lvl.resolvedFailImg = defaultFallbackFailImg; };
+                trackStartupImage(probeFail, defaultFailImg, null, () => {
+                    lvl.resolvedFailImg = defaultFallbackFailImg;
+                    if (defaultFallbackFailImg && defaultFallbackFailImg !== defaultFailImg) {
+                        trackStartupImage(new Image(), defaultFallbackFailImg);
+                    }
+                });
             });
 
-            /**
-             * 设置全屏入港背景图
-             * @param {number} stageIdx 当前关卡索引（0 ~ 3）
-             * @param {boolean} isCleared true=闯关成功（显示本关港口）；false=闯关失败（显示上一关港口）
-             */
             function setPortBackgroundForStage(stageIdx, isCleared = true) {
                 const safeIdx = clamp(stageIdx, 0, LEVELS.length - 1);
                 const lvl = LEVELS[safeIdx];
@@ -1519,7 +1641,6 @@
                 return meta;
             }
 
-            // 礁石基础宽高兜底值（保持 400x300 的 4:3 原图比例，略微放大）
             const FALLBACK_OBS_STYLES = [
                 { kind: 'rock', label: 'Rock', baseW: OBS_CFG.baseW || 112, baseH: OBS_CFG.baseH || 84, hitX: 0.11 }
             ];
@@ -1528,9 +1649,12 @@
                 entry.imgSrc = src; entry.img = null; entry.imgReady = false;
                 if (!src) return;
                 const img = new Image();
-                img.src = src;
-                img.onload = () => { entry.img = img; entry.imgReady = true; };
-                img.onerror = () => { entry.img = null; entry.imgReady = false; };
+                trackStartupImage(
+                    img,
+                    src,
+                    () => { entry.img = img; entry.imgReady = true; },
+                    () => { entry.img = null; entry.imgReady = false; }
+                );
             }
 
             const netAsset = {};
@@ -1619,9 +1743,9 @@
 
             const CFG_WAVES = EXT_CFG.wavePresets || {};
             const WAVE_PRESETS = {
-                calm:   { amp: 0.56, speed: 0.75, foamDensity: 0.45, maxSplashes: 140, boatSplashChance: 0.35, ...(CFG_WAVES.calm || {}) },
+                calm:   { amp: 0.56, speed: 0.76, foamDensity: 0.45, maxSplashes: 140, boatSplashChance: 0.35, ...(CFG_WAVES.calm || {}) },
                 choppy: { amp: 1.05, speed: 1.02, foamDensity: 0.72, maxSplashes: 160, boatSplashChance: 0.42, ...(CFG_WAVES.choppy || {}) },
-                stormy: { amp: 1.55, speed: 1.38, foamDensity: 0.95, maxSplashes: 185, boatSplashChance: 0.48, ...(CFG_WAVES.stormy || {}) }
+                stormy: { amp: 1.55, speed: 1.36, foamDensity: 0.95, maxSplashes: 185, boatSplashChance: 0.48, ...(CFG_WAVES.stormy || {}) }
             };
 
             const STORAGE_UNLOCK_KEY = 'ocean_hunting_unlocked_stage_v4';
@@ -1899,10 +2023,10 @@
 
             const DEFAULT_VESSELS = [
                 { minScore: 0,   id: 'rowboat',   icon: '🚣', name: 'Wooden Rowboat',   speedMult: 1.00, imgSrc: 'assets/vessels/rowboat.png',   drawWidth: 100, drawHeight: 150 },
-                { minScore: 55,  id: 'sailboat',  icon: '⛵', name: 'Wind Sailboat',    speedMult: 1.20, imgSrc: 'assets/vessels/sailboat.png',  drawWidth: 100, drawHeight: 150 },
-                { minScore: 100, id: 'speedboat', icon: '🚤', name: 'Turbo Speedboat',  speedMult: 1.45, imgSrc: 'assets/vessels/speedboat.png', drawWidth: 100, drawHeight: 150 },
-                { minScore: 200, id: 'yacht',     icon: '🛥️', name: 'Ocean Yacht',      speedMult: 1.70, imgSrc: 'assets/vessels/yacht.png',     drawWidth: 100, drawHeight: 150 },
-                { minScore: 400, id: 'flagship',  icon: '🚢', name: 'Ocean Cruiser',    speedMult: 1.95, imgSrc: 'assets/vessels/flagship.png',  drawWidth: 100, drawHeight: 150 }
+                { minScore: 50,  id: 'sailboat',  icon: '⛵', name: 'Wind Sailboat',    speedMult: 1.20, imgSrc: 'assets/vessels/sailboat.png',  drawWidth: 100, drawHeight: 150 },
+                { minScore: 110, id: 'speedboat', icon: '🚤', name: 'Turbo Speedboat',  speedMult: 1.45, imgSrc: 'assets/vessels/speedboat.png', drawWidth: 100, drawHeight: 150 },
+                { minScore: 220, id: 'yacht',     icon: '🛥️', name: 'Ocean Yacht',      speedMult: 1.70, imgSrc: 'assets/vessels/yacht.png',     drawWidth: 100, drawHeight: 150 },
+                { minScore: 420, id: 'flagship',  icon: '🚢', name: 'Ocean Cruiser',    speedMult: 1.95, imgSrc: 'assets/vessels/flagship.png',  drawWidth: 100, drawHeight: 150 }
             ];
             const VESSEL_TIERS = (Array.isArray(EXT_CFG.vessels) && EXT_CFG.vessels.length >= 5)
                 ? EXT_CFG.vessels
@@ -2064,7 +2188,6 @@
                 }
             }
 
-            // 撞礁失败：同样淡入“上一关的港口”入港图，并保留两侧鱼获回顾与结算按钮
             function triggerCrashGameOver(obsLabel, x, y) {
                 if (state.roundEnded) return;
                 state.roundEnded = true;
@@ -2076,7 +2199,6 @@
 
                 spawnSplash(x, y, 42, 80, 1.4, 1.5);
 
-                // 失败时传入 isCleared = false，显示上一关港口图片，并切换为港口背景音乐
                 setPortBackgroundForStage(state.levelIndex, false);
                 playBGM('port');
                 refreshRoundSummaryText();
@@ -2087,7 +2209,6 @@
                 renderCaughtSidePanels();
             }
 
-            // 天数结束后的入港结算：达标则显示本关港口，未达标（闯关不过）则显示上一关港口
             function triggerStageClearWithPort() {
                 state.roundEnded = true;
                 state.draggingBoat = false;
@@ -2097,7 +2218,6 @@
                 playBGM('port');
                 const targetScore = getStageTargetScore(state.levelIndex);
                 if (state.score < targetScore) {
-                    // 分数未达标（闯关不过）：同样展示上一关港口入港图，并直接显示重玩/返回按钮与鱼获
                     state.awaitingAnyKeyForPortButtons = false;
                     state.endReason = 'score_short';
                     setPortBackgroundForStage(state.levelIndex, false);
@@ -2110,7 +2230,6 @@
                     return;
                 }
 
-                // 闯关成功：显示本关港口入港图，等待玩家点击/按键后再弹出下一关按钮
                 state.awaitingAnyKeyForPortButtons = true;
                 setPortBackgroundForStage(state.levelIndex, true);
                 if (state.levelIndex + 1 < LEVELS.length) unlockStage(state.levelIndex + 1);
@@ -2188,7 +2307,6 @@
                     const elev = getWaveElevation(obs.xNorm, clamp(zEffective, 0, 1.2), state.time, preset);
                     const x = obs.xNorm * (w + 80) - 40;
                     const y = baseY - elev * (0.22 + 0.45 * emergeProgress) + Math.sin(obs.bobPhase) * 2.2 * zEffective;
-                    // 礁石远近透视缩放（适度调大初始比例与近景成长系数，使礁石更清晰醒目）
                     const horizonGrowMult = OBS_CFG.horizonPauseGrowMult || 1.45;
                     const horizonBaseScale = lerp(0.26, 0.26 * horizonGrowMult, growEase);
                     const scale = horizonBaseScale + Math.pow(Math.max(0, zEffective - 0.035), 1.40) * 2.08;
@@ -2355,9 +2473,6 @@
             helpBtn.addEventListener('click', (e) => { e.stopPropagation(); helpModalEl.classList.toggle('show'); });
             helpCloseBtn.addEventListener('click', (e) => { e.stopPropagation(); helpModalEl.classList.remove('show'); });
 
-            // ===============================
-            // 远海垂钓：外部音频文件管理（已移除原合成音乐代码）
-            // ===============================
             const musicToggleBtn = document.getElementById('musicToggleBtn');
             const musicLabelTextEl = document.getElementById('musicLabelText');
             let musicEnabled = true;
@@ -2425,7 +2540,6 @@
                 }
             }
 
-            // 叉鱼/捕鱼音效：独立播放一次，不打断当前海浪背景音乐
             function playNetSound() {
                 if (!musicEnabled) return;
                 const sound = gameAudio.net.cloneNode();
@@ -3254,8 +3368,6 @@
                 if (state.gameStarted) updateAndDrawObstacles(preset, horizonY, dt);
                 ctx.restore();
 
-                // Leaping fish are intentionally drawn outside the ocean clip:
-                // their jump arc must be visible above the horizon, against the sky.
                 updateAndDrawJumpingFish(theme, preset, horizonY, dt);
 
                 drawBoatAndRower(theme, boatX, boatY, boatScale, clamp(waveSlope - state.boatForwardImpulse * 0.22, -0.55, 0.55), Math.sin(state.time * 2.3) * 0.065 * preset.amp + (state.draggingBoat ? 0.05 : 0), state.rowPhase);
@@ -3341,14 +3453,14 @@
             window.addEventListener('keyup', (e) => { heldKeys[e.code] = false; });
 
             setUILanguage(state.uiLang);
+            // Preload the currently selected cover artwork too; if missing, warm the shared fallback.
+            const selectedCoverSrc = coverBgImgEl.currentSrc || coverBgImgEl.src;
+            trackStartupImage(new Image(), selectedCoverSrc, null, () => {
+                trackStartupImage(new Image(), 'assets/cover_no_button.png');
+            });
             playBGM('cover');
-            requestAnimationFrame(animate);
+            finishStartupLoading();
         })();
-
-
-
-
-
     </script>
 </body>
 </html>

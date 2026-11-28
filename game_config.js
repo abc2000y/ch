@@ -4,7 +4,7 @@
  */
 window.GAME_CONFIG = {
     // ================= 1. 基础回合与默认环境参数 =================
-    defaultDaysPerRound: 3,        	// 每关默认航行天数（当前设为每关 3 天）
+    defaultDaysPerRound: 3,        	// 每关默认航行天数（3 / 5 / 10 / 15 天可选）
     dayCycleSeconds: 24,           		// 游戏内“一天”对应的真实秒数（24 秒 = 1 天）
     defaultWaveMode: 'calm',      	 // 默认海浪强度：'calm'(微浪) | 'choppy'(浪涌) | 'stormy'(巨浪)
     defaultMood: 'sunset',         		// 默认天空色调：'sunset'(落日) | 'daylight'(白昼) | 'moonlight'(月夜)
@@ -13,7 +13,7 @@ window.GAME_CONFIG = {
     audio: {
         dir: 'assets/audio/',
         enabledByDefault: true,
-        bgmVolume: 0.5,
+        bgmVolume: 0.55,
         sfxVolume: 0.85,
         tracks: {
             cover: 'backsound.mp3',
@@ -33,8 +33,8 @@ window.GAME_CONFIG = {
             waveMode: 'calm',
             gearMode: 'harpoon',
             passScore: 99,
-            obsInterval: 2.8,
-            obsSpeedMult: 0.90,
+            obsInterval: 2.85,
+            obsSpeedMult: 0.88,
             clearImg: 'assets/gk1.jpg',
             fallbackClearImg: 'gk1.jpg',
             failImg: 'assets/gk1.jpg',
@@ -48,8 +48,8 @@ window.GAME_CONFIG = {
             waveMode: 'choppy',
             gearMode: 'net',
             passScore: 188,
-            obsInterval: 2.1,
-            obsSpeedMult: 1.08,
+            obsInterval: 2.15,
+            obsSpeedMult: 1.06,
             clearImg: 'assets/gk2.jpg',
             fallbackClearImg: 'gk2.jpg',
             failImg: 'assets/gk1.jpg',
@@ -79,8 +79,8 @@ window.GAME_CONFIG = {
             waveCycle: ['calm', 'choppy', 'stormy'],
             gearMode: 'net',
             passScore: 599,
-            obsInterval: 1.5,
-            obsSpeedMult: 1.30,
+            obsInterval: 1.50,
+            obsSpeedMult: 1.28,
             clearImg: 'assets/gk4.jpg',
             fallbackClearImg: 'gk4.jpg',
             failImg: 'assets/gk3.jpg',
@@ -90,18 +90,18 @@ window.GAME_CONFIG = {
 
     // ================= 3. 海浪预设参数（波幅、波速、浪花密度） =================
     wavePresets: {
-        calm:   { amp: 0.56, speed: 0.75, foamDensity: 0.45 },
+        calm:   { amp: 0.56, speed: 0.76, foamDensity: 0.45 },
         choppy: { amp: 1.05, speed: 1.02, foamDensity: 0.72 },
-        stormy: { amp: 1.55, speed: 1.38, foamDensity: 0.95 }
+        stormy: { amp: 1.55, speed: 1.36, foamDensity: 0.95 }
     },
 
-    // ================= 4. 船只等级与外观（通关升级分数门槛：55, 100, 200, 400） =================
+    // ================= 4. 船只等级与外观（通关升级分数门槛：50, 110, 220, 420） =================
     vessels: [
         { minScore: 0,   id: 'rowboat',   icon: '🚣', name: 'Wooden Rowboat',   speedMult: 1.00, imgSrc: 'assets/vessels/rowboat.png',   drawWidth: 100, drawHeight: 150 },
-        { minScore: 55,  id: 'sailboat',  icon: '⛵', name: 'Wind Sailboat',    speedMult: 1.20, imgSrc: 'assets/vessels/sailboat.png',  drawWidth: 100, drawHeight: 150 },
-        { minScore: 100, id: 'speedboat', icon: '🚤', name: 'Turbo Speedboat',  speedMult: 1.45, imgSrc: 'assets/vessels/speedboat.png', drawWidth: 100, drawHeight: 150 },
-        { minScore: 200, id: 'yacht',     icon: '🛥️', name: 'Ocean Yacht',      speedMult: 1.70, imgSrc: 'assets/vessels/yacht.png',     drawWidth: 100, drawHeight: 150 },
-        { minScore: 400, id: 'flagship',  icon: '🚢', name: 'Ocean Cruiser',    speedMult: 1.95, imgSrc: 'assets/vessels/flagship.png',  drawWidth: 100, drawHeight: 150 }
+        { minScore: 150,  id: 'sailboat',  icon: '⛵', name: 'Wind Sailboat',    speedMult: 1.20, imgSrc: 'assets/vessels/sailboat.png',  drawWidth: 100, drawHeight: 150 },
+        { minScore: 210, id: 'speedboat', icon: '🚤', name: 'Turbo Speedboat',  speedMult: 1.45, imgSrc: 'assets/vessels/speedboat.png', drawWidth: 100, drawHeight: 150 },
+        { minScore: 320, id: 'yacht',     icon: '🛥️', name: 'Ocean Yacht',      speedMult: 1.70, imgSrc: 'assets/vessels/yacht.png',     drawWidth: 100, drawHeight: 150 },
+        { minScore: 420, id: 'flagship',  icon: '🚢', name: 'Ocean Cruiser',    speedMult: 1.95, imgSrc: 'assets/vessels/flagship.png',  drawWidth: 100, drawHeight: 150 }
     ],
 
     // ================= 5. 渔具配置（撒网与鱼叉） =================
@@ -121,7 +121,7 @@ window.GAME_CONFIG = {
             imgSrc: 'assets/harpoon.png',
             largeFishOnly: true,
             angleDeg: 45,
-            duration: 0.95,
+            duration: 0.85,
             scoreMult: 1.0
         }
     },
@@ -130,7 +130,7 @@ window.GAME_CONFIG = {
     fishTiers: {
         small:  { key: 'small',  label: 'Small Fish',  slots: [0, 1, 2, 3],   sizeMult: 0.82, jumpProb: 0.42, basePoints: 1, jumpPoints: 5 },
         medium: { key: 'medium', label: 'Medium Fish', slots: [4, 5, 6, 7],   sizeMult: 1.00, jumpProb: 0.32, basePoints: 2, jumpPoints: 5 },
-        large:  { key: 'large',  label: 'Large Fish',  slots: [8, 9, 10, 11], sizeMult: 1.50, jumpProb: 0.22, basePoints: 4, jumpPoints: 8 }
+        large:  { key: 'large',  label: 'Large Fish',  slots: [8, 9, 10, 11], sizeMult: 1.50, jumpProb: 0.25, basePoints: 4, jumpPoints: 8 }
     },
 
     // ================= 7. 礁石障碍物配置（原图 400x300，4:3 宽高比） =================
