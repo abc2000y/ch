@@ -582,13 +582,13 @@
         <div class="startup-panel">
             <div class="startup-title">远海垂钓</div>
             <div class="startup-subtitle">RIDE THE WAVES · DEEP SEA FISHING</div>
-            <div class="startup-status" id="startupStatus">正在加载游戏资源……</div>
+            <div class="startup-status" id="startupStatus">Loading game resources… / 正在加载游戏资源…</div>
             <div class="startup-progress-track"><div id="startupProgressBar"></div></div>
             <div class="startup-progress-meta">
-                <span id="startupProgressText">准备中</span>
+                <span id="startupProgressText">Preparing… / 准备中</span>
                 <span id="startupPercent">0%</span>
             </div>
-            <div class="startup-credit">版本：V1.0.0　|　作者：佚名（暂定）</div>
+            <div class="startup-credit">Version: V1.0.0 | Author: Frank · 版本：V1.0.0 | 作者：方达</div>
         </div>
     </div>
 
@@ -609,7 +609,7 @@
             <button id="coverStartBtn" type="button" class="btn-glass">▶ Start Game</button>
             <div id="coverTip" class="cover-tip">Clear Stage 1 (99 pts) to unlock Stage 2</div>
         </div>
-        <div class="game-version">版本：V1.0.0　|　作者：佚名（暂定）</div>
+        <div class="game-version">Version: V1.0.0 | Author: Anonymous (temporary) · 版本：V1.0.0 | 作者：佚名（暂定）</div>
     </div>
 
     <canvas id="oceanCanvas"></canvas>
@@ -825,11 +825,11 @@
                 startupProgressBarEl.style.width = `${startupPercentShown}%`;
                 startupPercentEl.textContent = `${startupPercentShown}%`;
                 startupProgressTextEl.textContent = startupImageTotal
-                    ? `${Math.min(startupImageDone, startupImageTotal)} / ${startupImageTotal} 项资源`
-                    : '准备资源中';
+                    ? `${Math.min(startupImageDone, startupImageTotal)} / ${startupImageTotal} assets · 项资源`
+                    : 'Preparing assets… · 正在准备资源…';
                 startupStatusEl.textContent = final
-                    ? (startupImageFailed ? '资源准备完成（部分图片使用备用显示）' : '资源准备完成，祝你航行愉快！')
-                    : '正在加载游戏图片资源……';
+                    ? (startupImageFailed ? 'Resources ready (some fallback images used) · 资源准备完成（部分图片使用备用显示）' : 'All resources ready. Enjoy your voyage! · 资源准备完成，祝你航行愉快！')
+                    : 'Loading game images… · 正在加载游戏图片资源…';
             }
 
             function trackStartupImage(img, src, onLoad, onError) {
